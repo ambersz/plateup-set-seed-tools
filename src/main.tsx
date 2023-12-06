@@ -5,7 +5,7 @@ import { RerollConfig, Shop } from "./reverse-engineered/shop.ts";
 import { Unlocks } from "./db/unlocks.ts";
 import Appliances from "./db/appliances.ts";
 export const playerInsides = [true, false];
-export const spawnInsides = [true, false];
+export const spawnInsides: [true, false] = [true, false];
 
 function getRerollCapFromDay(day: number) {
 	// return [2, 4, 6, 7, 8, 10, 11, 13, 15, 16, 18, 20, 22, 24, 26][day - 1] + 1;
@@ -70,15 +70,19 @@ const Weekly = ({
 		a && shop.OwnedAppliances.push(a);
 	}
 	console.log(shop.OwnedAppliances);
-	let spawnConfigs = [];
+	let spawnConfigs: RerollConfig[] = [];
 	for (const spawnInside of spawnInsides) {
 		for (const playerInside of playerInsides) {
-			spawnConfigs.push({ spawnInside, playerInside, blueprintCount });
+			spawnConfigs.push({
+				spawnInside,
+				playerInside: spawnInside ? undefined : playerInside,
+				blueprintCount,
+			} as RerollConfig);
 			if (spawnInside) break;
 		}
 	}
-	const rerollConfigs = [];
-	let headerConfigs: { run: number; val: boolean }[][] = [[], [], [], []];
+	const rerollConfigs: RerollConfig[][] = [];
+	let headerConfigs: { run: number; val?: boolean }[][] = [[], [], [], []];
 	// spawnConfigs.map(a => ([a]));
 	for (let i = 0; i < spawnConfigs.length; i++) {
 		for (let j = 0; j < spawnConfigs.length; j++) {
@@ -116,7 +120,7 @@ const Weekly = ({
 		for (const config of rerollNumber
 			? rerollConfigs
 			: rerollConfigs.map((a) => [a[0]])) {
-			const configWithGhostPrints = [...config];
+			const configWithGhostPrints: RerollConfig[] = [...config];
 			rerollNumber &&
 				configWithGhostPrints.splice(-1, 1, {
 					...(configWithGhostPrints.at(-1) as RerollConfig),
@@ -133,22 +137,27 @@ const Weekly = ({
 			}
 		}
 	}
-	const getHeaderTitle = (index: number, val: boolean) => {
+	const getHeaderTitle = (index: number, val?: boolean) => {
 		switch (index) {
 			case 0:
 				return val ? "Spawn Inside" : "Spawn Outside";
 			case 1:
-				return val
+				return val === undefined
+					? ""
+					: val
 					? "Stand Inside at End of Day"
 					: "Everyone Outside at End of Day";
 			case 2:
 				return val ? "Spawn Inside for Rerolls" : "Spawn Outside for Rerolls";
 			case 3:
-				return val
+				return val === undefined
+					? ""
+					: val
 					? "Someone Inside when Rerolling"
 					: "Everyone Outside when Rerolling";
 			default:
-				throw new Error("Too Many Headers");
+				console.log({ index, val });
+			// throw new Error("Too Many Headers");
 		}
 	};
 	return (
@@ -162,11 +171,22 @@ const Weekly = ({
 									Reroll #
 								</th>
 							)}
-							{headerConfigs.map((c) => (
-								<th colSpan={c.run} scope="colgroup">
-									{getHeaderTitle(i, c.val)}
-								</th>
-							))}
+							{headerConfigs.map(
+								(c) =>
+									c.val !== undefined && (
+										<th
+											colSpan={c.run}
+											rowSpan={
+												getHeaderTitle(i, c.val).indexOf("Spawn Inside") > -1
+													? 2
+													: 1
+											}
+											scope="colgroup"
+										>
+											{getHeaderTitle(i, c.val)}
+										</th>
+									)
+							)}
 						</tr>
 					);
 				})}
@@ -213,32 +233,41 @@ const WeeklyForm = () => {
 	const [ownedAppliances, setOwnedAppliances] = useState(
 		defaultOwnedAppliances
 	);
+	let cardsByDay: (string | undefined)[] = [];
+	switch (seed) {
+		case "az95tz5z":
+			cardsByDay = [
+				"Stir Fry",
+				"Broccoli",
+				"Steak Stir Fry",
+				"Mashed Potato",
+				"Mushroom Stir Fry",
+				"Affordable",
+				"Ice Cream",
+				"Herd Mentality",
+				"Roast Potato",
+				"Health and Safety",
+				"Victorian Standards",
+				"Instant Service",
+				"All You Can Eat",
+				"Bamboo",
+				"Chips",
+			];
+			break;
+		case "t4tmhm8r":
+			cardsByDay = weeklyCards;
+			break;
+		default:
+			cardsByDay = [];
+			break;
+	}
 	const props = {
 		seed,
 		day,
 		upgradeChance: 0,
 		blueprintCount: 5,
 		ownedAppliances,
-		cardsByDay:
-			seed.indexOf("az") === 0
-				? [
-						"Stir Fry",
-						"Broccoli",
-						"Steak Stir Fry",
-						"Mashed Potato",
-						"Mushroom Stir Fry",
-						"Affordable",
-						"Ice Cream",
-						"Herd Mentality",
-						"Roast Potato",
-						"Health and Safety",
-						"Victorian Standards",
-						"Instant Service",
-						"All You Can Eat",
-						"Bamboo",
-						"Chips",
-				  ]
-				: weeklyCards,
+		cardsByDay,
 	};
 	const handleInputChange: HTMLInputElement["onchange"] = (e) => {
 		setDay(Number((e.target as HTMLInputElement).value));

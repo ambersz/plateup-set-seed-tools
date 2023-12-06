@@ -14,11 +14,17 @@ import { FixedSeedContext } from "./prng";
 
 export let fixPRNG = { value: 0 };
 
-export interface RerollConfig {
-	blueprintCount: number;
-	spawnInside: boolean;
-	playerInside: boolean;
-}
+export type RerollConfig =
+	| {
+			blueprintCount: number;
+			spawnInside: false;
+			playerInside: boolean;
+	  }
+	| {
+			blueprintCount: number;
+			spawnInside: true;
+			playerInside: undefined;
+	  };
 let upgradesAllowed = 0;
 let upgradesDisallowed = 0;
 const shopSize = Appliances.filter(
