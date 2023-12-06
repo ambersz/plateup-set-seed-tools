@@ -1,4 +1,4 @@
-import { Shop } from "./reverse-engineered/shop.ts";
+import { RerollConfig, Shop } from "./reverse-engineered/shop.ts";
 import { Unlocks } from "./db/unlocks.ts";
 import { spawnInsides, playerInsides } from "./main.tsx";
 
@@ -29,12 +29,11 @@ export const Search = () => {
 								{
 									blueprintCount: 7,
 									spawnInside,
-									playerInside,
-								},
+									playerInside: spawnInside ? undefined : playerInside,
+								} as RerollConfig,
 								{
 									blueprintCount: 9,
 									spawnInside: true,
-									playerInside: false,
 								},
 							],
 							day

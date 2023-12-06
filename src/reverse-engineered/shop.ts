@@ -23,7 +23,7 @@ export type RerollConfig =
 	| {
 			blueprintCount: number;
 			spawnInside: true;
-			playerInside: undefined;
+			playerInside?: undefined;
 	  };
 let upgradesAllowed = 0;
 let upgradesDisallowed = 0;

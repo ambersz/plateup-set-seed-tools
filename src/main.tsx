@@ -156,8 +156,7 @@ const Weekly = ({
 					? "Someone Inside when Rerolling"
 					: "Everyone Outside when Rerolling";
 			default:
-				console.log({ index, val });
-			// throw new Error("Too Many Headers");
+				throw new Error("Too Many Headers");
 		}
 	};
 	return (
@@ -282,7 +281,7 @@ const WeeklyForm = () => {
 	return (
 		<>
 			<h3>
-				Seed: <input value={seed} onChange={handleSeedChange} />
+				Seed: <input value={seed} disabled onChange={handleSeedChange} />
 			</h3>
 			<label>Shop after completing day </label>
 			<input

@@ -1,6 +1,7 @@
 import { Shop } from "./reverse-engineered/shop.ts";
 import { Unlocks } from "./db/unlocks.ts";
 import { playerInsides, spawnInsides } from "./main.tsx";
+import { RerollConfig } from "./reverse-engineered/shop.ts";
 
 export const Rerolls = () => {
 	const seed = "t4tmhm8r";
@@ -18,7 +19,9 @@ export const Rerolls = () => {
 		}
 	}
 	for (let day = 1; day < 15; day++) {
-		spawns.push(configs.map((c) => shop.getAppliances([c], day)));
+		spawns.push(
+			configs.map((c) => shop.getAppliances([c as RerollConfig], day))
+		);
 	}
 	return (
 		<>
