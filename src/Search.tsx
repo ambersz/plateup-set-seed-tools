@@ -1,15 +1,12 @@
 import { Shop } from "./reverse-engineered/shop.ts";
 import { Unlocks } from "./db/unlocks.ts";
 import { spawnInsides, playerInsides } from "./main.tsx";
-import { chars } from "./Search.tsx";
-import { origGoalItems } from "./Search.tsx";
 
-const Search = () => {
+export const Search = () => {
 	let res;
 	let foundCopyDesk = false;
 	let i = 0;
 	let resSeed;
-	let resBPs;
 	const cookie = Unlocks.filter((u) => u.Name === "Cakes")[0];
 	while (!foundCopyDesk) {
 		i++;
@@ -43,7 +40,8 @@ const Search = () => {
 							day
 						)
 						.map((b) => b.Name);
-					let candCount = candBps.filter((b) => goalItems.some((g) => g === b)
+					let candCount = candBps.filter((b) =>
+						goalItems.some((g) => g === b)
 					).length;
 					if (candCount > bestCount) {
 						bestCount = candCount;
@@ -52,7 +50,7 @@ const Search = () => {
 				}
 			}
 			allBPs.push(bps);
-			for (const bp of bps) {
+			for (const bp of bps as string[]) {
 				const i = goalItems.indexOf(bp);
 				if (i > -1) goalItems.splice(i, 1);
 			}
@@ -69,10 +67,14 @@ const Search = () => {
 			<br />
 			Seeds Searched: {i}
 			<br />
-			First Rerolls: {res?.map((a) => a.join(",")).join("; ")}
+			First Rerolls:{" "}
+			{res &&
+				res.length &&
+				res.map((a) => (a as string[]).join(",")).join("; ")}
 		</>
 	);
-};export const origGoalItems = [
+};
+export const origGoalItems = [
 	"Conveyor",
 	"Freezer",
 	// "Freezer",
@@ -94,4 +96,3 @@ const Search = () => {
 	"Combiner",
 ];
 export const chars = "abcdefghijklmnopqrstuvwxyz123456789";
-

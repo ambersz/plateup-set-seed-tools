@@ -69,10 +69,6 @@ export class Shop {
 		PrimaryTheme: DecorationType,
 		cards: Unlock[]
 	): CShopBuilderOption[] {
-		const ownResearchDesk: boolean = OwnedAppliances.some(
-			(a) => a.Name === "Research Desk"
-		);
-
 		// BuildShopOptions(bool ownResearchDesk)
 		// {
 		let ShopOptions: CShopBuilderOption[] = [];
