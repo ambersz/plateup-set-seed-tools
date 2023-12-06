@@ -15,7 +15,7 @@
 }
 
 .ghost {
-	color: rgba(200, 200, 255, 0.2);
+	opacity: 0.5;
 }
 
 a {
@@ -59,6 +59,14 @@ button:focus,
 button:focus-visible {
 	outline: 4px auto -webkit-focus-ring-color;
 }
+table,
+th,
+td {
+	border: 1px solid white;
+	border-collapse: collapse;
+	/* padding: 3px; */
+	text-align: center;
+}
 
 @media (prefers-color-scheme: light) {
 	:root {
@@ -71,6 +79,12 @@ button:focus-visible {
 	button {
 		background-color: #f9f9f9;
 	}
+
+	table,
+	th,
+	td {
+		border-color: black;
+	}
 }
 
 /* th,
@@ -79,12 +93,3 @@ td {
 	border-right: 1px solid white;
 	margin: -1px;
 } */
-
-table,
-th,
-td {
-	border: 1px solid white;
-	border-collapse: collapse;
-	/* padding: 3px; */
-	text-align: center;
-}
