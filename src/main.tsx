@@ -24,48 +24,21 @@ Separate function that takes the seed, day, id, runs the prng, and spits out the
 	(or just the blueprint arrays? And have a separte function handle which blueprints are legal to spawn?)
 
 */
-export const weeklyCards = `Breakfast,Breakfast Eggs,Exclusive,Breakfast Extras,Breakfast Beans,Pumpkin Seed,
-Breakfast,Breakfast Eggs,Exclusive,Breakfast Extras,Breakfast Beans,All You Can Eat,
-Breakfast,Breakfast Eggs,Exclusive,Breakfast Extras,Personalised Waiting,Pumpkin Seed,
-Breakfast,Breakfast Eggs,Exclusive,Breakfast Extras,Personalised Waiting,Splash Zone,
-Breakfast,Breakfast Eggs,Exclusive,High Standards,Breakfast Beans,Pumpkin Seed,
-Breakfast,Breakfast Eggs,Exclusive,High Standards,Breakfast Beans,All You Can Eat,
-Breakfast,Breakfast Eggs,Exclusive,High Standards,Personalised Waiting,Pumpkin Seed,
-Breakfast,Breakfast Eggs,Exclusive,High Standards,Personalised Waiting,Splash Zone,
-Breakfast,Breakfast Eggs,Affordable,Breakfast Extras,Breakfast Beans,Pumpkin Seed,
-Breakfast,Breakfast Eggs,Affordable,Breakfast Extras,Breakfast Beans,All You Can Eat,
-Breakfast,Breakfast Eggs,Affordable,Breakfast Extras,Personalised Waiting,Pumpkin Seed,
-Breakfast,Breakfast Eggs,Affordable,Breakfast Extras,Personalised Waiting,Splash Zone,
-Breakfast,Breakfast Eggs,Affordable,High Standards,Breakfast Beans,Pumpkin Seed,
-Breakfast,Breakfast Eggs,Affordable,High Standards,Breakfast Beans,All You Can Eat,
-Breakfast,Breakfast Eggs,Affordable,High Standards,Personalised Waiting,Pumpkin Seed,
-Breakfast,Breakfast Eggs,Affordable,High Standards,Personalised Waiting,Splash Zone,
-Breakfast,Personalised Waiting,Exclusive,Breakfast Eggs,Breakfast Beans,Pumpkin Seed,
-Breakfast,Personalised Waiting,Exclusive,Breakfast Eggs,Breakfast Beans,Splash Zone,
-Breakfast,Personalised Waiting,Exclusive,Breakfast Eggs,Sedate Atmosphere,Pumpkin Seed,
-Breakfast,Personalised Waiting,Exclusive,Breakfast Eggs,Sedate Atmosphere,Herd Mentality,
-Breakfast,Personalised Waiting,Exclusive,High Standards,Breakfast Beans,Breakfast Eggs,
-Breakfast,Personalised Waiting,Exclusive,High Standards,Breakfast Beans,All You Can Eat,
-Breakfast,Personalised Waiting,Exclusive,High Standards,Photographic Memory,Breakfast Eggs,
-Breakfast,Personalised Waiting,Exclusive,High Standards,Photographic Memory,Splash Zone,
-Breakfast,Personalised Waiting,Affordable,Breakfast Eggs,Breakfast Beans,Pumpkin Seed,
-Breakfast,Personalised Waiting,Affordable,Breakfast Eggs,Breakfast Beans,Splash Zone,
-Breakfast,Personalised Waiting,Affordable,Breakfast Eggs,Sedate Atmosphere,Pumpkin Seed,
-Breakfast,Personalised Waiting,Affordable,Breakfast Eggs,Sedate Atmosphere,Herd Mentality,
-Breakfast,Personalised Waiting,Affordable,High Standards,Breakfast Beans,Breakfast Eggs,
-Breakfast,Personalised Waiting,Affordable,High Standards,Breakfast Beans,All You Can Eat,
-Breakfast,Personalised Waiting,Affordable,High Standards,Photographic Memory,Breakfast Eggs,
-Breakfast,Personalised Waiting,Affordable,High Standards,Photographic Memory,Splash Zone,`;
-function getNumCardsFromDay(day: number) {
-	day++;
-	let n = 1;
-	if (day > 3) n++;
-	if (day > 5) n++;
-	if (day > 6) n++;
-	if (day > 9) n++;
-	if (day > 12) n++;
-	return n;
-}
+export const weeklyCards = [
+	"Breakfast",
+	,
+	,
+	"Breakfast Eggs",
+	,
+	"Exclusive",
+	"Breakfast Extras",
+	,
+	,
+	"Breakfast Beans",
+	,
+	,
+	"Pumpkin Seed",
+];
 const Weekly = ({
 	seed,
 	day = 1,
@@ -231,8 +204,8 @@ for (const a of StapleWhenMissingBPs) {
 }
 defaultOwnedAppliances["Blueprint Cabinet"] = true;
 
-const seedD = "az95tz5z";
-// const seedD = "t4tmhm8r";
+// const seedD = "az95tz5z";
+const seedD = "t4tmhm8r";
 const WeeklyForm = () => {
 	// const seed = "azjugbno";
 	const [seed, setSeed] = useState(seedD);
@@ -243,26 +216,29 @@ const WeeklyForm = () => {
 	const props = {
 		seed,
 		day,
-		upgradeChance: 0.25,
-		blueprintCount: 7,
+		upgradeChance: 0,
+		blueprintCount: 5,
 		ownedAppliances,
-		cardsByDay: [
-			"Stir Fry",
-			"Broccoli",
-			"Steak Stir Fry",
-			"Mashed Potato",
-			"Mushroom Stir Fry",
-			"Affordable",
-			"Ice Cream",
-			"Herd Mentality",
-			"Roast Potato",
-			"Health and Safety",
-			"Victorian Standards",
-			"Instant Service",
-			"All You Can Eat",
-			"Bamboo",
-			"Chips",
-		],
+		cardsByDay:
+			seed.indexOf("az") === 0
+				? [
+						"Stir Fry",
+						"Broccoli",
+						"Steak Stir Fry",
+						"Mashed Potato",
+						"Mushroom Stir Fry",
+						"Affordable",
+						"Ice Cream",
+						"Herd Mentality",
+						"Roast Potato",
+						"Health and Safety",
+						"Victorian Standards",
+						"Instant Service",
+						"All You Can Eat",
+						"Bamboo",
+						"Chips",
+				  ]
+				: weeklyCards,
 	};
 	const handleInputChange: HTMLInputElement["onchange"] = (e) => {
 		setDay(Number((e.target as HTMLInputElement).value));
