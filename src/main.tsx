@@ -24,7 +24,7 @@ Separate function that takes the seed, day, id, runs the prng, and spits out the
 	(or just the blueprint arrays? And have a separte function handle which blueprints are legal to spawn?)
 
 */
-const weeklyCards = `Breakfast,Breakfast Eggs,Exclusive,Breakfast Extras,Breakfast Beans,Pumpkin Seed,
+export const weeklyCards = `Breakfast,Breakfast Eggs,Exclusive,Breakfast Extras,Breakfast Beans,Pumpkin Seed,
 Breakfast,Breakfast Eggs,Exclusive,Breakfast Extras,Breakfast Beans,All You Can Eat,
 Breakfast,Breakfast Eggs,Exclusive,Breakfast Extras,Personalised Waiting,Pumpkin Seed,
 Breakfast,Breakfast Eggs,Exclusive,Breakfast Extras,Personalised Waiting,Splash Zone,

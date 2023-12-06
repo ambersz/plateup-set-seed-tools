@@ -2,7 +2,7 @@ import { Shop } from "./reverse-engineered/shop.ts";
 import { Unlocks } from "./db/unlocks.ts";
 import { playerInsides, spawnInsides } from "./main.tsx";
 
-const Rerolls = () => {
+export const Rerolls = () => {
 	const seed = "t4tmhm8r";
 	let spawns = [];
 	const shop = new Shop(seed, 0);

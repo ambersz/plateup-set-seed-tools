@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Unlock } from "../kitchenTypes";
 import { FixedSeedContext } from "./prng";
 
@@ -36,7 +37,7 @@ class UnlockPack {
 
 	GetOptions(cards: Unlock[], day: number, randomContext: FixedSeedContext) {
 		let list = this.GetCardSet(day);
-		list = list.filter(c => !this.ShouldBlockCard(c, cards, day));
+		list = list.filter((c) => !this.ShouldBlockCard(c, cards, day));
 	}
 	GetCardSet(day: number) {
 		let res: UnlockSet[] = [];
@@ -54,5 +55,3 @@ class UnlockPack {
 function Seed(category_seed: number, instance: number, seed: string) {
 	return new FixedSeedContext(seed, category_seed * 1231231 + instance);
 }
-
-
