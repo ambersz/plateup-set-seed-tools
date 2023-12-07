@@ -27,6 +27,7 @@ export type RerollConfig =
 	  };
 let upgradesAllowed = 0;
 let upgradesDisallowed = 0;
+let expectedUpgrades = 0;
 const shopSize = Appliances.filter(
 	(appliance) => appliance.IsPurchasable || appliance.IsPurchasableAsUpgrade
 ).length;
@@ -240,7 +241,9 @@ export class Shop {
 			const TmpOffered: Appliance[] = [];
 			for (let k = 0; k < numberOfBlueprints; k++) {
 				const requestedShoppingTag = components[k];
-				const rollUpgradeable = Random.rangeFloat() < upgradeChance;
+				const roll = Random.valueFloat();
+				const rollUpgradeable = roll < upgradeChance;
+				expectedUpgrades += upgradeChance;
 				if (rollUpgradeable) {
 					upgradesAllowed++;
 				} else {
@@ -280,6 +283,7 @@ export class Shop {
 					console.log(`Wasn't able to find a valid roll for blueprint ${k}`);
 				}
 			}
+			console.log({ upgradesAllowed, upgradesDisallowed, expectedUpgrades });
 			return result;
 		}
 	}

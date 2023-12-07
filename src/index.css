@@ -79,17 +79,9 @@ td {
 	button {
 		background-color: #f9f9f9;
 	}
-
 	table,
 	th,
 	td {
 		border-color: black;
 	}
 }
-
-/* th,
-td {
-	border-top: 1px solid white;
-	border-right: 1px solid white;
-	margin: -1px;
-} */

@@ -252,6 +252,8 @@ const WeeklyForm = () => {
 				"Bamboo",
 				"Chips",
 			];
+			// cardsByDay = weeklyCards;
+
 			break;
 		case "t4tmhm8r":
 			cardsByDay = weeklyCards;
@@ -263,8 +265,8 @@ const WeeklyForm = () => {
 	const props = {
 		seed,
 		day,
-		upgradeChance: 0,
-		blueprintCount: 5,
+		upgradeChance: seed.indexOf("az") > -1 ? 0.25 : 0,
+		blueprintCount: seed.indexOf("az") > -1 ? 7 : 5,
 		ownedAppliances,
 		cardsByDay,
 	};
@@ -281,7 +283,7 @@ const WeeklyForm = () => {
 	return (
 		<>
 			<h3>
-				Seed: <input value={seed} disabled onChange={handleSeedChange} />
+				Seed: <input value={seed} onChange={handleSeedChange} />
 			</h3>
 			<label>Shop after completing day </label>
 			<input

@@ -46,13 +46,8 @@ export class Random {
 		// TODO: have not confirmed this yet
 		return ((this.value >>> 0) % (highExclusive - lowInclusive)) + lowInclusive;
 	}
-	rangeFloat(min = 0, max = 1) {
-		if (max < min) {
-			[min, max] = [max, min];
-		}
-		return (
-			(max - min) * (1 - (((this.value >>> 0) << 9) >>> 0) / 0xffffffff) + min
-		);
+	valueFloat() {
+		return ((this.value << 9) >>> 0) / 0xffffffff;
 	}
 }
 
