@@ -237,7 +237,8 @@ export class Shop {
 			// copy shop options in order
 			const list: CShopBuilderOption[] = [...ShopOptions];
 			const result: Appliance[] = [];
-			const upgradeChance = Math.floor(day / 5) * 0.1 + this.baseUpgradeChance;
+			const upgradeChance =
+				1 - (1 - Math.floor(day / 5) * 0.1) * (1 - this.baseUpgradeChance);
 			const TmpOffered: Appliance[] = [];
 			for (let k = 0; k < numberOfBlueprints; k++) {
 				const requestedShoppingTag = components[k];
