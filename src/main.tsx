@@ -283,7 +283,7 @@ const WeeklyForm = () => {
 	return (
 		<>
 			<h3>
-				Seed: <input value={seed} onChange={handleSeedChange} />
+				Seed: <input value={seed} disabled onChange={handleSeedChange} />
 			</h3>
 			<label>Shop after completing day </label>
 			<input
