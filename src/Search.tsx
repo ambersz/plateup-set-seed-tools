@@ -1,6 +1,7 @@
 import { RerollConfig, Shop } from "./reverse-engineered/shop.ts";
 import { Unlocks } from "./db/unlocks.ts";
-import { spawnInsides, playerInsides } from "./main.tsx";
+import { spawnInsides } from "./WeeklyForm.tsx";
+import { playerInsides } from "./WeeklyForm.tsx";
 
 export const Search = () => {
 	let res;

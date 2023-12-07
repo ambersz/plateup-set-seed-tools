@@ -12,8 +12,8 @@ export const Config = () => {
 
 const useInput = (defaultValue: string) => {
 	const [value, setValue] = useState(defaultValue);
-	const handleChange = (e) => {
-		setValue(e.target.value);
+	const handleChange: HTMLInputElement["onchange"] = (e) => {
+		setValue((e.target as HTMLInputElement).value);
 	};
 
 	return [value, handleChange] as [string, (event: any) => void];
