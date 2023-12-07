@@ -186,7 +186,6 @@ export const Weekly = ({
 	cards: (string | undefined)[];
 	maxRerolls: number;
 }) => {
-	console.log({ ownedAppliances });
 	const shop = new Shop(seed, upgradeChance);
 	for (let i = 0; i <= cards.length; i++) {
 		if (cards[i]) {
@@ -201,7 +200,6 @@ export const Weekly = ({
 	for (const a of ownedApplianceObjects) {
 		a && shop.OwnedAppliances.push(a);
 	}
-	console.log(shop.OwnedAppliances);
 	let spawnConfigs: RerollConfig[] = [];
 	for (const spawnInside of spawnInsides) {
 		for (const playerInside of playerInsides) {
@@ -246,7 +244,6 @@ export const Weekly = ({
 	const NORMAL_BLUEPRINT_COUNT = blueprintCount;
 	const GHOST_BLUEPRINT_COUNT = 4;
 	const CAP = maxRerolls;
-	console.log({ day, CAP });
 	for (let rerollNumber = 0; rerollNumber < CAP; rerollNumber++) {
 		const rerollBPs = [];
 		for (const config of rerollNumber

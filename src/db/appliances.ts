@@ -77,7 +77,7 @@ const Appliances: Appliance[] = s.split("\r\n").map((line) => {
 	}
 	return appliance;
 });
-console.log({ Appliances });
+
 export class CShopBuilderOption {
 	Staple: ShopStapleType;
 	Tags: ShoppingTags;
@@ -170,7 +170,5 @@ export enum DecorationType {
 	// Token: 0x04000203 RID: 515
 	Kitchen = 16,
 }
-
-console.log({ Appliances });
 
 export default Appliances;

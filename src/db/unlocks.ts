@@ -11,4 +11,4 @@ export const Unlocks: Unlock[] = cardExport.split("\r\n").map((line) => {
 	return { ID, Name, RequiredProcesses, IngredientProviders };
 });
 
-console.log({ Unlocks });
+import.meta.env.DEV && console.log({ Unlocks });

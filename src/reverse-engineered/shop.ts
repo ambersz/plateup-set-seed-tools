@@ -284,7 +284,6 @@ export class Shop {
 					console.log(`Wasn't able to find a valid roll for blueprint ${k}`);
 				}
 			}
-			console.log({ upgradesAllowed, upgradesDisallowed, expectedUpgrades });
 			return result;
 		}
 	}
