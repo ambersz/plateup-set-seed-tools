@@ -1,1 +1,0 @@
-import{q as t,u as r}from"./jsxRuntime.module-hyn2oXrv.js";import{W as s}from"./WeeklyForm-1qhtimgW.js";const o="t4tmhm8r",f=["Breakfast","Breakfast Eggs","Breakfast Extras","Breakfast Beans","Pumpkin Seed"],e={};for(const a of f)e[a]=!1;e.Breakfast=!0;t(r(s,{defaultSeed:o,disableSeedInput:!0,cardDefaults:e,maxRerolls:5}),document.getElementById("app"));
