@@ -46,7 +46,7 @@ export class Random {
 		// TODO: have not confirmed this yet
 		return ((this.value >>> 0) % (highExclusive - lowInclusive)) + lowInclusive;
 	}
-	valueFloat() {
+	get valueFloat(): number {
 		return ((this.value << 9) >>> 0) / 0xffffffff;
 	}
 }

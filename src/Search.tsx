@@ -1,7 +1,8 @@
-import { RerollConfig, Shop } from "./reverse-engineered/shop.ts";
-import { Unlocks } from "./db/unlocks.ts";
+import { RerollConfig, Shop } from "./workers/reverse-engineered/shop.ts";
+import { Unlocks } from "./workers/db/unlocks.ts";
 import { spawnInsides } from "./WeeklyForm.tsx";
 import { playerInsides } from "./WeeklyForm.tsx";
+import { chars } from "./workers/seedSearchWorker.ts";
 
 export const Search = () => {
 	let res;
@@ -95,4 +96,3 @@ export const origGoalItems = [
 	// "Combiner",
 	"Combiner",
 ];
-export const chars = "abcdefghijklmnopqrstuvwxyz123456789";

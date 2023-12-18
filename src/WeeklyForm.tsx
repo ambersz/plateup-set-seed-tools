@@ -1,7 +1,8 @@
 import { useState } from "preact/compat";
-import Appliances from "./db/appliances.ts";
-import { RerollConfig, Shop } from "./reverse-engineered/shop.ts";
-import { Unlocks } from "./db/unlocks.ts";
+import Appliances from "./workers/db/appliances.ts";
+import { RerollConfig, Shop } from "./workers/reverse-engineered/shop.ts";
+import { Unlocks } from "./workers/db/unlocks.ts";
+import { GhostBlueprints } from "./components/GhostBlueprints.tsx";
 interface WeeklyFormProps {
 	defaultSeed: string;
 	disableSeedInput?: boolean;
@@ -330,11 +331,10 @@ export const Weekly = ({
 						) : (
 							b.map((bps) => (
 								<td colspan={1}>
-									{bps.map((bp, i) => (
-										<span class={i < NORMAL_BLUEPRINT_COUNT ? "" : "ghost"}>
-											{bp + (i < bps.length - 1 ? ", " : "")}
-										</span>
-									))}
+									<GhostBlueprints
+										normalCount={NORMAL_BLUEPRINT_COUNT}
+										bps={bps}
+									/>
 								</td>
 							))
 						)}

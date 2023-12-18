@@ -5,6 +5,8 @@
 	font-size: 7pt;
 
 	color-scheme: light dark;
+	--bg-color: 36, 36, 36;
+	--color: 255, 255, 255;
 	color: rgba(255, 255, 255, 0.87);
 	background-color: #242424;
 
@@ -65,13 +67,15 @@ td {
 	border: 1px solid white;
 	border-collapse: collapse;
 	/* padding: 3px; */
-	text-align: center;
+	text-align: left;
 }
 
 @media (prefers-color-scheme: light) {
 	:root {
+		--bg-color: 255, 255, 255;
+		--color: 33, 53, 71;
 		color: #213547;
-		background-color: #ffffff;
+		background-color: var(--bg-color);
 	}
 	a:hover {
 		color: #747bff;
@@ -84,4 +88,58 @@ td {
 	td {
 		border-color: black;
 	}
+}
+
+.bg-blue-300 {
+	/* background-color: var(--color); */
+	background-color: rgba(var(--color), 0.1);
+}
+
+.dropdown {
+	background-color: rgba(var(--bg-color), 0.9);
+	border: 1px solid rgba(var(--color), 0.1);
+	position: absolute;
+	padding: 10px;
+	margin: 10px;
+	max-height: 100px;
+	overflow-y: scroll;
+}
+.dropdown li {
+	list-style-type: none;
+}
+/* border: 30px solid var(--color); */
+
+.hidden {
+	display: none;
+}
+.combo-container {
+	margin: 1em 0px;
+}
+
+.results {
+	float: right;
+}
+
+.selected-items {
+	margin: 0 10px 0 0;
+}
+.x {
+	padding: 2px;
+}
+.include {
+	background-color: rgba(30, 255, 10, 0.3);
+}
+.exclude {
+	background-color: rgba(255, 10, 30, 0.3);
+}
+
+.search-container {
+	display: flex;
+}
+.search-config,
+.search-results {
+	flex: 1;
+}
+button {
+	margin: 10px 0;
 }

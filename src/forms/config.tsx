@@ -1,4 +1,4 @@
-import { useState } from "preact/compat";
+import { useInput } from "../utils/useInput";
 
 export const Config = () => {
 	const [seed, handleSeedChange] = useInput("az");
@@ -8,13 +8,4 @@ export const Config = () => {
 			<input value={seed} onChange={handleSeedChange} />
 		</div>
 	);
-};
-
-const useInput = (defaultValue: string) => {
-	const [value, setValue] = useState(defaultValue);
-	const handleChange: HTMLInputElement["onchange"] = (e) => {
-		setValue((e.target as HTMLInputElement).value);
-	};
-
-	return [value, handleChange] as [string, (event: any) => void];
 };

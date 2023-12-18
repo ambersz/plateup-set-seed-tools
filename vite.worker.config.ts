@@ -10,11 +10,7 @@ export default defineConfig({
 	build: {
 		rollupOptions: {
 			input: {
-				main: resolve(__dirname, "index.html"),
-				branching: resolve(__dirname, "branching-rerolls.html"),
-				weekly: resolve(__dirname, "weekly.html"),
-				seedSearcher: resolve(__dirname, "seed-searcher.html"),
-				// worker: resolve(__dirname, "workers/seedSearcher.ts"),
+				worker: resolve(__dirname, "workers/seedSearcher.ts"),
 			},
 		},
 	},

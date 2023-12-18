@@ -1,23 +1,22 @@
+import { DishType, UnlockGroup } from "./kitchenEnums";
+
 interface Unlock {
 	ID: number;
 	Name: string;
 	// isUnlockable: boolean;
-	// UnlockGroup: UnlockGroup;
+	UnlockGroup: UnlockGroup;
 	// CustomerMultiplier: number;
-	// SelectionBias: number;
-	// Requires: Unlock[];
-	// BlockedBy: Unlock[];
+	// SelectionBias: number; // Not used anymore???
+	Requires: number[];
+	BlockedBy: number[];
 	RequiredProcesses: Process[];
 	IngredientProviders: number[]; // ID of Appliance
-}
-enum UnlockGroup {
-	Generic,
-	Dish,
-	PrimaryTheme = 3,
-	SecondaryTheme,
-	Special = 6,
-}
 
+	// Derivative properties that I want to add for filtering convenience
+	isMain: boolean; // true if it's a dish that dish.ProvidesPhase(MenuPhase.Main)
+	isStarterOrSide: boolean; // true if it's a dish that either provides starter or side phase
+	DishType: DishType;
+}
 interface UnlockPack {}
 interface UnlockSet {
 	ID: number;

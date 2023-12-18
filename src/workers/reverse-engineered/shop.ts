@@ -8,8 +8,8 @@ import Appliances, {
 	ShoppingTagsExtensions,
 } from "../db/appliances";
 import { numDecors } from "../db/decor";
-import { Unlock } from "../kitchenTypes";
-import { ShuffleInPlace } from "../utils/utils";
+import { Unlock } from "../../kitchenTypes";
+import { ShuffleInPlace } from "../../utils/utils";
 import { FixedSeedContext } from "./prng";
 
 export let fixPRNG = { value: 0 };
@@ -242,7 +242,7 @@ export class Shop {
 			const TmpOffered: Appliance[] = [];
 			for (let k = 0; k < numberOfBlueprints; k++) {
 				const requestedShoppingTag = components[k];
-				const roll = Random.valueFloat();
+				const roll = Random.valueFloat;
 				const rollUpgradeable = roll < upgradeChance;
 				expectedUpgrades += upgradeChance;
 				if (rollUpgradeable) {

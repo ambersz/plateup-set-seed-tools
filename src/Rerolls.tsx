@@ -1,8 +1,8 @@
-import { Shop } from "./reverse-engineered/shop.ts";
-import { Unlocks } from "./db/unlocks.ts";
+import { Shop } from "./workers/reverse-engineered/shop.ts";
+import { Unlocks } from "./workers/db/unlocks.ts";
 import { spawnInsides } from "./WeeklyForm.tsx";
 import { playerInsides } from "./WeeklyForm.tsx";
-import { RerollConfig } from "./reverse-engineered/shop.ts";
+import { RerollConfig } from "./workers/reverse-engineered/shop.ts";
 
 export const Rerolls = () => {
 	const seed = "t4tmhm8r";
