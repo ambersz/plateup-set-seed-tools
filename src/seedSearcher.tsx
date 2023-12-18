@@ -2,7 +2,6 @@ import { render } from "preact";
 import "./index.css";
 import { RestaurantSettings, Unlocks } from "./workers/db/unlocks";
 import { useEffect, useState } from "preact/hooks";
-import { Appliance } from "./workers/db/appliances";
 import { Unlock } from "./kitchenTypes";
 import { UnlocksComboBox } from "./UnlockSelect";
 import { DishType, UnlockGroup } from "./kitchenEnums";

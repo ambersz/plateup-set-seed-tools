@@ -55,7 +55,7 @@ async function search({
 }: SearchParams) {
 	const channel = new MessageChannel();
 	let promiseResolver: () => void;
-	channel.port2.onmessage = (event) => {
+	channel.port2.onmessage = (_event) => {
 		promiseResolver();
 	};
 	let seed = "az2mpjp3";
@@ -219,8 +219,6 @@ function test(
 	return [day - partialMisses, game.cards.map((a) => a.Name)];
 }
 export const chars = "abcdefghijklmnopqrstuvwxyz123456789";
-
-import.meta.env.DEV && console.log("end of worker file");
 
 function indexOfUnlock(array: Unlock[], target: Unlock) {
 	// can't just indexOf for the full Unlock because the Worker message-passing will result in the same Unlock having different instances

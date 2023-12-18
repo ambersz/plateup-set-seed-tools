@@ -24,7 +24,7 @@ function binomialCoefficient(k: number, n: number) {
 	}
 	return res;
 }
-const BranchingRerolls = () => {
+const CoffeeEatingTime = () => {
 	let res: number[][] = [];
 	const baseEatingTimes = [0.75, 1.5, 3, 6, 12];
 	for (let n = 1; n <= 6; n++) {
@@ -54,7 +54,7 @@ const BranchingRerolls = () => {
 		}
 	}
 	console.log({ res });
-	return res.map((l) => l.join(",")).join(";");
+	return <>{res.map((l) => l.join(",")).join(";")}</>;
 };
 
-render(<BranchingRerolls />, document.getElementById("app")!);
+render(<CoffeeEatingTime />, document.getElementById("app")!);

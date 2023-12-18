@@ -1,5 +1,5 @@
 import { RestaurantSettings, Unlocks } from "./workers/db/unlocks";
-import { useEffect, useState, useMemo } from "preact/hooks";
+import { useState, useMemo } from "preact/hooks";
 import { Unlock } from "./kitchenTypes";
 import { useMultipleSelection, useCombobox } from "downshift/preact"; // if this is giving typescript errors, copy the type file from `node_modules\downshift\typings\index.d.ts` to `node_modules\downshift\preact\index.d.ts`
 import { DishType, UnlockGroup } from "./kitchenEnums";
@@ -70,7 +70,7 @@ export function UnlocksComboBox({
 		});
 	const {
 		isOpen,
-		getToggleButtonProps,
+		getToggleButtonProps: _,
 		getLabelProps,
 		getMenuProps,
 		getInputProps,
@@ -85,7 +85,7 @@ export function UnlocksComboBox({
 		defaultHighlightedIndex: 0, // after selection, highlight the first item.
 		selectedItem: null,
 		inputValue,
-		stateReducer(state, actionAndChanges) {
+		stateReducer(_state, actionAndChanges) {
 			const { changes, type } = actionAndChanges;
 
 			switch (type) {
