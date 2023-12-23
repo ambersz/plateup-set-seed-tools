@@ -49,9 +49,12 @@ export class Random {
 	get valueFloat(): number {
 		return ((this.value << 9) >>> 0) / 0xffffffff;
 	}
+	select<T>(array: T[]): T {
+		return array[this.range(0, array.length)];
+	}
 }
 
-function hash(seed: string): number {
+export function hash(seed: string): number {
 	let utf8Encode = new TextEncoder();
 	const bytes = utf8Encode.encode(seed);
 	let num = 5381;

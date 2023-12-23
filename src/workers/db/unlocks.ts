@@ -48,7 +48,12 @@ export const Unlocks: Unlock[] = cardExport
 		};
 	});
 
-export function getUnblockedCards(currentCards: Unlock[]) {
+export function getUnblockedCards(
+	currentCards: Unlock[],
+	respectAutumn = true
+) {
+	const autumn =
+		respectAutumn && currentCards.some((a) => a.Name === "Community");
 	return Unlocks.filter((u) => {
 		if (currentCards.some((v) => v.ID === u.ID)) return false; // no dupe cards
 		if (u.BlockedBy.some((b) => currentCards.some((c) => c.ID === b)))
@@ -62,7 +67,9 @@ export function getUnblockedCards(currentCards: Unlock[]) {
 			return false;
 		}
 		// TODO Autumn doesn't use this filter
-		if (u.DishType === DishType.Base) return false;
+		if (!autumn && u.DishType === DishType.Base) {
+			return false;
+		}
 
 		/*
 		if (!this.AllowBaseDishes)
@@ -77,8 +84,72 @@ export function getUnblockedCards(currentCards: Unlock[]) {
 		return true;
 	}).sort((a, b) => a.ID - b.ID);
 }
+// [Info   :MyFirstPlugin] Speedrun Configs:
+// [Info   :MyFirstPlugin] Country, City, Alpine, Autumn, Romantic
+// [Info   :MyFirstPlugin] Breakfast, Burgers, Hot Dogs, Fish, Pies, Salad, Stir Fry, Pizza, Turkey
 
 export const RestaurantSettings: Unlock[] = [
+	{
+		ID: 447437163,
+		Name: "Country",
+		UnlockGroup: UnlockGroup.Special,
+		Requires: [],
+		BlockedBy: [],
+		RequiredProcesses: [],
+		IngredientProviders: [],
+		isMain: false,
+		isStarterOrSide: false,
+		DishType: DishType.Null,
+	},
+	{
+		ID: 2002876295,
+		Name: "City",
+		UnlockGroup: UnlockGroup.Special,
+		Requires: [],
+		BlockedBy: [],
+		RequiredProcesses: [],
+		IngredientProviders: [],
+		isMain: false,
+		isStarterOrSide: false,
+		DishType: DishType.Null,
+	},
+	{
+		ID: -1864906012,
+		Name: "Alpine",
+		UnlockGroup: UnlockGroup.Special,
+		Requires: [],
+		BlockedBy: [],
+		RequiredProcesses: [],
+		IngredientProviders: [],
+		isMain: false,
+		isStarterOrSide: false,
+		DishType: DishType.Null,
+	},
+	Unlocks.filter((a) => a.Name === "Community")[0], // the Autumn Setting gets this card
+	// {
+	// 	ID: -405456638,
+	// 	Name: "Autumn",
+	// 	UnlockGroup: UnlockGroup.Special,
+	// 	Requires: [],
+	// 	BlockedBy: [],
+	// 	RequiredProcesses: [],
+	// 	IngredientProviders: [],
+	// 	isMain: false,
+	// 	isStarterOrSide: false,
+	// 	DishType: DishType.Null,
+	// },
+	{
+		ID: 1766067755,
+		Name: "Romantic",
+		UnlockGroup: UnlockGroup.Special,
+		Requires: [],
+		BlockedBy: [],
+		RequiredProcesses: [],
+		IngredientProviders: [],
+		isMain: false,
+		isStarterOrSide: false,
+		DishType: DishType.Null,
+	},
 	{
 		ID: 1958825350,
 		Name: "Turbo",
@@ -92,5 +163,17 @@ export const RestaurantSettings: Unlock[] = [
 		DishType: DishType.Null,
 	},
 ];
+
+export const SpeedrunDishes = [
+	"Breakfast",
+	"Burgers",
+	"Hot Dogs",
+	"Fish",
+	"Pies",
+	"Salad",
+	"Stir Fry",
+	"Pizza",
+	"Turkey",
+].map((name) => Unlocks.filter((a) => a.Name === name)[0]);
 
 import.meta.env.DEV && console.log({ Unlocks });

@@ -3,19 +3,33 @@ import Appliances from "./workers/db/appliances.ts";
 import { RerollConfig, Shop } from "./workers/reverse-engineered/shop.ts";
 import { Unlocks } from "./workers/db/unlocks.ts";
 import { GhostBlueprints } from "./components/GhostBlueprints.tsx";
+import { getAllWeeklyCardPaths, getWeeklyConfig } from "./workers/weekly.ts";
 interface WeeklyFormProps {
-	defaultSeed: string;
+	defaultSeed?: string;
 	disableSeedInput?: boolean;
 	cardDefaults?: { [cardName: string]: boolean };
 	maxRerolls?: number;
 }
+const weeklyConfig = getWeeklyConfig();
+const cardPaths = getAllWeeklyCardPaths();
+const defaults = {
+	[weeklyConfig.setting.Name]: true,
+	[weeklyConfig.dish.Name]: true,
+};
+for (let i = 0; i < cardPaths[0].length; i++) {
+	for (const p of cardPaths) {
+		if (defaults[p[i].Name] === undefined) defaults[p[i].Name] = false;
+	}
+}
+console.log({ weeklyConfig, cardPaths });
+
+// console.log({ weeklyConfig, cardPaths });
 export const WeeklyForm = ({
-	defaultSeed,
-	disableSeedInput = false,
-	cardDefaults = {},
+	defaultSeed = weeklyConfig.seed,
+	disableSeedInput = true,
+	cardDefaults = defaults,
 	maxRerolls,
 }: WeeklyFormProps) => {
-	// const seed = "azjugbno";
 	const [seed, setSeed] = useState(defaultSeed);
 	const [day, setDay] = useState(1);
 	const [ownedAppliances, setOwnedAppliances] = useState(
@@ -33,35 +47,6 @@ export const WeeklyForm = ({
 	for (const [cardName, value] of Object.entries(cardInput)) {
 		if (value) cards.push(cardName);
 	}
-	// switch (seed) {
-	// 	case "az95tz5z":
-	// 		cards = [
-	// 			"Stir Fry",
-	// 			"Broccoli",
-	// 			"Steak Stir Fry",
-	// 			"Mashed Potato",
-	// 			"Mushroom Stir Fry",
-	// 			"Affordable",
-	// 			"Ice Cream",
-	// 			"Herd Mentality",
-	// 			"Roast Potato",
-	// 			"Health and Safety",
-	// 			"Victorian Standards",
-	// 			"Instant Service",
-	// 			"All You Can Eat",
-	// 			"Bamboo",
-	// 			"Chips",
-	// 		];
-	// 		// cardsByDay = weeklyCards;
-	// 		break;
-	// 	case "t4tmhm8r":
-	// 		cards = weeklyCards;
-	// 		break;
-	// 		7;
-	// 	default:
-	// 		cards = [];
-	// 		break;
-	// }
 	const props = {
 		seed,
 		day,
@@ -332,7 +317,7 @@ export const Weekly = ({
 							b.map((bps) => (
 								<td colspan={1}>
 									<GhostBlueprints
-										normalCount={NORMAL_BLUEPRINT_COUNT}
+										ghostCount={GHOST_BLUEPRINT_COUNT}
 										bps={bps}
 									/>
 								</td>

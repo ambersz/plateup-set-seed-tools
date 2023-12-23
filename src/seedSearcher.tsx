@@ -15,28 +15,29 @@ import { usePersistentState } from "./hooks/usePersistentState";
 
 const cakes = Unlocks.filter((u) => u.Name === "Cakes")[0];
 
-const seedSearchWorker = new Worker(
-	new URL("./workers/seedSearchWorker.ts", import.meta.url),
-	{ type: "module" }
-);
-const seedSearchWorker2 = new Worker(
-	new URL("./workers/seedSearchWorker.ts", import.meta.url),
-	{ type: "module" }
-);
-const seedSearchWorker3 = new Worker(
-	new URL("./workers/seedSearchWorker.ts", import.meta.url),
-	{ type: "module" }
-);
+const seedSearchWorkers: Worker[] = [];
+const multithreading = 1;
+for (let i = 0; i < multithreading; i++) {
+	seedSearchWorkers.push(
+		new Worker(new URL("./workers/seedSearchWorker.ts", import.meta.url), {
+			type: "module",
+		})
+	);
+}
+
 function sendMessage(message: MessageFormat) {
-	seedSearchWorker3.postMessage(message);
-	seedSearchWorker2.postMessage(message);
-	return seedSearchWorker.postMessage(message);
+	for (const worker of seedSearchWorkers) {
+		worker.postMessage(message);
+	}
 }
 
 const defaultCardsByDay: GoalCardConfig[] = [
 	{
 		include: true,
-		cards: [RestaurantSettings[0], cakes] as Unlock[],
+		cards: [
+			RestaurantSettings.filter((a) => a.Name === "Turbo")[0],
+			cakes,
+		] as Unlock[],
 	},
 ];
 
@@ -56,7 +57,7 @@ const SeedSearcher = () => {
 					break;
 				case "result":
 					setResults((r) => {
-						if (r.length >= 10) {
+						if (r.length >= 100) {
 							sendMessage({ type: "stop" });
 							setSearching(false);
 						}
@@ -69,9 +70,9 @@ const SeedSearcher = () => {
 			}
 			console.log({ e });
 		};
-		seedSearchWorker.onmessage = handleSearchResults;
-		seedSearchWorker2.onmessage = handleSearchResults;
-		seedSearchWorker3.onmessage = handleSearchResults;
+		for (const worker of seedSearchWorkers) {
+			worker.onmessage = handleSearchResults;
+		}
 	}, []);
 	const cardDays = [];
 	for (let i = 1; i <= 14; i++) {

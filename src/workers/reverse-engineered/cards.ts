@@ -11,6 +11,7 @@ interface UnlockPack {
 	) => [Unlock, Unlock];
 }
 class TurboUnlockPack {
+	encourageGroups: UnlockGroup[] = [UnlockGroup.Special];
 	constructor() {}
 	GetOptions(
 		cards: Unlock[],
@@ -18,39 +19,83 @@ class TurboUnlockPack {
 		fsc: FixedSeedContext
 	): [Unlock, Unlock] {
 		const random = fsc.random;
-		// let n = 100;
-		// let vals = [];
-		// while (n--) {
-		// 	vals.push(random.valueFloat);
-		// }
-		// console.log(vals.join(","));
-		const candidates = getUnblockedCards(cards);
-		let pad = candidates.length + 1;
-		if (day !== 5) pad += candidates.length + 1;
-		// console.log({ pad });
+		let candidates = getUnblockedCards(cards);
+		let pad = getUnblockedCards(cards, false).length + 1;
+		console.log({ autumn: candidates.length, non: pad - 1 });
+		// console.log(
+		// 	getUnblockedCards(cards, false)
+		// 		.map((a) => a.Name)
+		// 		.join(",")
+		// );
+		if (cards.some((a) => a.Name === "Turbo")) {
+			if (day !== 5) pad += candidates.length + 1;
+		} else if (cards.some((a) => a.Name === "Community")) {
+			// Autumn
+			if (day === 5) {
+				pad += candidates.length + 2;
+				// pad = 0;
+				// console.log(
+				// 	sort(getUnblockedCards(cards, false), random)
+				// 		.map((a) => a.Name)
+				// 		.join(",")
+				// );
+				// random.value;
+				// console.log(
+				// 	sort(getUnblockedCards(cards, true), random)
+				// 		.map((a) => a.Name)
+				// 		.join(",")
+				// );
+				// random.value;
+				// random.value;
+				// // console.log(sort(getUnblockedCards(cards, true), random));
+				// // console.log(sort(getUnblockedCards(cards, false),random))
+				// candidates = getUnblockedCards(cards, false);
+			}
+		} else {
+			console.error("This Setting is not implemented yet");
+		}
+		console.log({ pad });
 		while (pad--) {
 			random.value;
 		}
 		let sortedCards = sort(candidates, random);
-		const preferPriority = random.valueFloat < 0.1;
+		// debugger;
+		console.log(sortedCards.map((a) => a.Name).join(", "));
+
+		const preferPriority =
+			random.valueFloat < (cards.some((a) => a.Name === "Turbo") ? 0.1 : 0.5);
 		// console.log({
 		// 	sortedCards: sortedCards.map((a) => a.Name),
 		// 	preferPriority,
 		// });
 		// console.log(sortedCards.map((a) => a.Name).join(", "));
+		const preferRequire =
+			!cards.some((a) => a.Name === "Community") || day === 5;
 		if (preferPriority) {
+			console.log("Prefer Priority");
 			sortedCards.sort((a, b) => {
 				let order = 0;
-				if (a.Requires.length) order--;
-				if (b.Requires.length) order++;
+				if (
+					(preferRequire && a.Requires.length) ||
+					this.encourageGroups.includes(a.UnlockGroup)
+				)
+					order--;
+				if (
+					(preferRequire && b.Requires.length) ||
+					this.encourageGroups.includes(b.UnlockGroup)
+				)
+					order++;
 				return order;
 			});
 		}
-		// console.log(sortedCards.map((a) => a.Name).join(", "));
 		const firstUnlockGroup =
 			day === 5 ? UnlockGroup.PrimaryTheme : UnlockGroup.Dish;
 		const secondUnlockGroup =
-			day === 5 ? UnlockGroup.PrimaryTheme : UnlockGroup.Generic;
+			day === 5
+				? UnlockGroup.PrimaryTheme
+				: cards.some((a) => a.Name === "Community")
+				? UnlockGroup.Dish
+				: UnlockGroup.Generic;
 		let first = null;
 		let second = null;
 		for (const c of sortedCards) {

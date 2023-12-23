@@ -3,17 +3,38 @@ import { Run } from "./reverse-engineered/run";
 import { Shop } from "./reverse-engineered/shop";
 import type { Unlock } from "../kitchenTypes";
 import { Appliance } from "./db/appliances";
-// interface Unlock {}
-console.log("start of worker file");
-var worker = self as DedicatedWorkerGlobalScope;
+import { hash } from "./reverse-engineered/prng";
+import { Unlocks } from "./db/unlocks";
+
+// @ts-ignore
+var worker = self as Worker;
+let seedHashes: (number | undefined)[] = [];
+let size = 0;
+const checkHash = false;
+// 2771254 distinct seeds checked in 2 minutes over 2782919 tries.
+const minutes = 60;
+function checkAndSaveHash(h: number): boolean {
+	const uintHash = h >>> 0;
+	const bucket = Math.floor(uintHash / 32);
+	const shift = uintHash % 32;
+	const a = seedHashes[bucket];
+	let has = a && (a & (1 << shift)) !== 0;
+	if (!has) size++;
+	const save = (a ?? 0) | (1 << shift);
+	seedHashes[bucket] = save;
+	return !!has;
+}
+
 let searching: boolean = false;
 
-worker.onmessage = function (m) {
-	const e = m as { data: MessageFormat };
+worker.onmessage = function (e: MessageEvent<MessageFormat>) {
 	console.log("Worker: Message received from main script");
 	if (e.data.type === "start") {
 		searching = true;
+		seedHashes = [];
+		size = 0;
 		search(e.data.data as SearchParams);
+		setTimeout(() => (searching = false), 1000 * 60 * minutes);
 	} else {
 		console.log("breaking search");
 		searching = false;
@@ -51,8 +72,9 @@ async function search({
 	goalAppliances = [],
 	mapSizes,
 	maxSeeds = 10,
-	partial = false,
+	partial = true,
 }: SearchParams) {
+	let numSeeds = 0;
 	const channel = new MessageChannel();
 	let promiseResolver: () => void;
 	channel.port2.onmessage = (_event) => {
@@ -64,6 +86,7 @@ async function search({
 	let metric: [number, string[]] = [-Infinity, []];
 	let n = maxSeeds;
 	while (searching && n) {
+		numSeeds++;
 		const promise = new Promise((resolve) => {
 			promiseResolver = resolve as () => void;
 		});
@@ -72,6 +95,10 @@ async function search({
 		seed = "az";
 		while (seed.length < 8) {
 			seed += chars[Math.floor(Math.random() * chars.length)];
+		}
+		if (checkHash) {
+			const hashed = hash(seed);
+			if (checkAndSaveHash(hashed)) continue;
 		}
 		const ms = new Run(seed).mapSize;
 		if (!mapSizes.includes(ms)) continue;
@@ -98,78 +125,50 @@ async function search({
 			});
 		}
 	}
+	// 3911700 distinct seeds checked in 2 minutes over 3935153 tries.
+	//       0 distinct seeds checked in 2 minutes over 4121851 tries.
+	// 9240889 distinct seeds checked in 5 minutes over 9372250 tries.
+	console.log(
+		`${size} distinct seeds checked in ${minutes} minutes over ${numSeeds} tries.`
+	);
+	// 3676793 distinct seeds checked in 2 minutes over 3697388 tries.
+	//       0 distinct seeds checked in 2 minutes over 3936888 tries.
 }
 function reportResult(data: ResultData) {
 	const res: ResultFormat = { type: "result", data };
 	postMessage(res);
 }
+const iceCream = Unlocks.filter((a) => a.Name === "Ice Cream")[0];
+
 function test(
 	seed: string,
 	cards: Unlock[],
 	goalCardConfigs: GoalCardConfig[],
-	goalAppliances: string[],
+	_goalAppliances: string[],
 	partial: boolean = false
 ): [number, string[]] {
-	const shop = new Shop(seed, cards.some((a) => a.Name === "Turbo") ? 0.25 : 0);
-	for (const card of cards) {
-		shop.addCard(card);
-	}
-	const firstSpawns = shop
-		.getAppliances([{ spawnInside: true, blueprintCount: 7 }], 1)
-		.map((a) => a.Name);
-	const firstRerolls = [
-		shop
-			.getAppliances(
-				[
-					{ spawnInside: true, blueprintCount: 7 },
-					{ spawnInside: true, blueprintCount: 5 },
-				],
-				1
-			)
-			.map((a) => a.Name),
-		shop
-			.getAppliances(
-				[
-					{ spawnInside: false, playerInside: true, blueprintCount: 7 },
-					{ spawnInside: true, blueprintCount: 5 },
-				],
-				1
-			)
-			.map((a) => a.Name),
-		shop
-			.getAppliances(
-				[
-					{ spawnInside: false, playerInside: false, blueprintCount: 7 },
-					{ spawnInside: true, blueprintCount: 5 },
-				],
-				1
-			)
-			.map((a) => a.Name),
-	];
-	let count = 0;
-	let countReroll: number[] = [];
-	for (const goal of goalAppliances) {
-		let foundFirst = false;
-		if (firstSpawns.includes(goal)) {
-			count++;
-			foundFirst = true;
+	const INSPECT_BLUEPRINTS = false;
+	if (INSPECT_BLUEPRINTS) {
+		const shop = new Shop(
+			seed,
+			cards.some((a) => a.Name === "Turbo") ? 0.25 : 0
+		);
+		for (const card of cards) {
+			shop.addCard(card);
 		}
-		if (!foundFirst || (goal !== "Rolling Pin" && goal !== "Tray Stand")) {
-			for (let i = 0; i < firstRerolls.length; i++) {
-				if (firstRerolls[i].includes(goal)) {
-					if (!countReroll[i]) countReroll[i] = 0;
-					countReroll[i]++;
-				}
-			}
-		}
-	}
-	let appliances = [...firstSpawns, ...firstRerolls.flat()];
-
-	if (
-		!appliances.includes("Bar Table") ||
-		!(count > 1 || count + Math.max(...countReroll) > 2)
-	) {
-		return [-Infinity, []];
+		const firstSpawns = shop
+			.getAppliances([{ spawnInside: true, blueprintCount: 7 }], 1)
+			.map((a) => a.Name);
+		if (
+			!firstSpawns.includes("Copying Desk") ||
+			!firstSpawns.includes("Discount Desk")
+		)
+			return [-Infinity, []];
+		shop.addCard(iceCream);
+		const secondSpawns = shop
+			.getAppliances([{ spawnInside: true, blueprintCount: 7 }], 2)
+			.map((a) => a.Name);
+		if (!secondSpawns.includes("Display Stand")) return [-Infinity, []];
 	}
 
 	const game = new FindNewUnlocks(seed);
@@ -188,12 +187,25 @@ function test(
 			// choose smallest
 			if (leftRank < rightRank) {
 				chosen = 0;
-			} else {
+			} else if (rightRank < leftRank) {
 				chosen = 1;
+			} else {
+				// equal, pick randomly?
+				chosen = Math.floor(Math.random() * 2);
 			}
 		} else if (leftRank === -1 && rightRank === -1) {
 			// failed
-			if (!partial) return [-Infinity, []];
+			if (
+				!partial ||
+				// (goalCardConfigs[day].include &&
+				// 	goalCardConfigs[day].cards.length === 1) // want one specific card, partial not allowed.
+				day < 2
+			) {
+				console.log(
+					options.map((a) => a.Name).join(", ") + ` on day ${day} both suck.`
+				);
+				return [-Infinity, []];
+			}
 			chosen = Math.floor(Math.random() * 2);
 			partialMisses++;
 		} else {

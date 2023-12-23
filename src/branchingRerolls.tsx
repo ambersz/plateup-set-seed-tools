@@ -50,7 +50,7 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 	blueprintCount = 5,
 	searchDepth = 2,
 	ghostBlueprints = 2,
-	blueprintCabinets = 2,
+	blueprintCabinets = 1,
 	solo,
 	cards = [],
 	appliances = [],
@@ -77,12 +77,18 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 	*/
 	const spawnConfigs = [];
 	// for (let i = -blueprintCount + 1; i <= blueprintCabinets; i++) {
-	for (let i = -1; i <= blueprintCabinets; i++) {
+	for (let i = -blueprintCabinets - 1; i <= blueprintCabinets; i++) {
 		const config = {
 			spawnInside: true,
 			blueprintCount: blueprintCount + i,
 		};
 		configOptions.push(config as RerollConfig);
+		if (!solo)
+			configOptions.push({
+				spawnInside: false,
+				playerInside: true,
+				blueprintCount: blueprintCount + i,
+			});
 		configOptions.push({
 			spawnInside: false,
 			playerInside: false,
@@ -95,12 +101,6 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 				playerInside: true,
 				blueprintCount: blueprintCount + i,
 			});
-			if (!solo)
-				spawnConfigs.push({
-					spawnInside: false,
-					playerInside: true,
-					blueprintCount: blueprintCount + i,
-				});
 			spawnConfigs.push({
 				spawnInside: false,
 				playerInside: false,
@@ -125,6 +125,7 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 				<td
 					colspan={configOptions.length ** (searchDepth - depth)}
 					title={explainRerollConfig(cumulativeConfigs[i])}
+					// TODO: non-tooltip version so people can copy the instructions https://stackoverflow.com/questions/13845003/tooltips-for-cells-in-html-table-no-javascript
 				>
 					<GhostBlueprints
 						bps={roll}
