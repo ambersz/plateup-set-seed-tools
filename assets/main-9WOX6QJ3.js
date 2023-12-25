@@ -1,1 +1,0 @@
-import{q as m,u as e}from"./jsxRuntime.module-6iCSpIbC.js";import{W as t}from"./WeeklyForm-gU8MTTrM.js";import"./GhostBlueprints-b_TuWfVm.js";m(e(t,{defaultSeed:"t4tmhm8r"}),document.getElementById("app"));
