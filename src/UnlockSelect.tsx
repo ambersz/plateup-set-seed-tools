@@ -16,6 +16,11 @@ function getFilteredCards(
 	const lowerCasedInputValue = inputValue.toLowerCase();
 
 	return Options.filter(function filterCard(unlock) {
+		if (
+			dishTypeFilter.some((dt) => dt === DishType.Base) &&
+			unlock.Name === "Cakes"
+		)
+			return true; // exception because there's some weird shenanigans to get Cakes to not show up in Autumn
 		return (
 			(!dishTypeFilter.length || dishTypeFilter.includes(unlock.DishType)) &&
 			(!unlockGroupFilter.length ||
@@ -128,12 +133,19 @@ export function UnlocksComboBox({
 		onSelectionChange({ include: !include, cards });
 	};
 
+	const handleClear = () => {
+		onSelectionChange({ include, cards: [] });
+	};
+
 	return (
 		<div className="combo-container">
 			<div className="">
 				<label className="" {...getLabelProps()}>
 					{label ?? "Select desired cards"}
 				</label>
+				<div>
+					<button onClick={handleClear}>Clear Cards</button>
+				</div>
 				<div className="">
 					{cards.map(function renderSelectedItem(selectedItemForRender, index) {
 						return (

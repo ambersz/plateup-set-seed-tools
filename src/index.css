@@ -2,7 +2,7 @@
 	font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
 	line-height: 1.5;
 	font-weight: 400;
-	font-size: 7pt;
+	font-size: 12pt;
 
 	color-scheme: light dark;
 	--bg-color: 36, 36, 36;
@@ -140,6 +140,9 @@ td {
 .search-results {
 	flex: 1;
 }
+/* .search-config {
+	min-width: fit-content;
+} */
 button {
 	margin: 10px 0;
 }

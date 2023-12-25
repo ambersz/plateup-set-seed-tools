@@ -36,10 +36,59 @@ const defaultCardsByDay: GoalCardConfig[] = [
 		include: true,
 		cards: [
 			RestaurantSettings.filter((a) => a.Name === "Turbo")[0],
-			cakes,
 		] as Unlock[],
 	},
 ];
+if (import.meta.env.DEV) defaultCardsByDay[0].cards.push(cakes);
+const defaultGoodCards: GoalCardConfig = {
+	include: true,
+	cards: [
+		"Ice Cream",
+		"Instant Service",
+		"All You Can Eat",
+		"Victorian Standards",
+		"Sedate Atmosphere",
+		"Roast Potato",
+		"Broccoli",
+		"Bamboo",
+		"Mashed Potato",
+		"Chips",
+		"Corn on the Cob",
+		"Onion Rings",
+	].flatMap((n) => Unlocks.filter((a) => a.Name === n)),
+};
+const defaultBadCustCards: GoalCardConfig = {
+	include: false,
+	cards: [
+		"Apple Pie",
+		"Cherry",
+		"Pumpkin",
+		"Leisurely",
+		"Mandarin",
+		"Bread",
+		"Closing Time",
+		"Picky",
+		"Medium",
+		"Advertising",
+		"Cheese ",
+		"Soup",
+	].flatMap((n) => Unlocks.filter((a) => a.Name.includes(n))),
+};
+{
+	let d = 1;
+	for (; d <= 9; d++) {
+		defaultCardsByDay[d] =
+			d === 5
+				? {
+						include: true,
+						cards: Unlocks.filter((a) => a.Name === "Affordable"),
+				  }
+				: defaultGoodCards;
+	}
+	for (; d <= 14; d++) {
+		defaultCardsByDay[d] = defaultBadCustCards;
+	}
+}
 
 const SeedSearcher = () => {
 	const [results, setResults] = usePersistentState<ResultData[]>(
@@ -47,7 +96,11 @@ const SeedSearcher = () => {
 		"SEED_SEARCHER_RESULTS"
 	);
 	const [searching, setSearching] = useState<boolean>(false);
-
+	const [allowedTables, setAllowedTables] = usePersistentState(
+		[1, 2, 3, 4],
+		"SEED_SEARCHER_ALLOWED_TABLES"
+	);
+	const tables = [1, 2, 3, 4];
 	useEffect(() => {
 		console.log("useEffect registering message done");
 		const handleSearchResults = (m: { data: ResultFormat }) => {
@@ -57,7 +110,7 @@ const SeedSearcher = () => {
 					break;
 				case "result":
 					setResults((r) => {
-						if (r.length >= 100) {
+						if (r.length >= 30) {
 							sendMessage({ type: "stop" });
 							setSearching(false);
 						}
@@ -83,10 +136,39 @@ const SeedSearcher = () => {
 			sendMessage({ type: "stop" });
 			setSearching(false);
 		} else {
+			// sanity check inputs
+			if (cardsByDay[0].cards.length < 2) {
+				alert("No starting dish selected.");
+				return;
+			} else if (cardsByDay[0].cards.length > 2) {
+				alert("Too many starting dishes selected");
+				return;
+			}
+			const invalidDays = [];
+			for (let d = 1; d < 15; d++) {
+				if (
+					!cardsByDay[d] ||
+					(cardsByDay[d].include && cardsByDay[d].cards.length === 0)
+				)
+					invalidDays.push(d);
+			}
+			if (invalidDays.length) {
+				if (invalidDays.length > 1)
+					invalidDays[invalidDays.length - 1] =
+						"and " + invalidDays[invalidDays.length - 1];
+				alert(
+					`Empty card configurations for day${
+						invalidDays.length > 1 ? "s" : ""
+					} ` +
+						invalidDays.join(invalidDays.length > 2 ? ", " : " ") +
+						". Add cards, or switch to exclude cards mode."
+				);
+				return;
+			}
 			sendMessage({
 				type: "start",
 				data: {
-					mapSizes: [1],
+					mapSizes: allowedTables,
 					goalCards: cardsByDay,
 					goalAppliances: spawnGoals, // TODO: not supported yet
 				},
@@ -102,16 +184,15 @@ const SeedSearcher = () => {
 		return (newSelection: GoalCardConfig) => {
 			setCardsByDay((orig) => {
 				const copy = [...orig];
+				if (day === 0 && newSelection.cards[0]?.Name !== "Turbo") {
+					newSelection.cards.splice(0, 0, copy[day].cards[0]);
+				}
 				copy[day] = newSelection;
 				return copy;
 			});
 		};
 	};
-	const [allowedTables, setAllowedTables] = usePersistentState(
-		[1, 2, 3, 4],
-		"SEED_SEARCHER_ALLOWED_TABLES"
-	);
-	const tables = [1, 2, 3, 4];
+
 	const handleToggleTable = (n: number) => {
 		return () => {
 			if (allowedTables.includes(n)) {
@@ -124,30 +205,33 @@ const SeedSearcher = () => {
 	return (
 		<div class="search-container">
 			<div class="search-config">
-				<label>Starting Tables: </label>
-				{tables.map((n) => {
-					const key = n + "-table";
-					return (
-						<>
-							<label for={key}>{n}</label>
-							<input
-								id={key}
-								type="checkbox"
-								onChange={handleToggleTable(n)}
-								checked={allowedTables.includes(n)}
-							/>
-						</>
-					);
-				})}
+				<div style="min-width:fit-content;">
+					<label>Starting Tables: </label>
+					{tables.map((n) => {
+						const key = n + "-table";
+						return (
+							<>
+								<label for={key}>{n}</label>
+								<input
+									id={key}
+									type="checkbox"
+									onChange={handleToggleTable(n)}
+									checked={allowedTables.includes(n)}
+								/>
+							</>
+						);
+					})}
+				</div>
 
-				{cardsByDay !== defaultCardsByDay && (
+				{
+					// cardsByDay !== defaultCardsByDay &&
 					<>
 						<UnlocksComboBox
 							onSelectionChange={handleCardSelectionChange(0)}
 							showSelectionMode={false}
 							label="Starting Cards"
 							{...cardsByDay[0]}
-							unlockGroupFilter={[UnlockGroup.Dish, UnlockGroup.Special]}
+							unlockGroupFilter={[UnlockGroup.Dish]}
 							dishTypeFilter={[DishType.Null, DishType.Base]}
 						/>
 						{cardDays.map((day) => (
@@ -163,7 +247,7 @@ const SeedSearcher = () => {
 							/>
 						))}
 					</>
-				)}
+				}
 			</div>
 			<div class="search-results">
 				<button onClick={toggleSearch}>

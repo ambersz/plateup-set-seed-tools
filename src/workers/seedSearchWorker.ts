@@ -34,7 +34,7 @@ worker.onmessage = function (e: MessageEvent<MessageFormat>) {
 		seedHashes = [];
 		size = 0;
 		search(e.data.data as SearchParams);
-		setTimeout(() => (searching = false), 1000 * 60 * minutes);
+		// setTimeout(() => (searching = false), 1000 * 60 * minutes);
 	} else {
 		console.log("breaking search");
 		searching = false;
@@ -72,7 +72,7 @@ async function search({
 	goalAppliances = [],
 	mapSizes,
 	maxSeeds = 10,
-	partial = true,
+	partial = false,
 }: SearchParams) {
 	let numSeeds = 0;
 	const channel = new MessageChannel();
@@ -147,7 +147,7 @@ function test(
 	_goalAppliances: string[],
 	partial: boolean = false
 ): [number, string[]] {
-	const INSPECT_BLUEPRINTS = false;
+	const INSPECT_BLUEPRINTS = import.meta.env.DEV ? false : false;
 	if (INSPECT_BLUEPRINTS) {
 		const shop = new Shop(
 			seed,
