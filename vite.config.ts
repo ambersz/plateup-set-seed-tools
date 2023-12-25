@@ -14,6 +14,7 @@ export default defineConfig({
 				branching: resolve(__dirname, "branching-rerolls.html"),
 				weekly: resolve(__dirname, "weekly.html"),
 				seedSearcher: resolve(__dirname, "seed-searcher.html"),
+				// coffee: resolve(__dirname, "coffee.html"),
 				// worker: resolve(__dirname, "workers/seedSearcher.ts"),
 			},
 		},

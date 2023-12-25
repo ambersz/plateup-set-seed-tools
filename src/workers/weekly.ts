@@ -3,10 +3,13 @@ import { RestaurantSettings, SpeedrunDishes } from "./db/unlocks";
 import { FindNewUnlocks } from "./reverse-engineered/cards";
 import { FixedSeedContext, Random } from "./reverse-engineered/prng";
 
-function getWeekOfYear() {
-	const today = new Date();
+function getWeekOfYear(t: number | undefined = undefined) {
+	const today = t ? new Date(t) : new Date();
 	const year = today.getUTCFullYear();
-	const newYear = new Date(year, 0, 1, 0);
+	const newYear = t ? new Date(t) : new Date();
+	newYear.setUTCMonth(0);
+	newYear.setUTCDate(1);
+	newYear.setUTCHours(0, 0, 0, 0);
 	let weekOffset = (newYear.getUTCDay() + 6) % 7;
 	const weeks =
 		(weekOffset ? 1 : 0) +
