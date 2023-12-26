@@ -43,9 +43,9 @@
 -441525746,True,False,Fireplace,False,False,,,2,4,0,False
 591400026,True,False,Rug,False,False,,,2,4,0,False
 -1628995120,True,False,Wall Light,False,False,,,2,4,0,False
--1380985631,False,False,Banner,False,False,,,8192,0,0,False
-1797739089,False,False,Christmas Tree,False,False,,,8192,0,0,False
--4737636,False,False,Fairy Lights,False,False,,,8192,0,0,False
+-1380985631,True,False,Banner,False,False,,,8192,0,0,False
+1797739089,True,False,Christmas Tree,False,False,,,8192,0,0,False
+-4737636,True,False,Fairy Lights,False,False,,,8192,0,0,False
 -13481890,True,False,Candelabra,False,False,,,2,1,0,False
 1233091186,True,False,Chandelier,False,False,,,2,1,0,False
 -1180623135,True,False,Precious Flower,False,False,,,2,1,0,False
@@ -259,9 +259,9 @@
 -1997868587,False,False,,False,False,,,0,0,0,False
 -1920103064,False,False,,False,False,,,0,0,0,False
 -1235624607,False,False,,False,False,,,0,0,0,False
--636342486,True,False,Cobwebs,False,False,,,8192,0,0,False
--1318523640,True,False,Ghost Statue,False,False,,,8192,0,0,False
--621580281,True,False,Pumpkin,False,False,,,8192,0,0,False
+-636342486,False,False,Cobwebs,False,False,,,8192,0,0,False
+-1318523640,False,False,Ghost Statue,False,False,,,8192,0,0,False
+-621580281,False,False,Pumpkin,False,False,,,8192,0,0,False
 115181910,False,False,Skeleton,False,False,,,8192,0,0,False
 976574457,True,False,Corn,True,False,,,288,0,0,False
 235355384,False,False,Bananas,False,False,,,0,0,0,False
@@ -321,9 +321,9 @@
 1470180731,False,False,Lemon Tree,False,False,,,0,0,0,False
 -217313684,True,False,Mixing Bowls,False,False,-217313684,,32,0,0,False
 782648278,False,False,Cauldron,False,False,,1972879238:-1706154991,32,0,0,False
--1552572658,True,False,Candles,False,False,,,8192,0,0,False
--119593913,True,False,Pumpkin Stack,False,False,,,8192,0,0,False
--379172217,True,False,Witch Shelf,False,False,,,8192,0,0,False
+-1552572658,False,False,Candles,False,False,,,8192,0,0,False
+-119593913,False,False,Pumpkin Stack,False,False,,,8192,0,0,False
+-379172217,False,False,Witch Shelf,False,False,,,8192,0,0,False
 -292467039,False,False,Enchanting Desk,False,False,,,1536,0,0,False
 -1946127856,False,False,Ghostly Clipboard,False,False,,,0,0,0,False
 1313278365,False,False,Ghostly Knife,False,False,,,0,0,0,False
@@ -358,4 +358,3 @@
 -872135723,False,False,,False,False,,,0,0,0,False
 -1879606524,False,False,,False,False,,,0,0,0,False
 -26827118,False,False,Upgrade Kit,False,False,,,0,0,0,False
--1995745069,False,False,SyncModsViewHolder,False,False,,,0,0,0,False
