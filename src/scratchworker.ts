@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { hash } from "./workers/reverse-engineered/prng";
 const chars = "abcdefghijklmnopqrstuvwxyz123456789";
 let seedHashes: (number | undefined)[] = [];

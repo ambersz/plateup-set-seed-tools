@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { render, FunctionComponent, VNode } from "preact";
 import { useEffect, useState } from "preact/compat";
 import "./index.css";
