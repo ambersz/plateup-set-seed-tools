@@ -11,6 +11,12 @@ const TODO = () => {
 					Seed searcher: estimate number of seeds in existance that fit all the
 					requirements, warn if too low
 				</li>
+				<li>
+					Progress indicator that the web worker is running in the background--
+					make this compatible with multi-threading
+				</li>
+				<li>Instructions about how to use include/exclude toggler</li>
+				<li>Push/Native notification when a seed is found? </li>
 			</ul>
 			<h2>Cards</h2>
 			<ul>

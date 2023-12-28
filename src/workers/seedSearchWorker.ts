@@ -26,7 +26,7 @@ function checkAndSaveHash(h: number): boolean {
 }
 
 let searching: boolean = false;
-
+let nextProgressUpdate = new Date().valueOf();
 worker.onmessage = function (e: MessageEvent<MessageFormat>) {
 	console.log("Worker: Message received from main script");
 	if (e.data.type === "start") {
@@ -44,10 +44,15 @@ export interface MessageFormat {
 	type: "start" | "stop";
 	data?: SearchParams;
 }
-export interface ResultFormat {
-	type: "result" | "error";
-	data: ResultData;
-}
+export type ResultFormat =
+	| {
+			type: "result" | "error";
+			data: ResultData;
+	  }
+	| {
+			type: "progress";
+			data: number;
+	  };
 export interface ResultData {
 	seed: string;
 	cards: string[];
@@ -86,6 +91,7 @@ async function search({
 	let metric: [number, string[]] = [-Infinity, []];
 	let n = maxSeeds;
 	while (searching && n) {
+		sendProgress(numSeeds);
 		numSeeds++;
 		const promise = new Promise((resolve) => {
 			promiseResolver = resolve as () => void;
@@ -113,11 +119,11 @@ async function search({
 			if (!Number.isFinite(candMetric[0])) continue;
 			metric = candMetric;
 			n--;
-			const res = JSON.stringify({
-				seed,
-				metric: [candMetric[0], candMetric[1]],
-			});
-			console.log(res);
+			// const res = JSON.stringify({
+			// 	seed,
+			// 	metric: [candMetric[0], candMetric[1]],
+			// });
+			// // console.log(res);
 			reportResult({
 				seed,
 				cards: candMetric[1],
@@ -128,14 +134,21 @@ async function search({
 	// 3911700 distinct seeds checked in 2 minutes over 3935153 tries.
 	//       0 distinct seeds checked in 2 minutes over 4121851 tries.
 	// 9240889 distinct seeds checked in 5 minutes over 9372250 tries.
-	console.log(
-		`${size} distinct seeds checked in ${minutes} minutes over ${numSeeds} tries.`
-	);
+	import.meta.env.DEV &&
+		console.log(
+			`${size} distinct seeds checked in ${minutes} minutes over ${numSeeds} tries.`
+		);
 	// 3676793 distinct seeds checked in 2 minutes over 3697388 tries.
 	//       0 distinct seeds checked in 2 minutes over 3936888 tries.
 }
 function reportResult(data: ResultData) {
 	const res: ResultFormat = { type: "result", data };
+	postMessage(res);
+}
+function sendProgress(n: number) {
+	if (Date.now() < nextProgressUpdate) return;
+	nextProgressUpdate = Date.now() + 15;
+	const res: ResultFormat = { type: "progress", data: n };
 	postMessage(res);
 }
 const iceCream = Unlocks.filter((a) => a.Name === "Ice Cream")[0];
@@ -201,9 +214,6 @@ function test(
 				// 	goalCardConfigs[day].cards.length === 1) // want one specific card, partial not allowed.
 				day < 2
 			) {
-				console.log(
-					options.map((a) => a.Name).join(", ") + ` on day ${day} both suck.`
-				);
 				return [-Infinity, []];
 			}
 			chosen = Math.floor(Math.random() * 2);
@@ -230,7 +240,15 @@ function test(
 	}
 	return [day - partialMisses, game.cards.map((a) => a.Name)];
 }
+
 export const chars = "abcdefghijklmnopqrstuvwxyz123456789";
+if (import.meta.env.DEV) {
+	{
+		let utf8Encode = new TextEncoder();
+		const bytes = utf8Encode.encode(chars);
+		console.log({ bytes });
+	}
+}
 
 function indexOfUnlock(array: Unlock[], target: Unlock) {
 	// can't just indexOf for the full Unlock because the Worker message-passing will result in the same Unlock having different instances

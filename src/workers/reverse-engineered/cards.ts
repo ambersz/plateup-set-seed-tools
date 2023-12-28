@@ -21,7 +21,7 @@ class TurboUnlockPack {
 		const random = fsc.random;
 		let candidates = getUnblockedCards(cards);
 		let pad = getUnblockedCards(cards, false).length + 1;
-		console.log({ autumn: candidates.length, non: pad - 1 });
+		// console.log({ autumn: candidates.length, non: pad - 1 });
 		// console.log(
 		// 	getUnblockedCards(cards, false)
 		// 		.map((a) => a.Name)
@@ -54,13 +54,13 @@ class TurboUnlockPack {
 		} else {
 			console.error("This Setting is not implemented yet");
 		}
-		console.log({ pad });
+		// console.log({ pad });
 		while (pad--) {
 			random.value;
 		}
 		let sortedCards = sort(candidates, random);
 		// debugger;
-		console.log(sortedCards.map((a) => a.Name).join(", "));
+		// console.log(sortedCards.map((a) => a.Name).join(", "));
 
 		const preferPriority =
 			random.valueFloat < (cards.some((a) => a.Name === "Turbo") ? 0.1 : 0.5);
@@ -72,7 +72,7 @@ class TurboUnlockPack {
 		const preferRequire =
 			!cards.some((a) => a.Name === "Community") || day === 5;
 		if (preferPriority) {
-			console.log("Prefer Priority");
+			// console.log("Prefer Priority");
 			sortedCards.sort((a, b) => {
 				let order = 0;
 				if (

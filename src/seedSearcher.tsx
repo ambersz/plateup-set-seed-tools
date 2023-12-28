@@ -91,6 +91,7 @@ const defaultBadCustCards: GoalCardConfig = {
 }
 
 const SeedSearcher = () => {
+	const [count, setCount] = useState(0);
 	const [results, setResults] = usePersistentState<ResultData[]>(
 		[],
 		"SEED_SEARCHER_RESULTS"
@@ -109,19 +110,21 @@ const SeedSearcher = () => {
 				case "error":
 					break;
 				case "result":
+					const d = e.data.data;
 					setResults((r) => {
 						if (r.length >= 30) {
 							sendMessage({ type: "stop" });
 							setSearching(false);
 						}
-						return [...r, e.data.data];
+						return [...r, d];
 					});
-
+					break;
+				case "progress":
+					setCount(e.data.data);
 					break;
 				default:
 					break;
 			}
-			console.log({ e });
 		};
 		for (const worker of seedSearchWorkers) {
 			worker.onmessage = handleSearchResults;
@@ -250,6 +253,7 @@ const SeedSearcher = () => {
 				}
 			</div>
 			<div class="search-results">
+				<div>{count} seeds checked</div>
 				<button onClick={toggleSearch}>
 					{searching ? "Stop" : "Start"} Search
 				</button>
