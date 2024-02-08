@@ -276,32 +276,48 @@ const BranchingRerollPage = () => {
 	const [config, setConfig] = useState({ seed: "az", day: 1 } as SeedConfig);
 	return (
 		<>
+			<div>
+				Hover over a cell for instructions on how to get those blueprints.
+				Getting the blueprints in grey requires taking extra blueprints out of
+				cabinets
+			</div>
 			<SeedConfigForm onConfigChange={setConfig} />
 			<BranchingRerolls {...config} blueprintCabinets={1} />
-			<h3>How to use this tool:</h3>
-			<ul>
-				<li>
-					Find a cell in the table with the appliance you're looking for. The
-					first row is the natural spawns. Each row down you go will require
-					another reroll
-				</li>
-				<li>
-					Hover the cell to find instructions on how many blueprints you need to
-					reroll, what blueprint spawn settings you need to have, and where you
-					need to stand at each step to reach that cell. They will always tell
-					you that the settings and number of blueprints on the last reroll can
-					be anything
-				</li>
-				<li>
-					If you reroll 5 blueprints on the last step, you will see the first 5
-					blueprints in that cell, read left to right. The blueprints in normal
-					text are the ones you would see if you rerolled all blueprints from
-					the previous step. The greyed out blueprints are those you would see
-					only if you take blueprints out of cabinets just before the final
-					reroll
-				</li>
-			</ul>
-			<div>Not implemented: handling blueprint desk effects on rerolls</div>
+			{false && (
+				<div style={{ maxWidth: "50vw" }}>
+					<div>How to read each cell:</div>
+					The blueprints in normal text are the ones you would see if you
+					rerolled all blueprints from the previous step without buying any. The
+					greyed out blueprints are those you would see only if you take
+					additional blueprints out of cabinets just before the final reroll.
+					<div>
+						For example, if a cell says
+						<table>
+							<GhostBlueprints
+								ghostCount={2}
+								bps={[
+									"Clipboard Stand",
+									"Display Stand",
+									'"Specials" Menu',
+									"Kitchen Floor Protector",
+									"Coffee Table",
+									"Mixer",
+									"Carrots",
+								]}
+							/>
+						</table>
+						with the tooltip <br />
+						<code>Spawn: Blueprints spawn inside Reroll 1: any settings</code>
+						If you reroll exactly the 5 spawned blueprints, you would get the
+						blueprints in the regular text (
+						<code>
+							Clipboard Stand, Display Stand, "Specials" Menu, Kitchen Floor
+							Protector, Coffee Table
+						</code>
+						)
+					</div>
+				</div>
+			)}
 		</>
 	);
 };
