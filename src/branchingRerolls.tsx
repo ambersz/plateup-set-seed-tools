@@ -221,6 +221,7 @@ const SeedConfigForm = ({ onConfigChange }: SeedConfigFormProps) => {
 				<label for="solo">Solo:</label>
 				<input
 					type="checkbox"
+					id="solo"
 					checked={solo}
 					onChange={() => setSolo((a) => !a)}
 				/>
@@ -237,7 +238,7 @@ const SeedConfigForm = ({ onConfigChange }: SeedConfigFormProps) => {
 				<label for="seed" value={seed}>
 					Seed:{" "}
 				</label>
-				<input type="text" value={seed} onChange={setSeed} />
+				<input type="text" id="seed" value={seed} onChange={setSeed} />
 				<label for="setting">Turbo?</label>
 				<input
 					id="setting"
@@ -251,7 +252,7 @@ const SeedConfigForm = ({ onConfigChange }: SeedConfigFormProps) => {
 				<label for="day" value={day}>
 					Prep of Day:{" "}
 				</label>
-				<input type="number" value={day} onChange={setDay} />
+				<input type="number" id="day" value={day} onChange={setDay} />
 				<UnlocksComboBox
 					label="Selected cards:"
 					onSelectionChange={(gcc) => {

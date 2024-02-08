@@ -57,9 +57,10 @@ const VersusSeeds = () => {
 			card that you passed up earlier in the run) <br />
 			Flex Mode: Across all card paths, there are at most 10 unique cards.
 			<br />
-			Autumn:
+			<label for="autumn">Autumn:</label>
 			<input
 				type="checkbox"
+				id="autumn"
 				checked={autumn}
 				onClick={() => setAutumn((a) => !a)}
 			/>

@@ -155,9 +155,10 @@ const SeedSearcher = () => {
 		<div class="search-container">
 			<div class="search-config">
 				<div>
-					<label>Search until OT15</label>
+					<label for="ot15">Search until OT15</label>
 					<input
 						type="checkbox"
+						id="ot15"
 						onChange={() => {
 							setOT15(!ot15);
 						}}
