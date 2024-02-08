@@ -22,7 +22,6 @@ class UnlockPack implements IUnlockPack {
 		fsc: FixedSeedContext
 	): [Unlock, Unlock] {
 		const random = fsc.random;
-		const prePadState = [...random.seed];
 		let pad = 0;
 		if (day !== 15) pad = this.getPad(cards, day);
 		while (pad--) {
@@ -221,8 +220,11 @@ export class FindNewUnlocks {
 		return options;
 	}
 
-	getCustomers(day: number, players: number = 1): number[] {
+	getCustomers(day: number, _players: number = 1): number[] {
+		return []; // TODO AZ: not implemented yet!
+		// @ts-expect-error
 		let reductions = this.cards.reduce((a, b) => a + (b.Reductions ?? 0), 0);
+		// @ts-expect-error
 		const [minGroup, maxGroup] = this.getGroupSizeRange(day);
 		let dayModifier: number;
 		switch (day) {
@@ -244,8 +246,6 @@ export class FindNewUnlocks {
 				}
 				break;
 		}
-		const expectedTotalCustomers =
-			100 + Math.floor(day / 3) * 0.85 ** reductions * 1;
 	}
 
 	getGroupSizeRange(day: number): [number, number] {

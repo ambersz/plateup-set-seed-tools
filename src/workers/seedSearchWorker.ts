@@ -4,7 +4,7 @@ import { Shop } from "./reverse-engineered/shop";
 import type { Unlock } from "../kitchenTypes";
 import { Appliance } from "./db/appliances";
 import { hash } from "./reverse-engineered/prng";
-import { RestaurantSettings, Unlocks } from "./db/unlocks";
+import { Unlocks } from "./db/unlocks";
 import { chars } from "../utils/utils";
 import { DishType, UnlockGroup } from "../kitchenEnums";
 const CUSTOMER_INCREASING_CARDS = [

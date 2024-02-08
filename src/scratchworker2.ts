@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { DishType } from "./kitchenEnums";
 import { Unlock } from "./kitchenTypes";
 import { RestaurantSettings, Unlocks } from "./workers/db/unlocks";
