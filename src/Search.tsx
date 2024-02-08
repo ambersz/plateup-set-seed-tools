@@ -2,7 +2,7 @@ import { RerollConfig, Shop } from "./workers/reverse-engineered/shop.ts";
 import { Unlocks } from "./workers/db/unlocks.ts";
 import { spawnInsides } from "./WeeklyForm.tsx";
 import { playerInsides } from "./WeeklyForm.tsx";
-import { chars } from "./workers/seedSearchWorker.ts";
+import { chars } from "./utils/utils.ts";
 
 export const Search = () => {
 	let res;

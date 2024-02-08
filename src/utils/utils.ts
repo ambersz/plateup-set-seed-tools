@@ -9,3 +9,23 @@ export function ShuffleInPlace<T>(array: T[], Random: Random): T[] {
 	}
 	return array;
 }
+
+export const chars = "abcdefghijklmnopqrstuvwxyz123456789";
+export const IN_GAME_SEED_CHARS = "bdghjmqrtvwxy346789";
+
+export function randomAZSeed() {
+	let seed = "";
+	while (seed.length < 6) {
+		seed += chars[Math.floor(Math.random() * chars.length)];
+	}
+	return "az" + seed;
+}
+
+export function randomInGameSeed() {
+	let seed = "";
+	while (seed.length < 8) {
+		seed +=
+			IN_GAME_SEED_CHARS[Math.floor(Math.random() * IN_GAME_SEED_CHARS.length)];
+	}
+	return seed;
+}

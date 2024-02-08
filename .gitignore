@@ -25,3 +25,5 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+src/workers/reverse-engineered/pack logs.txt
+src/workers/reverse-engineered/turbo-raw.txt

@@ -1,4 +1,5 @@
 import { Unlock } from "../kitchenTypes";
+import { IN_GAME_SEED_CHARS } from "../utils/utils";
 import { RestaurantSettings, SpeedrunDishes } from "./db/unlocks";
 import { FindNewUnlocks } from "./reverse-engineered/cards";
 import { FixedSeedContext, Random } from "./reverse-engineered/prng";
@@ -10,7 +11,7 @@ function getWeekOfYear(t: number | undefined = undefined) {
 	newYear.setUTCMonth(0);
 	newYear.setUTCDate(1);
 	newYear.setUTCHours(0, 0, 0, 0);
-	let weekOffset = (newYear.getUTCDay() + 6) % 7;
+	let weekOffset = newYear.getUTCDay() % 7;
 	const weeks =
 		(weekOffset ? 1 : 0) +
 		Math.floor(
@@ -54,8 +55,6 @@ function getWeeklySeed() {
 	const [year, week] = getWeekOfYear();
 	return generateInGameSeed(200 * year + week);
 }
-
-const IN_GAME_SEED_CHARS = "bdghjmqrtvwxy346789";
 function generateInGameSeed(randomSource: number) {
 	const r = new Random(randomSource);
 	let seed: string = "";

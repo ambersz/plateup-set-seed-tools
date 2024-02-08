@@ -28,7 +28,7 @@ function binomialCoefficient(k: number, n: number) {
 const CoffeeEatingTime = () => {
 	let res: number[][] = [];
 	const baseEatingTimes = [0.75, 1.5, 3, 6, 12];
-	for (let n = 1; n <= 6; n++) {
+	for (let n = 1; n <= 7; n++) {
 		res[n - 1] = [];
 		for (let indexX = 0; indexX < baseEatingTimes.length; indexX++) {
 			const base = baseEatingTimes[indexX];

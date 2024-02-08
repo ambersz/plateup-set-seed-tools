@@ -3,6 +3,7 @@ export enum UnlockGroup {
 	Dish,
 	PrimaryTheme = 3,
 	SecondaryTheme,
+	Franchise,
 	Special = 6,
 }
 

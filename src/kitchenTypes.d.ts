@@ -1,6 +1,6 @@
 import { DishType, UnlockGroup } from "./kitchenEnums";
 
-interface Unlock {
+export interface Unlock {
 	ID: number;
 	Name: string;
 	// isUnlockable: boolean;

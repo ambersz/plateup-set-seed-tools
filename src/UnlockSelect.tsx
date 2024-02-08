@@ -18,7 +18,7 @@ function getFilteredCards(
 	return Options.filter(function filterCard(unlock) {
 		if (
 			dishTypeFilter.some((dt) => dt === DishType.Base) &&
-			unlock.Name === "Cakes"
+			(unlock.Name === "Cakes" || RestaurantSettings.includes(unlock))
 		)
 			return true; // exception because there's some weird shenanigans to get Cakes to not show up in Autumn
 		return (

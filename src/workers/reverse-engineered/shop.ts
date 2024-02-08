@@ -34,16 +34,52 @@ const shopSize = Appliances.filter(
 export class Shop {
 	seed: string;
 	mapSize: number;
+	numTiles: number;
 	baseUpgradeChance: number;
 	OwnedAppliances: Appliance[];
 	Cards: Unlock[];
 	constructor(seed: string, baseUpgradeChance = 0) {
 		this.seed = seed;
-		this.mapSize = 1;
+		[this.mapSize, this.numTiles] = this.getLayoutInfo();
 		this.baseUpgradeChance = baseUpgradeChance;
 		this.OwnedAppliances = [];
 		// Appliances.filter((a) => a.Name === "Blueprint Cabinet");
 		this.Cards = [];
+	}
+	getLayoutInfo(): [number, number] {
+		const r = new FixedSeedContext(this.seed, 5078598);
+		const roll = r.useSubcontext(0).random.range(0, 8);
+		let mapSize: number;
+		let numTiles: number;
+		switch (roll) {
+			case 0:
+				numTiles = 70;
+				mapSize = 2;
+				break;
+			case 4:
+				numTiles = 84;
+				mapSize = 2;
+				break;
+			case 1:
+			case 5:
+				numTiles = 60;
+				mapSize = 1;
+				break;
+			case 2:
+			case 6:
+				numTiles = 9 * 13;
+				mapSize = 3;
+				break;
+			case 3:
+			case 7:
+				numTiles = 12 * 16;
+				mapSize = 4;
+				break;
+			default:
+				throw new Error();
+				break;
+		}
+		return [mapSize, numTiles];
 	}
 
 	addCard(card: Unlock) {
@@ -63,7 +99,7 @@ export class Shop {
 			// now the game gets indoor post tiles specifically for decor if you spawn outside, but not in a subcontext
 			// simulate effect of randomly choosing tiles
 			if (!config.spawnInside) {
-				res += numTiles(config.playerInside, this.mapSize);
+				res += prngAdvancementsFromTiles(config.playerInside, this.numTiles);
 			}
 			// cost of sorting list of available decor by a random value
 			res += numDecors;
@@ -147,7 +183,7 @@ export class Shop {
 				if (option.Filter == ShopRequirementFilter.RefreshableProvider) {
 					// 2. handle Supplies only dropping when you own a refillable (or not? I will probably never buy a consumable)
 					// TODO AZ
-					// option.IsRemoved = true; // allow them to stay because I want to search for Supplies!
+					option.IsRemoved = true; // allow them to stay because I want to search for Supplies!
 				}
 				if (
 					option.DecorationRequired != DecorationType.Null &&
@@ -289,29 +325,8 @@ export class Shop {
 	}
 }
 
-function numTiles(inside: boolean, mapSize: number) {
-	// TODO: this is the diner size, will not work for non-solo levels!!!!
-	let tiles = 60;
-	switch (mapSize) {
-		case 1:
-			tiles = 60;
-			break;
-		case 2:
-			tiles = 70; // is sometimes 14*6 = 84, can't tell from map size
-			break;
-		case 3:
-			tiles = 9 * 13;
-			break;
-		case 4:
-			tiles = 16 * 12;
-			break;
-		default:
-			console.log(`Unknown Map Size ${mapSize}`);
-			tiles = 60;
-			break;
-	}
-	if (inside) return tiles - 2;
-
+function prngAdvancementsFromTiles(inside: boolean, numTiles: number) {
+	if (inside) return numTiles - 2;
 	// otherwise is outside only
-	return tiles - 1;
+	return numTiles - 1;
 }

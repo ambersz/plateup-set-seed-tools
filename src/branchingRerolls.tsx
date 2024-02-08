@@ -17,16 +17,20 @@ function explainRerollConfig(c: RerollConfig[]): string {
 		const config = c[i];
 		let roll = i ? `Reroll ${i}` : "Spawn";
 		roll += ": ";
-		roll += config.spawnInside
-			? "Spawn Inside"
-			: "Spawn Outside, " +
-			  (config.playerInside ? "Someone Inside" : "Everyone Outside");
+		roll +=
+			"Blueprints " +
+			(config.spawnInside
+				? "Spawn Inside"
+				: "Spawn Outside, " +
+				  (config.playerInside
+						? "Someone Inside"
+						: "All Players Stand Outside"));
 		if (i) {
 			roll += `, reroll ${c[i].blueprintCount} blueprints`;
 		}
 		res += roll + "\n";
 	}
-	res += "Last Reroll: any settings";
+	res += `Reroll ${c.length}: any settings`;
 	return res;
 }
 interface BranchingRerollProps {
@@ -49,13 +53,14 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 	baseUpgradeChance = 0,
 	blueprintCount = 5,
 	searchDepth = 2,
+	// ghostBlueprints = 0,
 	ghostBlueprints = 2,
 	blueprintCabinets = 1,
 	solo,
 	cards = [],
 	appliances = [],
 }: BranchingRerollProps) => {
-	console.log({ baseUpgradeChance, blueprintCount });
+	seed = seed.toLocaleLowerCase();
 	const finalRollConfig: RerollConfig = {
 		blueprintCount: blueprintCount + ghostBlueprints,
 		spawnInside: true,
@@ -115,9 +120,10 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 		let row: VNode[] = [];
 		for (let i = 0; i < cumulativeConfigs.length; i++) {
 			const final = { ...finalRollConfig };
-			final.blueprintCount =
-				(cumulativeConfigs[i].at(-1)?.blueprintCount ?? blueprintCount) +
-				ghostBlueprints;
+			final.blueprintCount = cumulativeConfigs[i].length
+				? (cumulativeConfigs[i].at(-1)?.blueprintCount ?? blueprintCount) +
+				  ghostBlueprints
+				: blueprintCount;
 			const roll = shop
 				.getAppliances([...cumulativeConfigs[i], final], day)
 				.map((a) => a.Name);
@@ -130,7 +136,7 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 					<GhostBlueprints
 						bps={roll}
 						// normalCount={blueprintCount}
-						ghostCount={ghostBlueprints}
+						ghostCount={depth === 0 ? 0 : ghostBlueprints}
 					/>
 				</td>
 			);
@@ -141,7 +147,12 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 				newConfigs.push(newConfig as RerollConfig[]);
 			}
 		}
-		renders.push(<tr>{row}</tr>);
+		renders.push(
+			<tr>
+				<td>{depth ? `Reroll ${depth}` : `Spawns`}</td>
+				{row}
+			</tr>
+		);
 		cumulativeConfigs = newConfigs;
 	}
 	return <table> {renders} </table>;
@@ -163,7 +174,7 @@ interface SeedConfigFormProps {
 const SeedConfigForm = ({ onConfigChange }: SeedConfigFormProps) => {
 	const [searchDepth, setSearchDepth] = useState(2);
 	const [seed, setSeed] = useInput("az");
-	const [day, setDay] = useInput("1");
+	const [day, setDay] = useInput("2");
 	const [blueprintCount, setBlueprintCount] = useState(5);
 	const [baseUpgradeChance, setUpgradeChance] = useState(0);
 	const [solo, setSolo] = useState(false);
@@ -183,7 +194,7 @@ const SeedConfigForm = ({ onConfigChange }: SeedConfigFormProps) => {
 	useEffect(() => {
 		onConfigChange({
 			seed,
-			day: Number(day),
+			day: Number(day) - 1,
 			initialRerollConfig: [],
 			blueprintCount,
 			baseUpgradeChance,
@@ -213,7 +224,7 @@ const SeedConfigForm = ({ onConfigChange }: SeedConfigFormProps) => {
 					checked={solo}
 					onChange={() => setSolo((a) => !a)}
 				/>
-				<label for="searchDepth">Search Depth</label>{" "}
+				<label for="searchDepth">Number of Rerolls</label>{" "}
 				<input
 					id="searchDepth"
 					type="number"
@@ -238,7 +249,7 @@ const SeedConfigForm = ({ onConfigChange }: SeedConfigFormProps) => {
 			<div>
 				{/* Day Config: */}
 				<label for="day" value={day}>
-					Day:{" "}
+					Prep of Day:{" "}
 				</label>
 				<input type="number" value={day} onChange={setDay} />
 				<UnlocksComboBox
@@ -267,6 +278,30 @@ const BranchingRerollPage = () => {
 		<>
 			<SeedConfigForm onConfigChange={setConfig} />
 			<BranchingRerolls {...config} blueprintCabinets={1} />
+			<h3>How to use this tool:</h3>
+			<ul>
+				<li>
+					Find a cell in the table with the appliance you're looking for. The
+					first row is the natural spawns. Each row down you go will require
+					another reroll
+				</li>
+				<li>
+					Hover the cell to find instructions on how many blueprints you need to
+					reroll, what blueprint spawn settings you need to have, and where you
+					need to stand at each step to reach that cell. They will always tell
+					you that the settings and number of blueprints on the last reroll can
+					be anything
+				</li>
+				<li>
+					If you reroll 5 blueprints on the last step, you will see the first 5
+					blueprints in that cell, read left to right. The blueprints in normal
+					text are the ones you would see if you rerolled all blueprints from
+					the previous step. The greyed out blueprints are those you would see
+					only if you take blueprints out of cabinets just before the final
+					reroll
+				</li>
+			</ul>
+			<div>Not implemented: handling blueprint desk effects on rerolls</div>
 		</>
 	);
 };

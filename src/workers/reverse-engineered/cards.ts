@@ -1,16 +1,19 @@
 import { getUnblockedCards } from "../db/unlocks";
 import { Unlock } from "../../kitchenTypes";
-import { UnlockGroup } from "../../kitchenEnums";
+import { DishType, UnlockGroup } from "../../kitchenEnums";
 import { FixedSeedContext, Random } from "./prng";
-
-interface UnlockPack {
+interface IUnlockPack {
 	GetOptions: (
 		cards: Unlock[],
 		day: number,
 		fsc: FixedSeedContext
 	) => [Unlock, Unlock];
+	getPad: (cards: Unlock[], day: number) => number;
+	sortCandidates: (cards: Unlock[], day: number, random: Random) => Unlock[];
+	getUnlockGroups: (day: number) => [UnlockGroup, UnlockGroup];
 }
-class TurboUnlockPack {
+
+class UnlockPack implements IUnlockPack {
 	encourageGroups: UnlockGroup[] = [UnlockGroup.Special];
 	constructor() {}
 	GetOptions(
@@ -19,83 +22,17 @@ class TurboUnlockPack {
 		fsc: FixedSeedContext
 	): [Unlock, Unlock] {
 		const random = fsc.random;
-		let candidates = getUnblockedCards(cards);
-		let pad = getUnblockedCards(cards, false).length + 1;
-		// console.log({ autumn: candidates.length, non: pad - 1 });
-		// console.log(
-		// 	getUnblockedCards(cards, false)
-		// 		.map((a) => a.Name)
-		// 		.join(",")
-		// );
-		if (cards.some((a) => a.Name === "Turbo")) {
-			if (day !== 5) pad += candidates.length + 1;
-		} else if (cards.some((a) => a.Name === "Community")) {
-			// Autumn
-			if (day === 5) {
-				pad += candidates.length + 2;
-				// pad = 0;
-				// console.log(
-				// 	sort(getUnblockedCards(cards, false), random)
-				// 		.map((a) => a.Name)
-				// 		.join(",")
-				// );
-				// random.value;
-				// console.log(
-				// 	sort(getUnblockedCards(cards, true), random)
-				// 		.map((a) => a.Name)
-				// 		.join(",")
-				// );
-				// random.value;
-				// random.value;
-				// // console.log(sort(getUnblockedCards(cards, true), random));
-				// // console.log(sort(getUnblockedCards(cards, false),random))
-				// candidates = getUnblockedCards(cards, false);
-			}
-		} else {
-			console.error("This Setting is not implemented yet");
-		}
-		// console.log({ pad });
+		const prePadState = [...random.seed];
+		let pad = 0;
+		if (day !== 15) pad = this.getPad(cards, day);
 		while (pad--) {
 			random.value;
 		}
-		let sortedCards = sort(candidates, random);
-		// debugger;
-		// console.log(sortedCards.map((a) => a.Name).join(", "));
 
-		const preferPriority =
-			random.valueFloat < (cards.some((a) => a.Name === "Turbo") ? 0.1 : 0.5);
-		// console.log({
-		// 	sortedCards: sortedCards.map((a) => a.Name),
-		// 	preferPriority,
-		// });
-		// console.log(sortedCards.map((a) => a.Name).join(", "));
-		const preferRequire =
-			!cards.some((a) => a.Name === "Community") || day === 5;
-		if (preferPriority) {
-			// console.log("Prefer Priority");
-			sortedCards.sort((a, b) => {
-				let order = 0;
-				if (
-					(preferRequire && a.Requires.length) ||
-					this.encourageGroups.includes(a.UnlockGroup)
-				)
-					order--;
-				if (
-					(preferRequire && b.Requires.length) ||
-					this.encourageGroups.includes(b.UnlockGroup)
-				)
-					order++;
-				return order;
-			});
-		}
-		const firstUnlockGroup =
-			day === 5 ? UnlockGroup.PrimaryTheme : UnlockGroup.Dish;
-		const secondUnlockGroup =
-			day === 5
-				? UnlockGroup.PrimaryTheme
-				: cards.some((a) => a.Name === "Community")
-				? UnlockGroup.Dish
-				: UnlockGroup.Generic;
+		let sortedCards = this.sortCandidates(cards, day, fsc.random);
+		// if (day === 5)
+		// console.log(sortedCards.map((a) => a.Name).join(","));
+		const [firstUnlockGroup, secondUnlockGroup] = this.getUnlockGroups(day);
 		let first = null;
 		let second = null;
 		for (const c of sortedCards) {
@@ -127,25 +64,153 @@ class TurboUnlockPack {
 		}
 		return [first, second] as [Unlock, Unlock];
 	}
+	getPad(cards: Unlock[], day: number) {
+		if (day === 15) return 0;
+		let pad = getUnblockedCards(cards).length + 1;
+		if (day === 5) pad *= 2;
+		return pad;
+	}
+	sortCandidates(cards: Unlock[], _day: number, random: Random): Unlock[] {
+		let candidates = getUnblockedCards(cards);
+		let sortedCards = sort(candidates, random);
+		const preferPriority = random.valueFloat < 0.5;
+		if (preferPriority) {
+			sortedCards.sort((a, b) => {
+				let order = 0;
+				if (genericPriority(a)) order--;
+				if (genericPriority(b)) order++;
+				return order;
+			});
+		}
+		return sortedCards;
+	}
+	getUnlockGroups(day: number): [UnlockGroup, UnlockGroup] {
+		if (day === 15) return [UnlockGroup.Franchise, UnlockGroup.Franchise];
+		if (day === 5) return [UnlockGroup.PrimaryTheme, UnlockGroup.PrimaryTheme];
+		return [UnlockGroup.Dish, UnlockGroup.Generic];
+	}
 }
-function sort(cards: Unlock[], Random: Random): Unlock[] {
+
+class TurboUnlockPack extends UnlockPack {
+	override getPad(cards: Unlock[], day: number) {
+		let pad = getUnblockedCards(cards, false).length + 1;
+		if (day !== 5) pad *= 2;
+		return pad;
+	}
+	override sortCandidates(
+		cards: Unlock[],
+		_day: number,
+		random: Random
+	): Unlock[] {
+		let candidates = getUnblockedCards(cards);
+		let sortedCards = sort(candidates, random);
+		const preferPriority = random.valueFloat < 0.1;
+		if (preferPriority) {
+			sortedCards.sort((a, b) => {
+				let order = 0;
+				if (this.encourageGroups.includes(a.UnlockGroup)) order--;
+				if (this.encourageGroups.includes(b.UnlockGroup)) order++;
+				return order;
+			});
+		}
+		return sortedCards;
+	}
+}
+
+class AutumnUnlockPack extends UnlockPack {
+	override getPad(cards: Unlock[], day: number) {
+		if (day === 15) return 0;
+		let pad = getUnblockedCards(cards, false).length + 1; // cards, not respecting autumn (for the franchise pack)
+		// console.log({ autumnCand: candidates.length, franchisePad: pad - 1 });
+		if (day === 5) {
+			let candidates = getUnblockedCards(cards); // cards, respecting autumn allowing base dishes
+			pad += candidates.length + 2; // once for prioritized sort by dependencies, once for prioritized sort by Turkey/Nut Roast
+		}
+		// console.log({ pad });
+		return pad;
+	}
+	private readonly ThanksgivingCards = ["Turkey", "Nut Roast"];
+
+	override sortCandidates(
+		cards: Unlock[],
+		day: number,
+		random: Random
+	): Unlock[] {
+		let candidates =
+			day === 5 || day === 15
+				? getUnblockedCards(cards, false)
+				: getUnblockedCards(cards);
+		let sortedCards = sort(candidates, random);
+		// console.log(sortedCards.map((a) => a.Name).join(","));
+
+		const valueFloat = random.valueFloat;
+		const preferPriority = valueFloat < 0.5;
+		// console.log({ valueFloat, preferPriority });
+		if (preferPriority) {
+			// console.log({ preferPriority });
+			sortedCards.sort((a, b) => {
+				let order = 0;
+				if (genericPriority(a, false)) order--;
+				if (genericPriority(b, false)) order++;
+				return order;
+			});
+		}
+
+		if (day !== 5 && day !== 15) {
+			// 25% of the time, the game will bury Turkey and Nut Roast. Probably a bug
+			// technically this doesn't matter since this can't mess up the relative orders of the themes, and there's nothing depending on the prng state after this, but just in case....
+			const hateThanksgiving = random.valueFloat < 0.25;
+			if (hateThanksgiving) {
+				sortedCards.sort((a, b) => {
+					let order = 0;
+					if (this.ThanksgivingCards.includes(a.Name)) order++;
+					if (this.ThanksgivingCards.includes(b.Name)) order--;
+					return order;
+				});
+			}
+		}
+		// console.log({ preferPriority, preferThanksgiving });
+		return sortedCards;
+	}
+	override getUnlockGroups(day: number): [UnlockGroup, UnlockGroup] {
+		if (day === 15) return [UnlockGroup.Franchise, UnlockGroup.Franchise];
+		if (day === 5) return [UnlockGroup.PrimaryTheme, UnlockGroup.PrimaryTheme];
+		return [UnlockGroup.Dish, UnlockGroup.Dish];
+	}
+}
+
+function sort(cards: Unlock[], random: Random): Unlock[] {
 	const res = cards
-		.map((c) => [c, Random.valueFloat] as [Unlock, number])
+		.map((c) => [c, random.valueFloat] as [Unlock, number])
 		.sort((a, b) => a[1] - b[1]);
 	// console.log(res.map(([a, b]) => [a.Name, b].join(",")).join("\n"));
 	return res.map((c) => c[0]);
 }
+
 export class FindNewUnlocks {
 	cards: Unlock[];
-	unlockPack: UnlockPack;
+	unlockPack: IUnlockPack;
 	seed: string;
 	constructor(seed: string) {
 		this.cards = [];
-		this.unlockPack = new TurboUnlockPack(); // TODO ???
+		// this.unlockPack = new TurboUnlockPack(); // TODO ???
+		this.unlockPack = new UnlockPack();
 		this.seed = seed;
 	}
+
 	addCard(card: Unlock) {
 		if (card === undefined) return;
+		switch (card.Name) {
+			case "Community":
+				// console.log("use Autumn Unlock Pack");
+				this.unlockPack = new AutumnUnlockPack();
+				break;
+			case "Turbo":
+				this.unlockPack = new TurboUnlockPack();
+				break;
+			default:
+				break;
+		}
 		this.cards.push(card);
 	}
 
@@ -155,8 +220,58 @@ export class FindNewUnlocks {
 		const options = this.unlockPack.GetOptions(this.cards, day, forPack);
 		return options;
 	}
-}
 
+	getCustomers(day: number, players: number = 1): number[] {
+		let reductions = this.cards.reduce((a, b) => a + (b.Reductions ?? 0), 0);
+		const [minGroup, maxGroup] = this.getGroupSizeRange(day);
+		let dayModifier: number;
+		switch (day) {
+			case 0:
+				dayModifier = 1;
+				break;
+			case 1:
+				dayModifier = 1.25;
+				break;
+			case 2:
+				dayModifier = 1.5;
+				break;
+
+			default:
+				dayModifier = 1.1 ** day;
+				if (this.cards.some((a) => a.Name === "Turbo")) {
+					dayModifier *= 1.5;
+					dayModifier *= 1.1 ** day;
+				}
+				break;
+		}
+		const expectedTotalCustomers =
+			100 + Math.floor(day / 3) * 0.85 ** reductions * 1;
+	}
+
+	getGroupSizeRange(day: number): [number, number] {
+		const community = this.cards.some((a) => a.Name === "Community");
+		if (community) {
+			const m = Math.floor((day - 1) / 3);
+			return [m + 1, m + 2];
+		}
+		let min = 1;
+		let max = 2;
+		if (this.cards.some((a) => a.Name === "Individual Dining")) return [1, 1];
+		if (this.cards.some((a) => a.Name === "Medium Groups")) {
+			min++;
+			max += 2;
+		}
+		if (this.cards.some((a) => a.Name === "Large Groups")) {
+			min += 2;
+			max += 4;
+		}
+		if (this.cards.some((a) => a.Name === "Flexible Groups")) {
+			min--;
+			max++;
+		}
+		return [min, max];
+	}
+}
 /*
 class UnlockPack {
 	Sets: UnlockSet[];
@@ -191,4 +306,14 @@ class UnlockPack {
 
 function Seed(category_seed: number, instance: number, seed: string) {
 	return new FixedSeedContext(seed, category_seed * 1231231 + instance);
+}
+
+function genericPriority(a: Unlock, prioritiseRequirements: boolean = true) {
+	if (a.UnlockGroup === UnlockGroup.Special) return true;
+	if (a.DishType === DishType.Main || a.DishType === DishType.Extra)
+		return true;
+	if (prioritiseRequirements) {
+		return !!a.Requires.length;
+	}
+	return false;
 }

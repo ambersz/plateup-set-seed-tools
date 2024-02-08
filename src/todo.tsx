@@ -5,31 +5,51 @@ const TODO = () => {
 	return (
 		<div>
 			<h1>Dev</h1>
+			<h2>Autumn</h2>
+			Turkey, Nut Roast get <s>boosted</s> <i>blocked </i>
+			25% of the time -- done
+			<h2>Blueprints</h2>
+			<ul>
+				<li>Plates staple-ness wrong on Coffee/Cakes</li>
+				<li>Supplies</li>
+				<li>
+					Ingredients update immediately upon choosing the card, processes don't
+					update until the next day ends (requires knowing the day a card is
+					actually taken to fix)
+				</li>
+				<ul>
+					<li>
+						Extras/recipe modifications <b>NEVER</b> UPDATE PROCESSES???
+						(azga7d3z: Burgers, Burger Toppings, Charming, Cheeseburgers, Fresh
+						Patties, Pumpkin Pies)
+					</li>
+				</ul>
+				<li>
+					Blueprint desk eats up spawns -&gt; prng doesn't advance -&gt; rerolls
+					off by one per bp desk, until bp desks exceeds non-staple spawn
+					count(?)
+				</li>
+			</ul>
 			<h2>QOL?</h2>
 			<ul>
 				<li>
 					Seed searcher: estimate number of seeds in existance that fit all the
 					requirements, warn if too low
 				</li>
+				<li>Add drag-and-drop reordering of card preferences</li>
 				<li>
 					Progress indicator that the web worker is running in the background--
-					make this compatible with multi-threading
+					make this compatible with multi-threading -- done?, minus
+					multithreading and future-proofing........
 				</li>
-				<li>Instructions about how to use include/exclude toggler</li>
+				<li>Instructions about how to use include/exclude toggler?</li>
 				<li>Push/Native notification when a seed is found? </li>
 			</ul>
-			<h2>Cards</h2>
+			<h2>Tech Debt?</h2>
+			<h3>Cards</h3>
 			<ul>
 				<li>build a better framework to handle the different settings</li>
 				<li>cache the card filtering?</li>
-			</ul>
-			<h3>Autumn</h3>
-			Turkey, Nut Roast get boosted 25% of the time
-			<h2>Blueprints</h2>
-			<ul>
-				<li>Plates staple-ness wrong on Coffee/Cakes</li>
-				<li>Supplies</li>
-				<li>Investigate Blueprint Desk interaction?</li>
 			</ul>
 			<h1>Theorycraft/Jank?</h1>
 			<ul>
@@ -61,6 +81,35 @@ const TODO = () => {
 					<a href="https://plateupplanner.github.io/workspace#G4JgBAbAHgjADGALgNQK4EcBCAnOdV4H6EnFmoA26GOpR9ddWAJlje4+Z5etgCohsVCt1H4WEzMwqpcXeZVSoArMxVrVDBXTAANALSHDAGSMB1E0aMB9K-oNXTAMyA">
 						planner
 					</a>
+				</li>
+			</ul>
+			<h3>Black Flower Stir Fry Autumn</h3>
+			<ul>
+				Layout scratch:
+				<li>
+					<a href="https://plateupplanner.github.io/workspace#G4JgBAbAHgjADGOcCuAvApsgtiZAjALWQCkARZARQEtkBBAJ3tQpIENkRbkBHAIWQDM5JMhFiU40RJQAbbj170+aTAHkAnCuQATAOL0RAUQAqyAJ40QAWQX05tyY+kLtI6w5TqALMgDWwZAAHACspMMk+V2cnMI1kMAANAFoUlIAZVIB1dNTUgH1cpOTcjIAzIA">
+						buy 3 tables, no shuffling plates for dessert?
+					</a>
+				</li>
+				<li>
+					<a href="https://plateupplanner.github.io/workspace#G4JgBAbAHgjADGAjgIQK4GYAiqC2JUBGAWqgFLYCKAlqgIIBO9AXhWQIaoi2oA2iqKenDiphokWMkTpnALIDk9FKiYBTVAHkAnCvUATAOJCRAUQAqqAJ40UelDxDzBU8a5cvbLrQBZUAa2BUAAcAK1c1Nxl3KJE+TR0wAA0AWlTUgBk0gHUMtLSAfTzklLzMgDMgA">
+						buy 2 tables
+					</a>
+				</li>
+				<li>
+					<a href="https://plateupplanner.github.io/workspace#G4JgBAbAHgjADGOcCuTUrZj327QRwCE8VkB1XAQQHETciAbB-ZIgJzQCMAtZALwCmySmzYATahxwFCYosgYKsdZTKYt2AeQCcyAIYB7ZDv5DtAFmQBrYA2VExq6c+RgAGgFovXgDLeyvt7eAPpBHp5BfgBmQA">
+						buy 1 table, have to run throuh door to serve, easy extension to
+						handle dumplings
+					</a>
+				</li>
+			</ul>
+			<h2>0XP to 100% Achievements</h2>
+			<ul>
+				<li>Base dishes don't give XP</li>
+				<li>~double XP/time efficiency from franchising</li>
+				<li>
+					Add a normal/autumn seed searcher that goes to OT15-- done, unless I
+					find more bugs......
 				</li>
 			</ul>
 		</div>

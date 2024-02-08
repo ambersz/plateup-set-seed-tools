@@ -4,7 +4,18 @@ import { Shop } from "./reverse-engineered/shop";
 import type { Unlock } from "../kitchenTypes";
 import { Appliance } from "./db/appliances";
 import { hash } from "./reverse-engineered/prng";
-import { Unlocks } from "./db/unlocks";
+import { RestaurantSettings, Unlocks } from "./db/unlocks";
+import { chars } from "../utils/utils";
+import { DishType, UnlockGroup } from "../kitchenEnums";
+const CUSTOMER_INCREASING_CARDS = [
+	"Burgers",
+	"Hot Dogs",
+	"Breakfast",
+	"Steak",
+	"Salad",
+	"Pizza",
+	"Black Coffee",
+];
 
 // @ts-ignore
 var worker = self as Worker;
@@ -56,6 +67,7 @@ export type ResultFormat =
 export interface ResultData {
 	seed: string;
 	cards: string[];
+	mapSize: number;
 	blueprints: Appliance[];
 }
 
@@ -76,7 +88,7 @@ async function search({
 	goalCards,
 	goalAppliances = [],
 	mapSizes,
-	maxSeeds = 10,
+	maxSeeds = Infinity,
 	partial = false,
 }: SearchParams) {
 	let numSeeds = 0;
@@ -86,7 +98,15 @@ async function search({
 		promiseResolver();
 	};
 	let seed = "az2mpjp3";
-	const cards = goalCards[0].cards;
+	const restaurantSettings = goalCards[0].cards.filter(
+		(a) => a.UnlockGroup === UnlockGroup.Special
+	);
+	const startingDishes = goalCards[0].cards.filter(
+		(a) => a.DishType !== DishType.Null
+	);
+	const cardDays = goalCards[0].cards.some((a) => a.Name === "Turbo")
+		? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+		: [3, 5, 6, 9, 12, 15, 18, 21, 24, 27].slice(0, goalCards.length - 1);
 
 	let metric: [number, string[]] = [-Infinity, []];
 	let n = maxSeeds;
@@ -108,27 +128,31 @@ async function search({
 		}
 		const ms = new Run(seed).mapSize;
 		if (!mapSizes.includes(ms)) continue;
-		const candMetric: [number, string[]] = test(
-			seed,
-			cards,
-			goalCards,
-			goalAppliances,
-			partial
-		);
-		if (candMetric[0] >= metric[0]) {
-			if (!Number.isFinite(candMetric[0])) continue;
-			metric = candMetric;
-			n--;
-			// const res = JSON.stringify({
-			// 	seed,
-			// 	metric: [candMetric[0], candMetric[1]],
-			// });
-			// // console.log(res);
-			reportResult({
+		for (const dish of startingDishes) {
+			const candMetric: [number, string[]] = test(
 				seed,
-				cards: candMetric[1],
-				blueprints: [],
-			});
+				[...restaurantSettings, dish],
+				goalCards,
+				goalAppliances,
+				partial,
+				cardDays
+			);
+			if (candMetric[0] >= metric[0]) {
+				if (!Number.isFinite(candMetric[0])) continue;
+				metric = candMetric;
+				n--;
+				// const res = JSON.stringify({
+				// 	seed,
+				// 	metric: [candMetric[0], candMetric[1]],
+				// });
+				// // console.log(res);
+				reportResult({
+					seed,
+					mapSize: ms,
+					cards: candMetric[1],
+					blueprints: [],
+				});
+			}
 		}
 	}
 	// 3911700 distinct seeds checked in 2 minutes over 3935153 tries.
@@ -158,7 +182,8 @@ function test(
 	cards: Unlock[],
 	goalCardConfigs: GoalCardConfig[],
 	_goalAppliances: string[],
-	partial: boolean = false
+	partial: boolean = false,
+	cardDays: number[]
 ): [number, string[]] {
 	const INSPECT_BLUEPRINTS = import.meta.env.DEV ? false : false;
 	if (INSPECT_BLUEPRINTS) {
@@ -191,57 +216,85 @@ function test(
 
 	let partialMisses = 0;
 	let day = 1;
-	for (; day < 15; day++) {
-		const options = game.getUnlockOptions(day);
-		const leftRank = rankOfCandidate(options[0], goalCardConfigs[day]);
-		const rightRank = rankOfCandidate(options[1], goalCardConfigs[day]);
-		let chosen = -1;
-		if (leftRank > -1 && rightRank > -1) {
-			// choose smallest
-			if (leftRank < rightRank) {
-				chosen = 0;
-			} else if (rightRank < leftRank) {
-				chosen = 1;
+	let haveDessert = false;
+	let haveStarter = false;
+	for (; day <= (cardDays.at(-1) ?? 15); day++) {
+		if (cardDays.includes(day)) {
+			const dayIndex = cardDays.indexOf(day) + 1;
+			const options = game.getUnlockOptions(day);
+			const leftRank = rankOfCandidate(options[0], goalCardConfigs[dayIndex]);
+			const rightRank = rankOfCandidate(options[1], goalCardConfigs[dayIndex]);
+			let chosen = -1;
+			if (leftRank > -1 && rightRank > -1) {
+				// choose smallest
+				if (leftRank < rightRank) {
+					chosen = 0;
+				} else if (rightRank < leftRank) {
+					chosen = 1;
+				} else {
+					// equal, pick randomly?
+					chosen = Math.floor(Math.random() * 2);
+				}
+			} else if (leftRank === -1 && rightRank === -1) {
+				// failed
+				if (
+					!partial ||
+					// (goalCardConfigs[day].include &&
+					// 	goalCardConfigs[day].cards.length === 1) // want one specific card, partial not allowed.
+					day < 2 ||
+					partialMisses > 2
+				) {
+					return [-Infinity, []];
+				}
+				// chosen = Math.floor(Math.random() * 2);
+				partialMisses++;
+				if (CUSTOMER_INCREASING_CARDS.includes(options[0].Name)) {
+					chosen = 1;
+				} else {
+					chosen = 0;
+				}
+				const other = options[1 - chosen];
+				if (
+					other.Name === "Dumplings" ||
+					other.Name.includes("Stuffing") ||
+					(!haveDessert &&
+						other.DishType === DishType.Dessert &&
+						other.Name !== "Black Coffee") ||
+					(!haveStarter && other.DishType === DishType.Starter)
+				)
+					chosen = 1 - chosen;
 			} else {
-				// equal, pick randomly?
-				chosen = Math.floor(Math.random() * 2);
+				// choose non-negative one
+				if (leftRank >= 0) {
+					chosen = 0;
+				} else {
+					chosen = 1;
+				}
 			}
-		} else if (leftRank === -1 && rightRank === -1) {
-			// failed
-			if (
-				!partial ||
-				// (goalCardConfigs[day].include &&
-				// 	goalCardConfigs[day].cards.length === 1) // want one specific card, partial not allowed.
-				day < 2
-			) {
-				return [-Infinity, []];
+			// const chosenRank = indexOfUnlock(
+			// 	goalCardConfigs[day].cards,
+			// 	options[chosen]
+			// );
+			// rank += chosenRank * (Math.abs(chosenRank - day + 1) + 1);
+			if (!options[chosen]) {
+				console.log({ options });
+				throw new Error();
 			}
-			chosen = Math.floor(Math.random() * 2);
-			partialMisses++;
-		} else {
-			// choose non-negative one
-			if (leftRank >= 0) {
-				chosen = 0;
-			} else {
-				chosen = 1;
+			switch (options[chosen].DishType) {
+				case DishType.Dessert:
+					haveDessert = true;
+					break;
+				case DishType.Starter:
+					haveStarter = true;
+					break;
+				default:
+					break;
 			}
+			game.addCard(options[chosen]);
 		}
-		// const chosenRank = indexOfUnlock(
-		// 	goalCardConfigs[day].cards,
-		// 	options[chosen]
-		// );
-		// rank += chosenRank * (Math.abs(chosenRank - day + 1) + 1);
-		if (!options[chosen]) {
-			debugger;
-			console.log({ options });
-			throw new Error();
-		}
-		game.addCard(options[chosen]);
 	}
 	return [day - partialMisses, game.cards.map((a) => a.Name)];
 }
-
-export const chars = "abcdefghijklmnopqrstuvwxyz123456789";
 if (import.meta.env.DEV) {
 	{
 		let utf8Encode = new TextEncoder();

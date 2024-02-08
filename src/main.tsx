@@ -7,14 +7,27 @@ const Navigation = () => {
 			<h2>Set Seed Tools:</h2>
 			<ul>
 				<li>
-					<a href="weekly.html">Weekly Speedrun</a>
+					<a href="turbo-seed-searcher.html">Turbo Seed Searcher</a>
 				</li>
 				<li>
-					<a href="seed-searcher.html">Turbo Seed Searcher</a>
+					<a href="normal-seed-searcher.html">Normal/Autumn Seed Searcher</a>
 				</li>
 				<li>
-					<a href="branching-rerolls.html">Blueprint Rerolls</a>
+					<a href="versus-seeds.html">Normal/Autumn Versus Seed Generator</a>{" "}
+					(Limit card choice butterfly effect)
 				</li>
+				<li>Incomplete/very buggy:</li>
+				<ul>
+					<li>
+						<a href="branching-rerolls.html">Blueprint Rerolls</a>
+					</li>
+					<li>
+						<a href="card-paths.html">Card Paths</a>
+					</li>
+					<li>
+						<a href="weekly.html">Weekly Speedrun</a>
+					</li>
+				</ul>
 			</ul>
 			<h2>Notes/Weird Mechanics?</h2>
 			<ul>

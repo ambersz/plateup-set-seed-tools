@@ -1,8 +1,6 @@
 import { render } from "preact";
 import "./index.css";
-import { RestaurantSettings, Unlocks } from "./workers/db/unlocks";
 import { useEffect, useState } from "preact/hooks";
-import { Unlock } from "./kitchenTypes";
 import { UnlocksComboBox } from "./UnlockSelect";
 import { DishType, UnlockGroup } from "./kitchenEnums";
 import {
@@ -12,8 +10,6 @@ import {
 	ResultFormat,
 } from "./workers/seedSearchWorker";
 import { usePersistentState } from "./hooks/usePersistentState";
-
-const cakes = Unlocks.filter((u) => u.Name === "Cakes")[0];
 
 const seedSearchWorkers: Worker[] = [];
 const multithreading = 1;
@@ -31,75 +27,28 @@ function sendMessage(message: MessageFormat) {
 	}
 }
 
-const defaultCardsByDay: GoalCardConfig[] = [
-	{
-		include: true,
-		cards: [
-			RestaurantSettings.filter((a) => a.Name === "Turbo")[0],
-		] as Unlock[],
-	},
-];
-if (import.meta.env.DEV) defaultCardsByDay[0].cards.push(cakes);
-const defaultGoodCards: GoalCardConfig = {
-	include: true,
-	cards: [
-		"Ice Cream",
-		"Instant Service",
-		"All You Can Eat",
-		"Victorian Standards",
-		"Sedate Atmosphere",
-		"Roast Potato",
-		"Broccoli",
-		"Bamboo",
-		"Mashed Potato",
-		"Chips",
-		"Corn on the Cob",
-		"Onion Rings",
-	].flatMap((n) => Unlocks.filter((a) => a.Name === n)),
-};
-const defaultBadCustCards: GoalCardConfig = {
-	include: false,
-	cards: [
-		"Apple Pie",
-		"Cherry",
-		"Pumpkin",
-		"Leisurely",
-		"Mandarin",
-		"Bread",
-		"Closing Time",
-		"Picky",
-		"Medium",
-		"Advertising",
-		"Cheese ",
-		"Soup",
-	].flatMap((n) => Unlocks.filter((a) => a.Name.includes(n))),
-};
-{
-	let d = 1;
-	for (; d <= 9; d++) {
-		defaultCardsByDay[d] =
-			d === 5
-				? {
-						include: true,
-						cards: Unlocks.filter((a) => a.Name === "Affordable"),
-				  }
-				: defaultGoodCards;
-	}
-	for (; d <= 14; d++) {
-		defaultCardsByDay[d] = defaultBadCustCards;
-	}
+const defaultCardsByDay: GoalCardConfig[] = [];
+for (let i = 0; i < 12; i++) {
+	defaultCardsByDay.push({
+		include: i !== 6 && i !== 11,
+		cards: [],
+	});
 }
 
 const SeedSearcher = () => {
 	const [count, setCount] = useState(0);
+	const [ot15, setOT15] = usePersistentState<boolean>(
+		false,
+		"SEED_SEARCHER_NORMAL_OT15"
+	);
 	const [results, setResults] = usePersistentState<ResultData[]>(
 		[],
-		"SEED_SEARCHER_RESULTS"
+		"SEED_SEARCHER_NORMAL_RESULTS"
 	);
 	const [searching, setSearching] = useState<boolean>(false);
 	const [allowedTables, setAllowedTables] = usePersistentState(
 		[1, 2, 3, 4],
-		"SEED_SEARCHER_ALLOWED_TABLES"
+		"SEED_SEARCHER_NORMAL_ALLOWED_TABLES"
 	);
 	const tables = [1, 2, 3, 4];
 	useEffect(() => {
@@ -130,17 +79,17 @@ const SeedSearcher = () => {
 			worker.onmessage = handleSearchResults;
 		}
 	}, []);
-	const cardDays = [];
-	for (let i = 1; i <= 14; i++) {
-		cardDays.push(i);
-	}
+
+	const cardDays = ot15
+		? [3, 5, 6, 9, 12, 15, 18, 21, 24, 27]
+		: [3, 5, 6, 9, 12];
 	const toggleSearch = () => {
 		if (searching) {
 			sendMessage({ type: "stop" });
 			setSearching(false);
 		} else {
 			// sanity check inputs
-			if (cardsByDay[0].cards.length < 2) {
+			if (cardsByDay[0].cards.length < 1) {
 				alert("No starting dish selected.");
 				return;
 			} else if (cardsByDay[0].cards.length > 2) {
@@ -148,12 +97,12 @@ const SeedSearcher = () => {
 				// return;
 			}
 			const invalidDays = [];
-			for (let d = 1; d < 15; d++) {
+			for (let d = 1; d < cardDays.length; d++) {
 				if (
 					!cardsByDay[d] ||
 					(cardsByDay[d].include && cardsByDay[d].cards.length === 0)
 				)
-					invalidDays.push(d);
+					invalidDays.push(cardDays[d]);
 			}
 			if (invalidDays.length) {
 				if (invalidDays.length > 1)
@@ -172,7 +121,7 @@ const SeedSearcher = () => {
 				type: "start",
 				data: {
 					mapSizes: allowedTables,
-					goalCards: cardsByDay,
+					goalCards: cardsByDay.slice(0, cardDays.length + 1), // 1 extra for starting cards config
 					goalAppliances: spawnGoals, // TODO: not supported yet
 				},
 			});
@@ -181,16 +130,13 @@ const SeedSearcher = () => {
 	};
 	const [cardsByDay, setCardsByDay] = usePersistentState(
 		defaultCardsByDay,
-		"SEED_SEARCHER_CARDS_BY_DAY"
+		"SEED_SEARCHER_NORMAL_CARDS_BY_DAY"
 	);
-	const handleCardSelectionChange = (day: number) => {
+	const handleCardSelectionChange = (dayIndex: number) => {
 		return (newSelection: GoalCardConfig) => {
 			setCardsByDay((orig) => {
 				const copy = [...orig];
-				if (day === 0 && newSelection.cards[0]?.Name !== "Turbo") {
-					newSelection.cards.splice(0, 0, copy[day].cards[0]);
-				}
-				copy[day] = newSelection;
+				copy[dayIndex] = newSelection;
 				return copy;
 			});
 		};
@@ -208,6 +154,16 @@ const SeedSearcher = () => {
 	return (
 		<div class="search-container">
 			<div class="search-config">
+				<div>
+					<label>Search until OT15</label>
+					<input
+						type="checkbox"
+						onChange={() => {
+							setOT15(!ot15);
+						}}
+						checked={ot15}
+					/>
+				</div>
 				<div style="min-width:fit-content;">
 					<label>Starting Tables: </label>
 					{tables.map((n) => {
@@ -237,11 +193,11 @@ const SeedSearcher = () => {
 							unlockGroupFilter={[UnlockGroup.Dish]}
 							dishTypeFilter={[DishType.Null, DishType.Base]}
 						/>
-						{cardDays.map((day) => (
+						{cardDays.map((day, i) => (
 							<UnlocksComboBox
-								onSelectionChange={handleCardSelectionChange(day)}
-								label={"After Day " + day}
-								{...(cardsByDay[day] ?? {})}
+								onSelectionChange={handleCardSelectionChange(i + 1)}
+								label={"After Day " + (day > 15 ? `OT${day - 15}` : day)}
+								{...(cardsByDay[i + 1] ?? {})}
 								unlockGroupFilter={
 									day === 5
 										? [UnlockGroup.PrimaryTheme]
@@ -268,9 +224,7 @@ const SeedSearcher = () => {
 					{results.map((r) => {
 						return (
 							<div>
-								{r.seed}
-								{r.mapSize && ` (${r.mapSize})`}:{" "}
-								<div>{r.cards.join(", ")}</div>
+								{r.seed} ({r.mapSize}): <div>{r.cards.join(", ")}</div>
 								{r.blueprints.map((bp) => bp.Name).join(", ")}
 							</div>
 						);
