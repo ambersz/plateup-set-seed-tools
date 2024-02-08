@@ -206,78 +206,90 @@ const SeedSearcher = () => {
 		};
 	};
 	return (
-		<div class="search-container">
-			<div class="search-config">
-				<div style="min-width:fit-content;">
-					<label>Starting Tables: </label>
-					{tables.map((n) => {
-						const key = n + "-table";
-						return (
-							<>
-								<label for={key}>{n}</label>
-								<input
-									id={key}
-									type="checkbox"
-									onChange={handleToggleTable(n)}
-									checked={allowedTables.includes(n)}
-								/>
-							</>
-						);
-					})}
-				</div>
+		<>
+			<div style={{ maxWidth: "50vw" }}>
+				When more than one starting dish is selected, the searcher will
+				alternate among all of them
+			</div>
+			<div style={{ maxWidth: "50vw" }}>
+				On include/green card mode, the searcher prioritizes the cards which
+				were added first (e.g. if a seed offers Ice Cream and Herd Mentality on
+				Day N, and Ice Cream is before Herd Mentality in the card list for Day
+				N, the searcher will <i>always</i> choose Ice Cream.)
+			</div>
+			<div class="search-container">
+				<div class="search-config">
+					<div style="min-width:fit-content;">
+						<label>Starting Tables: </label>
+						{tables.map((n) => {
+							const key = n + "-table";
+							return (
+								<>
+									<label for={key}>{n}</label>
+									<input
+										id={key}
+										type="checkbox"
+										onChange={handleToggleTable(n)}
+										checked={allowedTables.includes(n)}
+									/>
+								</>
+							);
+						})}
+					</div>
 
-				{
-					// cardsByDay !== defaultCardsByDay &&
-					<>
-						<UnlocksComboBox
-							onSelectionChange={handleCardSelectionChange(0)}
-							showSelectionMode={false}
-							label="Starting Cards"
-							{...cardsByDay[0]}
-							unlockGroupFilter={[UnlockGroup.Dish]}
-							dishTypeFilter={[DishType.Null, DishType.Base]}
-						/>
-						{cardDays.map((day) => (
+					{
+						// cardsByDay !== defaultCardsByDay &&
+						<>
 							<UnlocksComboBox
-								onSelectionChange={handleCardSelectionChange(day)}
-								label={"After Day " + day}
-								{...(cardsByDay[day] ?? {})}
-								unlockGroupFilter={
-									day === 5
-										? [UnlockGroup.PrimaryTheme]
-										: [UnlockGroup.Generic, UnlockGroup.Dish]
-								}
+								onSelectionChange={handleCardSelectionChange(0)}
+								showSelectionMode={false}
+								label="Starting Cards"
+								{...cardsByDay[0]}
+								unlockGroupFilter={[UnlockGroup.Dish]}
+								dishTypeFilter={[DishType.Null, DishType.Base]}
 							/>
-						))}
-					</>
-				}
-			</div>
-			<div class="search-results">
-				<div>{count} seeds checked</div>
-				<button onClick={toggleSearch}>
-					{searching ? "Stop" : "Start"} Search
-				</button>
-				<div class="results">
-					{results.length ? (
-						<button onClick={() => setResults([])}>
-							Clear Previous Results
-						</button>
-					) : (
-						""
-					)}
-					{results.map((r) => {
-						return (
-							<div>
-								{r.seed}
-								{r.mapSize && ` (${r.mapSize})`}:{" "}
-								<div>{r.cards.join(", ")}</div>
-								{r.blueprints.map((bp) => bp.Name).join(", ")}
-							</div>
-						);
-					})}
+							{cardDays.map((day) => (
+								<UnlocksComboBox
+									onSelectionChange={handleCardSelectionChange(day)}
+									label={"After Day " + day}
+									{...(cardsByDay[day] ?? {})}
+									unlockGroupFilter={
+										day === 5
+											? [UnlockGroup.PrimaryTheme]
+											: [UnlockGroup.Generic, UnlockGroup.Dish]
+									}
+								/>
+							))}
+						</>
+					}
+				</div>
+				<div class="search-results">
+					<div>{count} seeds checked</div>
+					<button onClick={toggleSearch}>
+						{searching ? "Stop" : "Start"} Search
+					</button>
+					<div class="results">
+						{results.length ? (
+							<button onClick={() => setResults([])}>
+								Clear Previous Results
+							</button>
+						) : (
+							""
+						)}
+						{results.map((r) => {
+							return (
+								<div>
+									{r.seed}
+									{r.mapSize && ` (${r.mapSize})`}:{" "}
+									<div>{r.cards.join(", ")}</div>
+									{r.blueprints.map((bp) => bp.Name).join(", ")}
+								</div>
+							);
+						})}
+					</div>
 				</div>
 			</div>
-		</div>
+		</>
 	);
 };
 render(
