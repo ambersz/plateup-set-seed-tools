@@ -1,5 +1,6 @@
 import { render } from "preact";
 import "./index.css";
+import Version from "./components/Version";
 
 const Navigation = () => {
 	return (
@@ -41,6 +42,7 @@ const Navigation = () => {
 					<a href="layouts.html">Layouts</a>
 				</li> */}
 			</ul>
+			<Version />
 		</>
 	);
 };

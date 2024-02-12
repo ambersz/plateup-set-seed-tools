@@ -9,6 +9,7 @@ import { randomAZSeed } from "./utils/utils";
 import { Shop } from "./workers/reverse-engineered/shop";
 import { FindNewUnlocks } from "./workers/reverse-engineered/cards";
 import { Unlocks } from "./workers/db/unlocks";
+import { sowpods } from "./sowpods";
 let w: Worker | undefined = undefined;
 type FlowerInfo = number[][];
 let flowerCache: { [key: string]: [number, FlowerInfo] } = {};
@@ -757,4 +758,33 @@ function averageEXP() {
 	console.log({ totalEXP, datapoints, perRun, detailed });
 }
 
-averageEXP();
+function wordNumberSeeds() {
+	const tables = { "": 1, "2": 2, "3": 3, "4": 4 };
+	let ws = { "": true };
+	let cands = {};
+	let sowpodCopy = [...sowpods];
+	for (let i = 0; i < 2; i++) {
+		sowpodCopy = sowpodCopy.filter((a) => a.length <= 7 - 2 * i);
+		// max 3 words to stay under 7 letters
+		const pres = Object.keys(ws);
+		ws = {};
+		for (const pre of pres) {
+			if (pre.length > 5) continue; // no matter what the next word is it would push this over
+			wordLoop: for (const post of sowpodCopy) {
+				const w = pre + post;
+				// debugger;
+				if (w.length > 7) continue;
+				if (i === 0) ws[w] = true;
+				for (const [t, n] of Object.entries(tables)) {
+					const r = new Run(w + t);
+					if (r.mapSize !== n) continue wordLoop;
+				}
+				// console.log(w);
+				cands[w] = true;
+			}
+		}
+		console.log(Object.keys(cands).join(","));
+	}
+}
+
+wordNumberSeeds();

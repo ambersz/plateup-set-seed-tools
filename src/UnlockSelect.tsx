@@ -35,7 +35,7 @@ interface UnlocksComboBoxProps {
 	label?: string;
 	placeholder?: string;
 	include?: boolean;
-	cards?: Unlock[];
+	cards: Unlock[];
 	unlockGroupFilter?: UnlockGroup[];
 	dishTypeFilter?: DishType[];
 	showSelectionMode?: boolean;
@@ -46,7 +46,7 @@ export function UnlocksComboBox({
 	label,
 	placeholder,
 	include = true,
-	cards = [],
+	cards,
 	unlockGroupFilter = [],
 	dishTypeFilter = [],
 }: UnlocksComboBoxProps) {

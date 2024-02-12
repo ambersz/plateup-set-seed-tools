@@ -12,6 +12,7 @@ import {
 	ResultFormat,
 } from "./workers/seedSearchWorker";
 import { usePersistentState } from "./hooks/usePersistentState";
+import Version from "./components/Version";
 
 const cakes = Unlocks.filter((u) => u.Name === "Cakes")[0];
 
@@ -289,6 +290,7 @@ const SeedSearcher = () => {
 					</div>
 				</div>
 			</div>
+			<Version />
 		</>
 	);
 };

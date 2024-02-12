@@ -23,6 +23,10 @@ const TODO = () => {
 						(azga7d3z: Burgers, Burger Toppings, Charming, Cheeseburgers, Fresh
 						Patties, Pumpkin Pies)
 					</li>
+					<li>
+						(This would explain why, in addition to the weird itemgroup
+						mechanics, why breakfast and burger toppings are doubly terrible)
+					</li>
 				</ul>
 				<li>
 					Blueprint desk eats up spawns -&gt; prng doesn't advance -&gt; rerolls
@@ -55,6 +59,17 @@ const TODO = () => {
 			<ul>
 				<li>investigate auto-supplies/specials interactions</li>
 				<li>auto-plater/charming 3/dirty dish stack race condition?</li>
+				<li>force teleport table layout? </li>
+				<ul>
+					<li>
+						ordering detection seems to be a bit broken, maybe force teleport to
+						coffee table so they can walk to tables normally
+					</li>
+					<li>
+						how to handle the outside table? serve once and never again, or is
+						there some way to avoid needing to access it?
+					</li>
+				</ul>
 			</ul>
 			<h3>No-plate recipe diner layouts, display stand vs tables:</h3>
 			<ul>
@@ -100,6 +115,15 @@ const TODO = () => {
 					<a href="https://plateupplanner.github.io/workspace#G4JgBAbAHgjADGOcCuTUrZj327QRwCE8VkB1XAQQHETciAbB-ZIgJzQCMAtZALwCmySmzYATahxwFCYosgYKsdZTKYt2AeQCcyAIYB7ZDv5DtAFmQBrYA2VExq6c+RgAGgFovXgDLeyvt7eAPpBHp5BfgBmQA">
 						buy 1 table, have to run throuh door to serve, easy extension to
 						handle dumplings
+					</a>
+				</li>
+			</ul>
+			<h2>Large Groups Coffee?</h2>
+			<ul>
+				<li>
+					ending layout scratch:{" "}
+					<a href="https://plateupplanner.github.io/workspace#G4JgBAbAHgjADGANgRwK5zqgDgKwCYbqaEnGYpGoBqAlqgEYBaqAklJRRaZd9xACI8yqLsNGUA0gFEhHNN3EK0i4b1XrKAZhgi0YABoBaY8YAyJgOpmTJgPo2H1gGZA">
+						planner
 					</a>
 				</li>
 			</ul>

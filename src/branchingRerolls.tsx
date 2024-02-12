@@ -9,6 +9,7 @@ import { useInput } from "./utils/useInput";
 import { Unlock } from "./kitchenTypes";
 import { UnlocksComboBox } from "./UnlockSelect";
 import { AppliancesComboBox } from "./ApplianceSelect";
+import Version from "./components/Version";
 
 function explainRerollConfig(c: RerollConfig[]): string {
 	let res = "";
@@ -53,8 +54,8 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 	baseUpgradeChance = 0,
 	blueprintCount = 5,
 	searchDepth = 2,
-	// ghostBlueprints = 0,
 	ghostBlueprints = 2,
+	// ghostBlueprints = 6,
 	blueprintCabinets = 1,
 	solo,
 	cards = [],
@@ -319,6 +320,7 @@ const BranchingRerollPage = () => {
 					</div>
 				</div>
 			)}
+			<Version />
 		</>
 	);
 };
