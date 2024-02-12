@@ -43,9 +43,9 @@
 -441525746,True,False,Fireplace,False,False,,,2,4,0,False
 591400026,True,False,Rug,False,False,,,2,4,0,False
 -1628995120,True,False,Wall Light,False,False,,,2,4,0,False
--1380985631,True,False,Banner,False,False,,,8192,0,0,False
-1797739089,True,False,Christmas Tree,False,False,,,8192,0,0,False
--4737636,True,False,Fairy Lights,False,False,,,8192,0,0,False
+-1380985631,False,False,Banner,False,False,,,8192,0,0,False
+1797739089,False,False,Christmas Tree,False,False,,,8192,0,0,False
+-4737636,False,False,Fairy Lights,False,False,,,8192,0,0,False
 -13481890,True,False,Candelabra,False,False,,,2,1,0,False
 1233091186,True,False,Chandelier,False,False,,,2,1,0,False
 -1180623135,True,False,Precious Flower,False,False,,,2,1,0,False
@@ -354,6 +354,11 @@
 2000892639,False,False,Table - Stone,False,False,,,8,0,0,False
 -1688921160,False,False,Table - Sharing Cauldron,False,False,,,8,0,0,False
 1492264331,False,False,Vanishing Circle,False,False,,,0,0,0,False
+-1541798751,True,False,Mince,True,False,-1541798751,,32,0,0,False
+-2077197906,True,False,Pasta Sheet,True,False,-2077197906,,32,0,0,False
+-1339944542,True,False,Lasagne Tray,True,False,-1339944542,,32,0,0,False
+-215543585,True,False,Butter,True,False,-215543585,,32,0,0,False
+-182748008,True,False,Spaghetti,True,False,-182748008,,32,0,0,False
 -2070005162,True,False,Clipboard Stand,False,False,,,256,0,0,False
 -872135723,False,False,,False,False,,,0,0,0,False
 -1879606524,False,False,,False,False,,,0,0,0,False
