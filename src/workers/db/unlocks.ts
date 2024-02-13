@@ -1,6 +1,8 @@
 import type { Unlock } from "../../kitchenTypes";
 import { DishType, UnlockGroup } from "../../kitchenEnums";
 import cardExport from "./cardExport.csv?raw";
+import startingDishExport from "./startingDishes.csv?raw";
+
 export const Unlocks: Unlock[] = cardExport
 	.split("\r\n")
 	.filter((a) => a)
@@ -63,8 +65,16 @@ export function getUnblockedCards(
 
 		// If you don't have a main course, you don't get offered starters or sides (only currently relevant to coffee and cakes)
 		// this is enabled even on Autumn-- you only get offered mains until you take one, and only then will you get offered starters and sides
-		if (u.isStarterOrSide && !currentCards.some((c) => c.isMain)) {
-			return false;
+		if (u.isStarterOrSide) {
+			if (!currentCards.some((c) => c.isMain)) {
+				return false;
+			} else {
+				if (
+					currentCards.length &&
+					currentCards[0].DishType === DishType.Dessert
+				)
+					debugger;
+			}
 		}
 		// TODO Autumn doesn't use this filter
 		if (!autumn && u.DishType === DishType.Base) {
@@ -162,7 +172,7 @@ export const RestaurantSettings: Unlock[] = [
 		isStarterOrSide: false,
 		DishType: DishType.Null,
 	},
-];
+].sort((a, b) => (a.Name < b.Name ? -1 : 1));
 
 export const SpeedrunDishes = [
 	"Breakfast",
@@ -175,5 +185,45 @@ export const SpeedrunDishes = [
 	"Pizza",
 	"Turkey",
 ].map((name) => Unlocks.filter((a) => a.Name === name)[0]);
+
+export const StartingDishes = startingDishExport
+	.split("\r\n")
+	.filter((a) => a)
+	.map((line) => {
+		const [
+			idString,
+			Name,
+			unlockGroupString,
+			processesString,
+			ingredientProvidersString,
+			isMainString,
+			isStarterOrSideString,
+			DishTypeString,
+		] = line.split(",");
+		const ID = Number(idString);
+		const UnlockGroup = Number(unlockGroupString);
+		const RequiredProcesses = processesString?.length
+			? processesString?.split(":")?.map((a) => Number(a))
+			: [];
+		const IngredientProviders = ingredientProvidersString?.length
+			? ingredientProvidersString?.split(":")?.map((id) => Number(id))
+			: [];
+		const isMain = isMainString === "True";
+		const isStarterOrSide = isStarterOrSideString === "True";
+		const DishType = Number(DishTypeString);
+		return {
+			ID,
+			Name,
+			UnlockGroup,
+			Requires: [],
+			BlockedBy: [],
+			RequiredProcesses,
+			IngredientProviders,
+			isMain,
+			isStarterOrSide,
+			DishType,
+		};
+	})
+	.sort((a, b) => (a.Name < b.Name ? -1 : 1));
 
 import.meta.env.DEV && console.log({ Unlocks });

@@ -1,7 +1,7 @@
 import { render } from "preact";
 import "./index.css";
 import { useState, useEffect } from "preact/hooks";
-import { DishType, UnlockGroup } from "./kitchenEnums";
+import { DishType } from "./kitchenEnums";
 import { UnlocksComboBox } from "./UnlockSelect";
 import { GoalCardConfig } from "./workers/seedSearchWorker";
 import { LayoutSize } from "./forms/LayoutSize";
@@ -83,8 +83,7 @@ const VersusSeeds = () => {
 				showSelectionMode={false}
 				label="Starting Cards"
 				{...startingCards}
-				unlockGroupFilter={[UnlockGroup.Dish]}
-				dishTypeFilter={[DishType.Null, DishType.Base]}
+				modes={["startingDishes"]}
 			/>
 			<button onClick={runSearch}>Run Search</button>
 			<br />

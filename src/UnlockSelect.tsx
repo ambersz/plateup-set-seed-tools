@@ -1,30 +1,54 @@
-import { RestaurantSettings, Unlocks } from "./workers/db/unlocks";
+import {
+	RestaurantSettings,
+	StartingDishes,
+	Unlocks,
+} from "./workers/db/unlocks";
 import { useState, useMemo } from "preact/hooks";
 import { Unlock } from "./kitchenTypes";
 import { useMultipleSelection, useCombobox } from "downshift/preact"; // if this is giving typescript errors, copy the type file from `node_modules\downshift\typings\index.d.ts` to `node_modules\downshift\preact\index.d.ts`
-import { DishType, UnlockGroup } from "./kitchenEnums";
 import { GoalCardConfig } from "./workers/seedSearchWorker";
+import { UnlockGroup } from "./kitchenEnums";
+const dishes = Unlocks.filter((a) => a.UnlockGroup === UnlockGroup.Dish).sort(
+	(a, b) => (a.Name < b.Name ? -1 : 1)
+);
+const regularUnlocks = dishes.concat(
+	Unlocks.filter((a) => a.UnlockGroup === UnlockGroup.Generic).sort((a, b) =>
+		a.Name < b.Name ? -1 : 1
+	)
+);
 
-const Options = [...Unlocks, ...RestaurantSettings];
+const themeUnlocks = Unlocks.filter(
+	(a) => a.UnlockGroup === UnlockGroup.PrimaryTheme
+).sort((a, b) => (a.Name < b.Name ? -1 : 1));
 
 function getFilteredCards(
 	selectedItems: Unlock[],
 	inputValue: string,
-	unlockGroupFilter: UnlockGroup[],
-	dishTypeFilter: DishType[]
+	modes: UnlocksComboBoxMode[]
 ) {
 	const lowerCasedInputValue = inputValue.toLowerCase();
-
-	return Options.filter(function filterCard(unlock) {
-		if (
-			dishTypeFilter.some((dt) => dt === DishType.Base) &&
-			(unlock.Name === "Cakes" || RestaurantSettings.includes(unlock))
-		)
-			return true; // exception because there's some weird shenanigans to get Cakes to not show up in Autumn
+	let options: Unlock[] = [];
+	for (const mode of modes) {
+		switch (mode) {
+			case "unlocks":
+				options = [...options, ...regularUnlocks];
+				break;
+			case "settings":
+				options = [...options, ...RestaurantSettings];
+				break;
+			case "startingDishes":
+				options = [...options, ...StartingDishes];
+				break;
+			case "themes":
+				options = [...options, ...themeUnlocks];
+				break;
+			case "dishes":
+				options = [...options, ...dishes];
+				break;
+		}
+	}
+	return options.filter(function filterCard(unlock) {
 		return (
-			(!dishTypeFilter.length || dishTypeFilter.includes(unlock.DishType)) &&
-			(!unlockGroupFilter.length ||
-				unlockGroupFilter.includes(unlock.UnlockGroup)) &&
 			!selectedItems.some((s) => s.ID === unlock.ID) &&
 			unlock.Name.toLowerCase().includes(lowerCasedInputValue)
 		);
@@ -36,10 +60,17 @@ interface UnlocksComboBoxProps {
 	placeholder?: string;
 	include?: boolean;
 	cards: Unlock[];
-	unlockGroupFilter?: UnlockGroup[];
-	dishTypeFilter?: DishType[];
 	showSelectionMode?: boolean;
+	modes?: UnlocksComboBoxMode[];
 }
+
+type UnlocksComboBoxMode =
+	| "unlocks"
+	| "settings"
+	| "startingDishes"
+	| "themes"
+	| "dishes";
+const defaultModes: UnlocksComboBoxMode[] = ["unlocks"];
 export function UnlocksComboBox({
 	onSelectionChange,
 	showSelectionMode = true,
@@ -47,13 +78,11 @@ export function UnlocksComboBox({
 	placeholder,
 	include = true,
 	cards,
-	unlockGroupFilter = [],
-	dishTypeFilter = [],
+	modes = defaultModes,
 }: UnlocksComboBoxProps) {
 	const [inputValue, setInputValue] = useState("");
 	const items = useMemo(
-		() =>
-			getFilteredCards(cards, inputValue, unlockGroupFilter, dishTypeFilter),
+		() => getFilteredCards(cards, inputValue, modes),
 		[cards, inputValue]
 	);
 	const { getSelectedItemProps, getDropdownProps, removeSelectedItem } =

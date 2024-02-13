@@ -2,7 +2,6 @@ import { render } from "preact";
 import "./index.css";
 import { useEffect, useState } from "preact/hooks";
 import { UnlocksComboBox } from "./UnlockSelect";
-import { DishType, UnlockGroup } from "./kitchenEnums";
 import {
 	GoalCardConfig,
 	MessageFormat,
@@ -191,19 +190,14 @@ const SeedSearcher = () => {
 							showSelectionMode={false}
 							label="Starting Cards"
 							{...cardsByDay[0]}
-							unlockGroupFilter={[UnlockGroup.Dish]}
-							dishTypeFilter={[DishType.Null, DishType.Base]}
+							modes={["startingDishes", "settings"]}
 						/>
 						{cardDays.map((day, i) => (
 							<UnlocksComboBox
 								onSelectionChange={handleCardSelectionChange(i + 1)}
 								label={"After Day " + (day > 15 ? `OT${day - 15}` : day)}
 								{...(cardsByDay[i + 1] ?? {})}
-								unlockGroupFilter={
-									day === 5
-										? [UnlockGroup.PrimaryTheme]
-										: [UnlockGroup.Generic, UnlockGroup.Dish]
-								}
+								modes={day === 5 ? ["themes"] : ["unlocks"]}
 							/>
 						))}
 					</>

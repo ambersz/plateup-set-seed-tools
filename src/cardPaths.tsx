@@ -5,15 +5,20 @@ import { useEffect, useState } from "preact/hooks";
 import { FindNewUnlocks } from "./workers/reverse-engineered/cards";
 import { Unlock } from "./kitchenTypes";
 import { getCardPaths } from "./getCardPaths";
-
+import { UnlocksComboBox } from "./UnlockSelect";
+import { GoalCardConfig } from "./workers/seedSearchWorker";
+const defaultConfig: GoalCardConfig = { include: true, cards: [] };
 const CardPaths = () => {
 	const [seed, setSeed] = usePersistentState("", "CARD_PATHS_SEED");
 	const [cardPaths, setCardPaths] = useState<Unlock[][]>([]);
+	const [startingConfig, setStartingConfig] =
+		useState<GoalCardConfig>(defaultConfig);
 	useEffect(() => {
 		const c = new FindNewUnlocks(seed);
-		let queue: Unlock[][] = getCardPaths(c, undefined, false);
+		if (startingConfig.cards.length) debugger;
+		let queue: Unlock[][] = getCardPaths(c, startingConfig.cards, false);
 		setCardPaths(queue);
-	}, [seed]);
+	}, [seed, startingConfig.cards]);
 	let rows = [[<></>]];
 	rows.shift();
 	for (let day = 0; day < cardPaths[0]?.length; day++) {
@@ -39,11 +44,28 @@ const CardPaths = () => {
 		rows[rowIndex].push(<td rowSpan={n}>{current}</td>);
 		// render.push(<tr>{row}</tr>);
 	}
+
 	return (
 		<>
+			{/* <label for="autumn">Autumn?</label>
+			<input
+				type="checkbox"
+				id="autumn"
+				onChange={() => setAutumn((a) => !a)}
+				checked={autumn}
+			/> */}
+			<label for="seed">Seed:</label>
 			<input
 				onChange={(e) => setSeed((e.target as HTMLInputElement).value)}
 				value={seed}
+				id="seed"
+			/>
+			Starting config
+			<UnlocksComboBox
+				label="Starting Card(s)"
+				cards={startingConfig.cards}
+				onSelectionChange={setStartingConfig}
+				modes={["startingDishes", "settings"]}
 			/>
 			<table>
 				<thead>
