@@ -61,7 +61,7 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 	cards = [],
 	appliances = [],
 }: BranchingRerollProps) => {
-	seed = seed.toLocaleLowerCase();
+	seed = seed.toLocaleLowerCase().trim();
 	const finalRollConfig: RerollConfig = {
 		blueprintCount: blueprintCount + ghostBlueprints,
 		spawnInside: true,
