@@ -16,6 +16,23 @@ const regularUnlocks = dishes.concat(
 		a.Name < b.Name ? -1 : 1
 	)
 );
+const allDishes: Unlock[] = [];
+{
+	const ids: { [t: string]: boolean } = {};
+	for (const dish of dishes) {
+		if (!ids[dish.ID]) {
+			ids[dish.ID] = true;
+			allDishes.push(dish);
+		}
+	}
+	for (const dish of StartingDishes) {
+		if (!ids[dish.ID]) {
+			ids[dish.ID] = true;
+			allDishes.push(dish);
+		}
+	}
+	allDishes.sort((a, b) => (a.Name < b.Name ? -1 : 1));
+}
 
 const themeUnlocks = Unlocks.filter(
 	(a) => a.UnlockGroup === UnlockGroup.PrimaryTheme
@@ -43,7 +60,7 @@ function getFilteredCards(
 				options = [...options, ...themeUnlocks];
 				break;
 			case "dishes":
-				options = [...options, ...dishes];
+				options = [...options, ...allDishes];
 				break;
 		}
 	}
