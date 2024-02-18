@@ -11,28 +11,51 @@ import { UnlocksComboBox } from "./UnlockSelect";
 import { AppliancesComboBox } from "./ApplianceSelect";
 import Version from "./components/Version";
 
-function explainRerollConfig(c: RerollConfig[]): string {
+function explainRerollConfig(c: RerollConfig[]) {
 	let res = "";
-	if (!c.length) return "Spawn: any settings";
-	for (let i = 0; i < c.length; i++) {
-		const config = c[i];
-		let roll = i ? `Reroll ${i}` : "Spawn";
-		roll += ": ";
-		roll +=
-			"Blueprints " +
-			(config.spawnInside
-				? "Spawn Inside"
-				: "Spawn Outside, " +
-				  (config.playerInside
-						? "Someone Inside"
-						: "All Players Stand Outside"));
-		if (i) {
-			roll += `, reroll ${c[i].blueprintCount} blueprints`;
+	if (!c.length) {
+		res = "Spawn: any settings";
+	} else {
+		for (let i = 0; i < c.length; i++) {
+			const config = c[i];
+			let roll = i ? `Reroll ${i}` : "Spawn";
+			roll += ": ";
+			roll +=
+				"Blueprints " +
+				(config.spawnInside
+					? "Spawn Inside"
+					: "Spawn Outside, " +
+					  (config.playerInside
+							? "Someone Inside"
+							: "All Players Stand Outside"));
+			if (i) {
+				roll += `, reroll ${c[i].blueprintCount} blueprints`;
+			}
+			res += roll + "\n";
 		}
-		res += roll + "\n";
+		res += `Reroll ${c.length}: any settings`;
 	}
-	res += `Reroll ${c.length}: any settings`;
-	return res;
+	const lines = res.split("\n");
+	return (
+		<div
+			class="reroll-instructions"
+			onClick={(e) => {
+				console.log(e.detail);
+				if (e.detail < 2) {
+					return;
+				}
+				const range = document.createRange();
+				range.selectNodeContents(e.currentTarget);
+				const sel = document.getSelection();
+				sel?.removeAllRanges();
+				sel?.addRange(range);
+			}}
+		>
+			{lines.map((a) => (
+				<div>{a}</div>
+			))}
+		</div>
+	);
 }
 interface BranchingRerollProps {
 	seed: string;
@@ -130,8 +153,8 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 				.map((a) => a.Name);
 			row.push(
 				<td
+					class="reroll-cell"
 					colspan={configOptions.length ** (searchDepth - depth)}
-					title={explainRerollConfig(cumulativeConfigs[i])}
 					// TODO: non-tooltip version so people can copy the instructions https://stackoverflow.com/questions/13845003/tooltips-for-cells-in-html-table-no-javascript
 				>
 					<GhostBlueprints
@@ -139,6 +162,7 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 						// normalCount={blueprintCount}
 						ghostCount={depth === 0 ? 0 : ghostBlueprints}
 					/>
+					{explainRerollConfig(cumulativeConfigs[i])}
 				</td>
 			);
 			const options =

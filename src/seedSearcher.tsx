@@ -271,6 +271,9 @@ const SeedSearcher = () => {
 						) : (
 							""
 						)}
+						<div>
+							<code>seed (starting tables): cards</code>
+						</div>
 						{results.map((r) => {
 							return (
 								<div>

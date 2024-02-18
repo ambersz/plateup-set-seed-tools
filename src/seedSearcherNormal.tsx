@@ -204,10 +204,12 @@ const SeedSearcher = () => {
 				}
 			</div>
 			<div class="search-results">
-				<div>{count} seeds checked</div>
-				<button onClick={toggleSearch}>
-					{searching ? "Stop" : "Start"} Search
-				</button>
+				<div>
+					<div>{count} seeds checked</div>
+					<button onClick={toggleSearch}>
+						{searching ? "Stop" : "Start"} Search
+					</button>
+				</div>
 				<div class="results">
 					{results.length ? (
 						<button onClick={() => setResults([])}>
@@ -216,6 +218,9 @@ const SeedSearcher = () => {
 					) : (
 						""
 					)}
+					<div>
+						<code>seed (starting tables): cards</code>
+					</div>
 					{results.map((r) => {
 						return (
 							<div>

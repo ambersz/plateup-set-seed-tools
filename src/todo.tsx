@@ -48,6 +48,21 @@ const TODO = () => {
 				</li>
 				<li>Instructions about how to use include/exclude toggler?</li>
 				<li>Push/Native notification when a seed is found? </li>
+				<li>
+					Non-web tools?
+					<ul>
+						<li>
+							Auto splits switcher for livesplit (need to either extend
+							LiveSplit.Server or run two servers at once, then make a
+							corresponding mod on plateup side to send leaderboard-related
+							variables over)
+						</li>
+						<li>
+							prevent starting the restaurant on set seed if using one of a
+							configurable list "random seed" layout seeds?
+						</li>
+					</ul>
+				</li>
 			</ul>
 			<h2>Tech Debt?</h2>
 			<h3>Cards</h3>
