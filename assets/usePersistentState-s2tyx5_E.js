@@ -1,1 +1,0 @@
-import{h as a,p as o}from"./unlocks-p--6mpzb.js";const u=(l,t)=>{const[e,s]=a(l),[n,c]=a(!0);return o(()=>{const r=localStorage.getItem(t);r!==null&&s(JSON.parse(r))},[]),o(()=>{if(localStorage.getItem(t)!==null&&n){c(!1);return}localStorage.setItem(t,JSON.stringify(e))},[e]),[e,s]};export{u};
