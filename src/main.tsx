@@ -1,6 +1,7 @@
 import { render } from "preact";
 import "./index.css";
 import Version from "./components/Version";
+import { test } from "./tests/unlockTests";
 
 const Navigation = () => {
 	return (
@@ -51,3 +52,5 @@ render(
 	<Navigation />,
 	document.getElementById("app")!
 );
+
+if (import.meta.env.DEV) test();

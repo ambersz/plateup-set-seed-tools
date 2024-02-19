@@ -286,7 +286,7 @@ const SeedConfigForm = ({ onConfigChange }: SeedConfigFormProps) => {
 					showSelectionMode={false}
 					cards={cards}
 					include={true}
-					modes={["dishes"]}
+					modes={["themes", "dishes"]}
 				/>
 				<AppliancesComboBox
 					label="Select owned appliances:"

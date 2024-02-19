@@ -11,6 +11,7 @@ import { numDecors } from "../db/decor";
 import { Unlock } from "../../kitchenTypes";
 import { ShuffleInPlace } from "../../utils/utils";
 import { FixedSeedContext } from "./prng";
+import { UnlockGroup } from "../../kitchenEnums";
 
 export let fixPRNG = { value: 0 };
 
@@ -38,6 +39,7 @@ export class Shop {
 	baseUpgradeChance: number;
 	OwnedAppliances: Appliance[];
 	Cards: Unlock[];
+	Theme: DecorationType;
 	constructor(seed: string, baseUpgradeChance = 0) {
 		this.seed = seed;
 		[this.mapSize, this.numTiles] = this.getLayoutInfo();
@@ -45,6 +47,7 @@ export class Shop {
 		this.OwnedAppliances = [];
 		// Appliances.filter((a) => a.Name === "Blueprint Cabinet");
 		this.Cards = [];
+		this.Theme = DecorationType.Null;
 	}
 	getLayoutInfo(): [number, number] {
 		const r = new FixedSeedContext(this.seed, 5078598);
@@ -90,11 +93,21 @@ export class Shop {
 				Appliances.filter((a) => a.ID === i)
 			)
 		);
+		if (card.UnlockGroup === UnlockGroup.PrimaryTheme) {
+			// @ts-expect-error
+			this.Theme = DecorationType[card.Name];
+		}
 	}
-	getPrngAdvancements(configs: RerollConfig[]): number {
+	getPrngAdvancements(configs: RerollConfig[], day: number): number {
 		let res = 0;
-		for (const config of configs) {
-			res += config.blueprintCount * (shopSize - 1 + 1); // -1 for the shuffle cost, +1 for the upgrade randomization
+		for (let i = 0; i < configs.length; i++) {
+			const config = configs[i];
+			let count = config.blueprintCount;
+			if (day % 5 === 0) {
+				count += 3;
+				// debugger;
+			}
+			res += count * (shopSize - 1 + 1); // -1 for the shuffle cost, +1 for the upgrade randomization
 
 			// now the game gets indoor post tiles specifically for decor if you spawn outside, but not in a subcontext
 			// simulate effect of randomly choosing tiles
@@ -139,7 +152,6 @@ export class Shop {
 							name != "Blueprint Cabinet" &&
 							name != "Plates"
 						) {
-							// TODO HANDLE WHETHER PLATES ARE OWNED
 							console.log(
 								`Unexpected ${option.Appliance.Name} StapleWhenMissing Appliance`
 							);
@@ -180,6 +192,13 @@ export class Shop {
 					option.IsRemoved = true;
 				}
 
+				if (
+					option.Appliance.Name === "Sink" ||
+					option.Appliance.Name === "Plates"
+				) {
+					if (cards.every((a) => !a.isMain)) option.IsRemoved = true;
+				}
+
 				if (option.Filter == ShopRequirementFilter.RefreshableProvider) {
 					// 2. handle Supplies only dropping when you own a refillable (or not? I will probably never buy a consumable)
 					// TODO AZ
@@ -218,12 +237,13 @@ export class Shop {
 		const isSpawn = configs.length === 1;
 		const ShopOptions = this.buildShopOptions(
 			this.OwnedAppliances,
-			DecorationType.Null,
+			this.Theme,
 			this.Cards
 		);
 		const Random = this.initRandom(day).random;
 		let padPRNG = this.getPrngAdvancements(
-			configs.slice(0, configs.length - 1)
+			configs.slice(0, configs.length - 1),
+			day
 		);
 		while (padPRNG--) {
 			// get to the starting point before this reroll first
@@ -233,7 +253,11 @@ export class Shop {
 		let numberOfBlueprints = configs[configs.length - 1].blueprintCount;
 		let components: ShoppingTags[];
 		if (day % 5 == 0) {
-			if (isSpawn) numberOfBlueprints = 8;
+			if (isSpawn) {
+				numberOfBlueprints = 8;
+			} else {
+				numberOfBlueprints += 3;
+			}
 			components = [];
 			for (let i = 0; i < numberOfBlueprints; i++) {
 				components[i] = ShoppingTags.Decoration;
