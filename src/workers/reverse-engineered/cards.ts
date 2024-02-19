@@ -103,12 +103,13 @@ class TurboUnlockPack extends UnlockPack {
 	): Unlock[] {
 		let candidates = getUnblockedCards(cards);
 		let sortedCards = sort(candidates, random);
-		const preferPriority = random.valueFloat < 0.1;
+		const priorityRng = random.valueFloat;
+		const preferPriority = priorityRng < 0.1;
 		if (preferPriority) {
 			sortedCards.sort((a, b) => {
 				let order = 0;
-				if (this.encourageGroups.includes(a.UnlockGroup)) order--;
-				if (this.encourageGroups.includes(b.UnlockGroup)) order++;
+				if (a.Requires.length) order--;
+				if (b.Requires.length) order++;
 				return order;
 			});
 		}
