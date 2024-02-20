@@ -105,6 +105,7 @@ export class Shop {
 			let count = config.blueprintCount;
 			if (day % 5 === 0) {
 				count += 3;
+				if (i === 0) count += 2; // 2 blueprints free for special events (must be 0-cost christmas trees and the like)
 				// debugger;
 			}
 			res += count * (shopSize - 1 + 1); // -1 for the shuffle cost, +1 for the upgrade randomization

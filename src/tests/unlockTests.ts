@@ -7,7 +7,7 @@ import { FindNewUnlocks } from "../workers/reverse-engineered/cards";
 import { Unlock } from "../kitchenTypes";
 const normalCardDays = [3, 5, 6, 9, 12, 15];
 const turboCardDays = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
-export function test(): boolean {
+export function unlockTests(): boolean {
 	const seed = "azqyj4nh";
 	const expectedCards: [string, string][] = [
 		["Black Coffee", "Ice Cream"],
@@ -86,7 +86,7 @@ function testCards(
 	}
 	for (let dayIndex = 0; dayIndex < cardDays.length; dayIndex++) {
 		const day = cardDays[dayIndex];
-		if (day === 7) debugger;
+		// if (day === 7) debugger;
 		const options = unlocks.getUnlockOptions(day);
 		if (
 			options[0].Name !== expectedCards[dayIndex][0] ||
