@@ -255,13 +255,18 @@ export class Shop {
 		let components: ShoppingTags[];
 		if (day % 5 == 0) {
 			if (isSpawn) {
-				numberOfBlueprints = 8;
+				numberOfBlueprints = 10;
 			} else {
 				numberOfBlueprints += 3;
 			}
 			components = [];
 			for (let i = 0; i < numberOfBlueprints; i++) {
 				components[i] = ShoppingTags.Decoration;
+			}
+			if (isSpawn) {
+				for (const i of [1, 2]) {
+					components[components.length - i] = ShoppingTags.SpecialEvent;
+				}
 			}
 		} else {
 			// normal appliances
