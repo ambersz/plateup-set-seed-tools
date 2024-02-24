@@ -190,7 +190,8 @@ export class Shop {
 					// I think this is only the booking desk?
 					if (app.Name != "Booking Desk")
 						console.log(`SellOnlyAsUnique: ${app.Name}, ${app.ID}`);
-					option.IsRemoved = true;
+					if (OwnedAppliances.some((a) => a.ID === app.ID))
+						option.IsRemoved = true;
 				}
 
 				if (
@@ -203,7 +204,7 @@ export class Shop {
 				if (option.Filter == ShopRequirementFilter.RefreshableProvider) {
 					// 2. handle Supplies only dropping when you own a refillable (or not? I will probably never buy a consumable)
 					// TODO AZ
-					option.IsRemoved = true; // allow them to stay because I want to search for Supplies!
+					option.IsRemoved = false; // allow them to stay because I want to search for Supplies!
 				}
 				if (
 					option.DecorationRequired != DecorationType.Null &&

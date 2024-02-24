@@ -15,9 +15,11 @@ function getFilteredCards(
 		return (
 			!selectedItems.some((s) => s.ID === appliance.ID) &&
 			appliance.Name.toLowerCase().includes(lowerCasedInputValue) &&
-			(!stapleRelatedOnly || appliance.StapleWhenMissing)
+			(!stapleRelatedOnly ||
+				appliance.StapleWhenMissing ||
+				appliance.SellOnlyAsUnique)
 		);
-	});
+	}).sort((a, b) => (a.Name < b.Name ? -1 : 1));
 }
 interface AppliancesComboBoxProps {
 	onSelectionChange: (newSelection: Appliances) => void;

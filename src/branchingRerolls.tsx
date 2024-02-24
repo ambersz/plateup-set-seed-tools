@@ -1,15 +1,14 @@
 import { render, FunctionComponent, VNode } from "preact";
-import { useEffect, useState } from "preact/compat";
 import "./index.css";
 
 import { RerollConfig, Shop } from "./workers/reverse-engineered/shop";
 import Appliances, { Appliance } from "./workers/db/appliances";
 import { GhostBlueprints } from "./components/GhostBlueprints";
-import { useInput } from "./utils/useInput";
 import { Unlock } from "./kitchenTypes";
 import { UnlocksComboBox } from "./UnlockSelect";
 import { AppliancesComboBox } from "./ApplianceSelect";
 import Version from "./components/Version";
+import { usePersistentState } from "./hooks/usePersistentState";
 
 function explainRerollConfig(c: RerollConfig[]) {
 	let res = "";
@@ -70,6 +69,9 @@ interface BranchingRerollProps {
 	cards: Unlock[];
 	appliances: Appliance[];
 }
+const defaultAppliances = Appliances.filter(
+	(a) => a.Name === "Booking Desk" || a.Name === "Blueprint Cabinet"
+).sort((a, b) => (a.Name < b.Name ? 1 : -1));
 const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 	seed,
 	day,
@@ -195,75 +197,68 @@ interface SeedConfig {
 }
 interface SeedConfigFormProps {
 	onConfigChange: (config: SeedConfig) => void;
+	config: SeedConfig;
 }
-const SeedConfigForm = ({ onConfigChange }: SeedConfigFormProps) => {
-	const [searchDepth, setSearchDepth] = useState(2);
-	const [seed, setSeed] = useInput("az");
-	const [day, setDay] = useInput("2");
-	const [blueprintCount, setBlueprintCount] = useState(5);
-	const [baseUpgradeChance, setUpgradeChance] = useState(0);
-	const [solo, setSolo] = useState(false);
-	const [appliances, setAppliances] = useState<Appliance[]>([
-		Appliances.filter((a) => a.Name === "Blueprint Cabinet")[0],
-	]);
-	const [cards, setCards] = useState<Unlock[]>([]);
-	const handleSettingChange: HTMLInputElement["onchange"] = (e) => {
-		if ((e.target as HTMLInputElement).checked) {
-			setBlueprintCount(7);
-			setUpgradeChance(0.25);
-		} else {
-			setBlueprintCount(5);
-			setUpgradeChance(0);
-		}
-	};
-	useEffect(() => {
-		onConfigChange({
-			seed,
-			day: Number(day) - 1,
-			initialRerollConfig: [],
-			blueprintCount,
-			baseUpgradeChance,
-			solo,
-			appliances,
-			cards,
-			searchDepth,
-		});
-	}, [
+const SeedConfigForm = ({ onConfigChange, config }: SeedConfigFormProps) => {
+	const {
 		seed,
 		day,
 		blueprintCount,
-		baseUpgradeChance,
 		solo,
-		appliances,
+		appliances = defaultAppliances,
 		cards,
 		searchDepth,
-	]);
+	} = config;
+	const handleSettingChange: HTMLInputElement["onchange"] = (e) => {
+		let newConf = { ...config };
+		if ((e.target as HTMLInputElement).checked) {
+			newConf.blueprintCount = 7;
+			newConf.baseUpgradeChance = 0.25;
+		} else {
+			newConf.blueprintCount = 5;
+			newConf.baseUpgradeChance = 0;
+		}
+		onConfigChange(newConf);
+	};
 
+	const setConfig = <T extends keyof SeedConfig>(
+		key: T,
+		value: SeedConfig[T]
+	) => {
+		let newConf = { ...config };
+		newConf[key] = value;
+		onConfigChange(newConf);
+	};
 	return (
 		<div>
 			<div>
 				<div>Run Config:</div>
 				<label for="solo">Solo:</label>
-				<input
-					type="checkbox"
-					id="solo"
-					checked={solo}
-					onChange={() => setSolo((a) => !a)}
-				/>
+				<input type="checkbox" id="solo" checked={solo} onChange={() => {}} />
 				<label for="searchDepth">Number of Rerolls</label>{" "}
 				<input
 					id="searchDepth"
 					type="number"
 					value={searchDepth}
-					onChange={(e) =>
-						setSearchDepth(Number((e.target as HTMLInputElement).value))
-					}
+					onChange={(e) => {
+						setConfig(
+							"searchDepth",
+							Number((e.target as HTMLInputElement).value)
+						);
+					}}
 				/>
 				<br />
 				<label for="seed" value={seed}>
 					Seed:{" "}
 				</label>
-				<input type="text" id="seed" value={seed} onChange={setSeed} />
+				<input
+					type="text"
+					id="seed"
+					value={seed}
+					onChange={(e) => {
+						setConfig("seed", (e.target as HTMLInputElement).value);
+					}}
+				/>
 				<label for="setting">Turbo?</label>
 				<input
 					id="setting"
@@ -277,11 +272,18 @@ const SeedConfigForm = ({ onConfigChange }: SeedConfigFormProps) => {
 				<label for="day" value={day}>
 					Prep of Day:{" "}
 				</label>
-				<input type="number" id="day" value={day} onChange={setDay} />
+				<input
+					type="number"
+					id="day"
+					value={day}
+					onChange={(e) => {
+						setConfig("day", Number((e.target as HTMLInputElement).value));
+					}}
+				/>
 				<UnlocksComboBox
 					label="Selected cards:"
 					onSelectionChange={(gcc) => {
-						setCards(gcc.cards);
+						setConfig("cards", gcc.cards);
 					}}
 					showSelectionMode={false}
 					cards={cards}
@@ -291,16 +293,31 @@ const SeedConfigForm = ({ onConfigChange }: SeedConfigFormProps) => {
 				<AppliancesComboBox
 					label="Select owned appliances:"
 					placeholder=""
-					onSelectionChange={setAppliances}
+					onSelectionChange={(app) => {
+						setConfig("appliances", app);
+					}}
 					appliances={appliances}
 				/>
 			</div>
 		</div>
 	);
 };
-
+const defaultBranchingRerollConfig: SeedConfig = {
+	seed: "az",
+	day: 2,
+	cards: [],
+	initialRerollConfig: [],
+	blueprintCount: 5,
+	baseUpgradeChance: 0,
+	solo: false,
+	appliances: [],
+	searchDepth: 2,
+};
 const BranchingRerollPage = () => {
-	const [config, setConfig] = useState({ seed: "az", day: 1 } as SeedConfig);
+	const [config, setConfig] = usePersistentState(
+		defaultBranchingRerollConfig,
+		"BRANCH_CONFIG"
+	);
 	return (
 		<>
 			<div>
@@ -308,7 +325,7 @@ const BranchingRerollPage = () => {
 				Getting the blueprints in grey requires taking extra blueprints out of
 				cabinets
 			</div>
-			<SeedConfigForm onConfigChange={setConfig} />
+			<SeedConfigForm onConfigChange={setConfig} config={config} />
 			<BranchingRerolls {...config} blueprintCabinets={1} />
 			{false && (
 				<div style={{ maxWidth: "50vw" }}>
