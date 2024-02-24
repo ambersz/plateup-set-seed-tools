@@ -38,6 +38,9 @@ const themeUnlocks = Unlocks.filter(
 	(a) => a.UnlockGroup === UnlockGroup.PrimaryTheme
 ).sort((a, b) => (a.Name < b.Name ? -1 : 1));
 
+const franchiseCards = Unlocks.filter(
+	(a) => a.UnlockGroup === UnlockGroup.Franchise
+).sort((a, b) => (a.Name < b.Name ? -1 : 1));
 function getFilteredCards(
 	selectedItems: Unlock[],
 	inputValue: string,
@@ -62,6 +65,9 @@ function getFilteredCards(
 			case "dishes":
 				options = [...options, ...allDishes];
 				break;
+			case "franchise":
+				options = [...options, ...franchiseCards];
+				break;
 		}
 	}
 	return options.filter(function filterCard(unlock) {
@@ -71,7 +77,18 @@ function getFilteredCards(
 		);
 	});
 }
-interface UnlocksComboBoxProps {
+interface NoCopyPaste {
+	showCopyPaste?: false;
+	handleCopy?: (settings: GoalCardConfig) => void;
+	handlePaste?: () => void;
+}
+interface YesCopyPaste {
+	showCopyPaste: true;
+	handleCopy: (settings: GoalCardConfig) => void;
+	handlePaste: () => void;
+}
+type CopyPaste = NoCopyPaste | YesCopyPaste;
+interface BaseProps {
 	onSelectionChange: (newSelection: GoalCardConfig) => void;
 	label?: string;
 	placeholder?: string;
@@ -80,14 +97,17 @@ interface UnlocksComboBoxProps {
 	showSelectionMode?: boolean;
 	modes?: UnlocksComboBoxMode[];
 }
+type UnlocksComboBoxProps = BaseProps & CopyPaste;
 
 type UnlocksComboBoxMode =
 	| "unlocks"
 	| "settings"
 	| "startingDishes"
 	| "themes"
-	| "dishes";
+	| "dishes"
+	| "franchise";
 const defaultModes: UnlocksComboBoxMode[] = ["unlocks"];
+const noop = () => {};
 export function UnlocksComboBox({
 	onSelectionChange,
 	showSelectionMode = true,
@@ -96,6 +116,9 @@ export function UnlocksComboBox({
 	include = true,
 	cards,
 	modes = defaultModes,
+	showCopyPaste = false,
+	handleCopy = noop,
+	handlePaste = noop,
 }: UnlocksComboBoxProps) {
 	const [inputValue, setInputValue] = useState("");
 	const items = useMemo(
@@ -191,6 +214,18 @@ export function UnlocksComboBox({
 				</label>
 				<div>
 					<button onClick={handleClear}>Clear Cards</button>
+					{showCopyPaste && (
+						<>
+							<button
+								onClick={() => {
+									handleCopy({ include, cards });
+								}}
+							>
+								Copy Settings
+							</button>
+							<button onClick={handlePaste}>Paste Settings</button>
+						</>
+					)}
 				</div>
 				<div className="">
 					{cards.map(function renderSelectedItem(selectedItemForRender, index) {

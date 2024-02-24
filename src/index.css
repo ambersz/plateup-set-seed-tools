@@ -123,6 +123,7 @@ td {
 
 .selected-items {
 	margin: 0 10px 0 0;
+	padding: 0 5px;
 }
 .x {
 	padding: 2px;

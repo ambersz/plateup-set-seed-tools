@@ -150,6 +150,12 @@ const SeedSearcher = () => {
 			}
 		};
 	};
+	const [clipboard, setClipboard] = useState(defaultCardsByDay[1]);
+	const handlePaste = (day: number) => {
+		const copy = [...cardsByDay];
+		copy[day] = { include: clipboard.include, cards: [...clipboard.cards] };
+		setCardsByDay(copy);
+	};
 	return (
 		<div class="search-container">
 			<div class="search-config">
@@ -197,7 +203,16 @@ const SeedSearcher = () => {
 								onSelectionChange={handleCardSelectionChange(i + 1)}
 								label={"After Day " + (day > 15 ? `OT${day - 15}` : day)}
 								{...(cardsByDay[i + 1] ?? {})}
-								modes={day === 5 ? ["themes"] : ["unlocks"]}
+								modes={
+									day === 5
+										? ["themes"]
+										: day === 15
+										? ["franchise"]
+										: ["unlocks"]
+								}
+								showCopyPaste={day !== 5 && day !== 15}
+								handleCopy={setClipboard}
+								handlePaste={() => handlePaste(i + 1)}
 							/>
 						))}
 					</>

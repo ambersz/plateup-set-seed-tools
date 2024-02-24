@@ -195,7 +195,12 @@ const SeedSearcher = () => {
 			});
 		};
 	};
-
+	const [clipboard, setClipboard] = useState(defaultGoodCards);
+	const handlePaste = (day: number) => {
+		const copy = [...cardsByDay];
+		copy[day] = { include: clipboard.include, cards: [...clipboard.cards] };
+		setCardsByDay(copy);
+	};
 	const handleToggleTable = (n: number) => {
 		return () => {
 			if (allowedTables.includes(n)) {
@@ -251,6 +256,9 @@ const SeedSearcher = () => {
 								<UnlocksComboBox
 									onSelectionChange={handleCardSelectionChange(day)}
 									label={"After Day " + day}
+									showCopyPaste={day !== 5}
+									handleCopy={setClipboard}
+									handlePaste={() => handlePaste(day)}
 									{...(cardsByDay[day] ?? {})}
 									modes={day === 5 ? ["themes"] : ["unlocks"]}
 								/>
