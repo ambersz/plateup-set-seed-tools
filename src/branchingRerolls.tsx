@@ -274,9 +274,9 @@ const SeedConfigForm = ({ onConfigChange, config }: SeedConfigFormProps) => {
 				<input
 					type="number"
 					id="day"
-					value={day}
+					value={day + 1}
 					onChange={(e) => {
-						setConfig("day", Number((e.target as HTMLInputElement).value));
+						setConfig("day", Number((e.target as HTMLInputElement).value) - 1);
 					}}
 				/>
 				<UnlocksComboBox
