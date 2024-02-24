@@ -39,7 +39,6 @@ function explainRerollConfig(c: RerollConfig[]) {
 		<div
 			class="reroll-instructions"
 			onClick={(e) => {
-				console.log(e.detail);
 				if (e.detail < 2) {
 					return;
 				}
