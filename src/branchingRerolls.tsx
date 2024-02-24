@@ -309,7 +309,7 @@ const defaultBranchingRerollConfig: SeedConfig = {
 	blueprintCount: 5,
 	baseUpgradeChance: 0,
 	solo: false,
-	appliances: [],
+	appliances: defaultAppliances,
 	searchDepth: 2,
 };
 const BranchingRerollPage = () => {

@@ -164,7 +164,7 @@ export class Shop {
 						// 		option.Staple = ShopStapleType.WhenMissing;
 						// 	}
 						// } else {
-						if (OwnedAppliances.includes(option.Appliance)) {
+						if (OwnedAppliances.some((own) => own.ID === option.Appliance.ID)) {
 							option.Staple = ShopStapleType.NonStaple;
 						} else {
 							option.Staple = ShopStapleType.WhenMissing;
@@ -175,7 +175,7 @@ export class Shop {
 				const app = option.Appliance;
 				if (app.SellOnlyAsDuplicate) {
 					// 1a. handle appliances that require duplicates
-					if (!OwnedAppliances.includes(app)) {
+					if (!OwnedAppliances.some((own) => own.ID === app.ID)) {
 						option.IsRemoved = true;
 					}
 				} else if (app.RequiresForShop.length > 0) {
