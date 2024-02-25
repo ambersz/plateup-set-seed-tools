@@ -4,24 +4,17 @@ import { RestaurantSettings, SpeedrunDishes } from "./db/unlocks";
 import { FindNewUnlocks } from "./reverse-engineered/cards";
 import { FixedSeedContext, Random } from "./reverse-engineered/prng";
 
-function getWeekOfYear(t: number | undefined = undefined) {
-	const today = t ? new Date(t) : new Date();
-	const year = today.getUTCFullYear();
-	const newYear = t ? new Date(t) : new Date();
-	newYear.setUTCMonth(0);
-	newYear.setUTCDate(1);
-	newYear.setUTCHours(0, 0, 0, 0);
-	let weekOffset = newYear.getUTCDay() % 7;
-	const weeks =
-		(weekOffset ? 1 : 0) +
-		Math.floor(
-			(today.valueOf() - newYear.valueOf() + weekOffset * 24 * 60 * 60 * 1000) /
-				(7 * 24 * 60 * 60 * 1000)
-		);
-	console.log({ today, year, newYear, weekOffset, weeks });
-	console.log(`${year}, ${weeks}`);
-	// [Info   :MyFirstPlugin] (2023, 52)
-	return [year, weeks];
+function getDayOfYear(t: number = Date.now()) {
+	let daysSinceYear = Math.floor(
+		(t - Date.UTC(new Date(t).getUTCFullYear())) / (24 * 60 * 60 * 1000)
+	);
+	return daysSinceYear;
+}
+function getWeekOfYear(t: number | undefined = Date.now()) {
+	let n = getDayOfYear(t) - 1;
+	let n2 = (new Date(t).getUTCDay() - (n % 7) - 1 + 14) % 7;
+	const res = [new Date(t).getUTCFullYear(), Math.floor((n + n2) / 7) + 1];
+	return res;
 }
 export function getWeeklyConfig() {
 	const seed = getWeeklySeed();

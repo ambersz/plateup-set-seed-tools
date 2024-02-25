@@ -21,6 +21,7 @@ export default defineConfig({
 				versus: resolve(__dirname, "versus-seeds.html"),
 				cardPaths: resolve(__dirname, "card-paths.html"),
 				// worker: resolve(__dirname, "workers/seedSearcher.ts"),
+				weeklyExport: resolve(__dirname, "weekly-export.html"),
 			},
 		},
 	},

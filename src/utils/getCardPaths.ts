@@ -1,6 +1,6 @@
-import { FindNewUnlocks } from "./workers/reverse-engineered/cards";
-import { Unlock } from "./kitchenTypes";
-import { RestaurantSettings, Unlocks } from "./workers/db/unlocks";
+import { FindNewUnlocks } from "../workers/reverse-engineered/cards";
+import { Unlock } from "../kitchenTypes";
+import { RestaurantSettings, Unlocks } from "../workers/db/unlocks";
 const defaultStartingUnlocks = [
 	RestaurantSettings.filter((a) => a.Name === "Community")[0],
 	// RestaurantSettings.filter((a) => a.Name === "Turbo")[0],

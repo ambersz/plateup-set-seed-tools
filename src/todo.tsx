@@ -5,12 +5,16 @@ const TODO = () => {
 	return (
 		<div>
 			<h1>Dev</h1>
+			<h2>Weekly</h2>
+			<ul>
+				<li>data export</li>
+			</ul>
 			<h2>Autumn</h2>
 			Turkey, Nut Roast get <s>boosted</s> <i>blocked </i>
 			25% of the time -- done
 			<h2>Blueprints</h2>
 			<ul>
-				<li>Plates staple-ness wrong on Coffee/Cakes</li>
+				<li>Plates staple-ness wrong on Coffee/Cakes -- done I think?</li>
 				<li>Supplies</li>
 				<li>
 					Ingredients update immediately upon choosing the card, processes don't
@@ -65,6 +69,14 @@ const TODO = () => {
 				</li>
 			</ul>
 			<h2>Tech Debt?</h2>
+			<h3>better repo organization.... </h3>
+			<ul>
+				<li>
+					use a Router to centralize rendering? or will that break bundle
+					splitting benefits...
+				</li>
+				<li>separate the page rendering from the underlying components</li>
+			</ul>
 			<h3>Cards</h3>
 			<ul>
 				<li>build a better framework to handle the different settings</li>

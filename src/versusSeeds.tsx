@@ -5,17 +5,17 @@ import { DishType } from "./kitchenEnums";
 import { UnlocksComboBox } from "./UnlockSelect";
 import { GoalCardConfig } from "./workers/seedSearchWorker";
 import { LayoutSize } from "./forms/LayoutSize";
-import { RestaurantSettings, Unlocks } from "./workers/db/unlocks";
+import {
+	RestaurantSettings,
+	StartingDishes,
+	Unlocks,
+} from "./workers/db/unlocks";
 import {
 	RequestFormat,
 	ResponseDataFormat,
 	ResponseFormat,
 } from "./workers/versusWorker";
-
-const defaultDishes = Unlocks.filter(
-	(a) => a.DishType === DishType.Base && a.Name !== "Slow Brew Coffee"
-);
-const defaultConfig = { include: true, cards: defaultDishes };
+const defaultConfig = { include: true, cards: StartingDishes };
 const worker = new Worker(
 	new URL("./workers/versusWorker.ts", import.meta.url),
 	{ type: "module" }
@@ -23,12 +23,13 @@ const worker = new Worker(
 function sendMessage(message: RequestFormat) {
 	worker.postMessage(message);
 }
+const defaultTables = [1];
 const VersusSeeds = () => {
 	const [startingCards, setStartingCards] =
 		useState<GoalCardConfig>(defaultConfig);
 	const [strict, setStrict] = useState(true);
 	const [autumn, setAutumn] = useState(false);
-	const [allowedTables, setAllowedTables] = useState<number[]>([1, 2, 3, 4]);
+	const [allowedTables, setAllowedTables] = useState<number[]>(defaultTables);
 	const [results, setResults] = useState<ResponseDataFormat[]>([]);
 	useEffect(() => {
 		worker.onmessage = (e: MessageEvent<ResponseFormat>) => {
