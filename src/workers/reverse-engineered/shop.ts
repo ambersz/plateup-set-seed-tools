@@ -281,7 +281,13 @@ export class Shop {
 				const totalShopCount = Math.max(1, numberOfBlueprints);
 				const stapleCount = Math.max(
 					0,
-					Math.min(4, Math.max(2, 4 - Math.floor(day / 5)), totalShopCount)
+					Math.min(
+						ShopOptions.filter(
+							(a) => a.Staple !== ShopStapleType.NonStaple && !a.IsRemoved
+						).length,
+						Math.max(2, 4 - Math.floor(day / 5)),
+						totalShopCount
+					)
 				);
 				const rerollPoolCount = Math.max(0, totalShopCount - stapleCount);
 				numberOfBlueprints = totalShopCount;
