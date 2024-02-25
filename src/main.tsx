@@ -30,6 +30,9 @@ const Navigation = () => {
 					<li>
 						<a href="weekly.html">Weekly Speedrun</a>
 					</li>
+					<li>
+						<a href="weekly-export.html">Weekly Speedrun Data Export</a>
+					</li>
 				</ul>
 			</ul>
 			<h2>Notes/Weird Mechanics?</h2>
