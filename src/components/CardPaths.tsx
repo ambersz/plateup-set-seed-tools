@@ -1,9 +1,7 @@
-import { usePersistentState } from "../hooks/usePersistentState";
 import { useEffect, useState } from "preact/hooks";
 import { FindNewUnlocks } from "../workers/reverse-engineered/cards";
 import { Unlock } from "../kitchenTypes";
 import { getCardPaths } from "../utils/getCardPaths";
-import { UnlocksComboBox } from "../UnlockSelect";
 import { GoalCardConfig } from "../workers/seedSearchWorker";
 interface CardPathProps {
 	chooseCardPath?: boolean;

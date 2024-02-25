@@ -5,11 +5,7 @@ import { DishType } from "./kitchenEnums";
 import { UnlocksComboBox } from "./UnlockSelect";
 import { GoalCardConfig } from "./workers/seedSearchWorker";
 import { LayoutSize } from "./forms/LayoutSize";
-import {
-	RestaurantSettings,
-	StartingDishes,
-	Unlocks,
-} from "./workers/db/unlocks";
+import { RestaurantSettings, StartingDishes } from "./workers/db/unlocks";
 import {
 	RequestFormat,
 	ResponseDataFormat,
