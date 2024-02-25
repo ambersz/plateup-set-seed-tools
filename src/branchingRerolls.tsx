@@ -71,6 +71,12 @@ interface BranchingRerollProps {
 const defaultAppliances = Appliances.filter(
 	(a) => a.Name === "Booking Desk" || a.Name === "Blueprint Cabinet"
 ).sort((a, b) => (a.Name < b.Name ? 1 : -1));
+function cellClassFromConfig(r: RerollConfig[]) {
+	const f = r.at(-1);
+	if (f?.spawnInside) return "I";
+	if (f?.playerInside) return "OI";
+	return "OO";
+}
 const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 	seed,
 	day,
@@ -154,7 +160,7 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 				.map((a) => a.Name);
 			row.push(
 				<td
-					class="reroll-cell"
+					class={"reroll-cell " + cellClassFromConfig(cumulativeConfigs[i])}
 					colspan={configOptions.length ** (searchDepth - depth)}
 					// TODO: non-tooltip version so people can copy the instructions https://stackoverflow.com/questions/13845003/tooltips-for-cells-in-html-table-no-javascript
 				>
@@ -233,7 +239,14 @@ const SeedConfigForm = ({ onConfigChange, config }: SeedConfigFormProps) => {
 			<div>
 				<div>Run Config:</div>
 				<label for="solo">Solo:</label>
-				<input type="checkbox" id="solo" checked={solo} onChange={() => {}} />
+				<input
+					type="checkbox"
+					id="solo"
+					checked={solo}
+					onChange={() => {
+						setConfig("solo", !solo);
+					}}
+				/>
 				<label for="searchDepth">Number of Rerolls</label>{" "}
 				<input
 					id="searchDepth"
