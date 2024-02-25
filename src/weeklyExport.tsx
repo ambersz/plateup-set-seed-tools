@@ -33,6 +33,7 @@ const WeeklyRerollsExport = () => {
 							selectedCardPath.map((a) => a.Name).join("\t"),
 							[
 								"prep of day",
+								"reroll #",
 								"blueprints spawn inside",
 								"at least one player inside the restaurant",
 								"blueprints",
@@ -44,9 +45,10 @@ const WeeklyRerollsExport = () => {
 						shop.addCard(weeklyConfig.setting);
 						const addCards = [...selectedCardPath].slice(shop.Cards.length);
 						for (let day = 1; day < 15; day++) {
+							if (normalCardDays.includes(day)) shop.addCard(addCards.shift()!);
 							tsv.push(
 								(day + 1).toString() +
-									"\t\t\t" +
+									"\t0\t\t\t" +
 									shop
 										.getAppliances(spawnConfig, day)
 										.map((a) => a.Name)
@@ -62,10 +64,12 @@ const WeeklyRerollsExport = () => {
 								);
 							for (const reroll of rerollConfigs) {
 								const conf = [reroll, lastRoll];
-								for (const {} of [1, 2]) {
+								for (const rerollNumber of [1, 2]) {
 									tsv.push(
 										day +
 											1 +
+											"\t" +
+											rerollNumber +
 											"\t" +
 											reroll.spawnInside +
 											"\t" +
@@ -79,7 +83,6 @@ const WeeklyRerollsExport = () => {
 									conf.splice(0, 0, reroll);
 								}
 							}
-							if (normalCardDays.includes(day)) shop.addCard(addCards.shift()!);
 						}
 						navigator.clipboard.writeText(tsv.join("\n"));
 					}}
