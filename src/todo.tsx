@@ -25,7 +25,7 @@ const TODO = () => {
 					<li>
 						Extras/recipe modifications <b>NEVER</b> UPDATE PROCESSES???
 						(azga7d3z: Burgers, Burger Toppings, Charming, Cheeseburgers, Fresh
-						Patties, Pumpkin Pies)
+						Patties, Pumpkin Pies) -- fixed
 					</li>
 					<li>
 						(This would explain why, in addition to the weird itemgroup

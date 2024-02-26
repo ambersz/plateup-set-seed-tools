@@ -19,12 +19,12 @@ const CardPathsPage = () => {
 					id="seed"
 				/>
 			</div>
-			Starting config
 			<UnlocksComboBox
 				label="Starting Card(s)"
 				cards={startingConfig.cards}
 				onSelectionChange={setStartingConfig}
 				modes={["startingDishes", "settings"]}
+				showSelectionMode={false}
 			/>
 			<CardPaths seed={seed} startingCards={startingConfig.cards} />
 		</>

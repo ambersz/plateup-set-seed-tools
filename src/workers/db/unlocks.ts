@@ -98,7 +98,7 @@ export function getUnblockedCards(
 // [Info   :MyFirstPlugin] Country, City, Alpine, Autumn, Romantic
 // [Info   :MyFirstPlugin] Breakfast, Burgers, Hot Dogs, Fish, Pies, Salad, Stir Fry, Pizza, Turkey
 
-export const RestaurantSettings: Unlock[] = [
+export const SpeedrunRestaurantSettings: Unlock[] = [
 	{
 		ID: 447437163,
 		Name: "Country",
@@ -172,7 +172,10 @@ export const RestaurantSettings: Unlock[] = [
 		isStarterOrSide: false,
 		DishType: DishType.Null,
 	},
-].sort((a, b) => (a.Name < b.Name ? -1 : 1));
+];
+export const RestaurantSettings = [...SpeedrunRestaurantSettings].sort((a, b) =>
+	a.Name < b.Name ? -1 : 1
+);
 
 export const SpeedrunDishes = [
 	"Breakfast",

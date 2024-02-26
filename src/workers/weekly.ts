@@ -1,6 +1,6 @@
 import { Unlock } from "../kitchenTypes";
 import { IN_GAME_SEED_CHARS } from "../utils/utils";
-import { RestaurantSettings, SpeedrunDishes } from "./db/unlocks";
+import { SpeedrunRestaurantSettings, SpeedrunDishes } from "./db/unlocks";
 import { FindNewUnlocks } from "./reverse-engineered/cards";
 import { FixedSeedContext, Random } from "./reverse-engineered/prng";
 
@@ -20,7 +20,7 @@ export function getWeeklyConfig() {
 	const seed = getWeeklySeed();
 	const r = new FixedSeedContext(seed, 8853129);
 	let settingIndex = r.useSubcontext(0).random.range(0, 5);
-	const setting = RestaurantSettings[settingIndex];
+	const setting = SpeedrunRestaurantSettings[settingIndex];
 	const dish = r.useSubcontext(1).random.select(SpeedrunDishes);
 	return { seed, setting, dish, mapSize: numTilesFromSeed(seed) };
 }
