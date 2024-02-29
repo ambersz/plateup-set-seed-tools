@@ -1,5 +1,3 @@
-import { render } from "preact";
-import "./index.css";
 import { useState, useEffect } from "preact/hooks";
 import { DishType } from "./kitchenEnums";
 import { UnlocksComboBox } from "./UnlockSelect";
@@ -93,5 +91,4 @@ const VersusSeeds = () => {
 		</>
 	);
 };
-
-render(<VersusSeeds />, document.getElementById("app")!);
+export default VersusSeeds;

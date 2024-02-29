@@ -1,5 +1,3 @@
-import { render } from "preact";
-import "./index.css";
 import { getWeeklyConfig } from "./workers/weekly";
 import { CardPaths } from "./components/CardPaths";
 import { useState } from "preact/hooks";
@@ -123,9 +121,4 @@ const WeeklyRerollsExport = () => {
 	);
 };
 
-render(
-	<>
-		<WeeklyRerollsExport />
-	</>,
-	document.getElementById("app")!
-);
+export default WeeklyRerollsExport;

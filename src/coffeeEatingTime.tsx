@@ -1,5 +1,3 @@
-import { render } from "preact";
-import "./index.css";
 // test Leisurely Eating, Affordable, all 3 coffee extras: azz5tpcu
 function getAverageEatingTime(base: number, n: number) {
 	// base - base eating time
@@ -139,4 +137,4 @@ const CoffeeEatingTime = () => {
 	// return <>{res.map((l) => l.join(",")).join(";")}</>;
 };
 
-render(<CoffeeEatingTime />, document.getElementById("app")!);
+export default CoffeeEatingTime;

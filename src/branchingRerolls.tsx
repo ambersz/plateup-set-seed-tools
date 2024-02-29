@@ -1,5 +1,4 @@
-import { render, FunctionComponent, VNode } from "preact";
-import "./index.css";
+import { FunctionComponent, VNode } from "preact";
 
 import { RerollConfig, Shop } from "./workers/reverse-engineered/shop";
 import Appliances, { Appliance } from "./workers/db/appliances";
@@ -378,11 +377,5 @@ const BranchingRerollPage = () => {
 		</>
 	);
 };
-render(
-	<BranchingRerollPage
-	// seed="az"
-	// day={1}
-	// startingConfig={[{ spawnInside: true, blueprintCount: 5 }]}
-	/>,
-	document.getElementById("app")!
-);
+
+export default BranchingRerollPage;

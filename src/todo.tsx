@@ -1,13 +1,14 @@
-import "./index.css";
-
-import { render } from "preact";
 const TODO = () => {
 	return (
 		<div>
 			<h1>Dev</h1>
 			<h2>Weekly</h2>
 			<ul>
-				<li>data export</li>
+				<li>data export--seems to be sufficient?</li>
+				<li>
+					Romantic........ eventually. Lower priority since it only shows up
+					~once a month for in-game speedruns
+				</li>
 			</ul>
 			<h2>Autumn</h2>
 			Turkey, Nut Roast get <s>boosted</s> <i>blocked </i>
@@ -166,4 +167,4 @@ const TODO = () => {
 		</div>
 	);
 };
-render(<TODO />, document.getElementById("app")!);
+export default TODO;

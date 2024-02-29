@@ -1,5 +1,3 @@
-import { render } from "preact";
-import "./index.css";
 import { CardPaths, defaultConfig } from "./components/CardPaths";
 import { UnlocksComboBox } from "./UnlockSelect";
 import { useState } from "preact/hooks";
@@ -30,8 +28,4 @@ const CardPathsPage = () => {
 		</>
 	);
 };
-render(
-	<CardPathsPage />,
-	// <SeedSearcher defaultSeed={"t4tmhm8r"} />,
-	document.getElementById("app")!
-);
+export default CardPathsPage;

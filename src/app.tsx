@@ -1,33 +1,106 @@
-import { useState } from 'preact/hooks'
-import preactLogo from './assets/preact.svg'
-import viteLogo from '/vite.svg'
-import './app.css'
-
+import "./index.css";
+import { lazy } from "preact/compat";
+import { Suspense } from "preact/compat";
+import { Route, Routes } from "react-router-dom";
+import { Navigation } from "./Navigation";
+const TurboSeedSearcher = lazy(() => import("./seedSearcher"));
+const Versus = lazy(() => import("./versusSeeds"));
+const NormalSeedSearcher = lazy(() => import("./seedSearcherNormal"));
+const BranchingRerollPage = lazy(() => import("./branchingRerolls"));
+const CardPaths = lazy(() => import("./cardPaths"));
+const WeeklyRerollsExport = lazy(() => import("./weeklyExport"));
+const WeeklyPage = lazy(() => import("./weekly"));
+const CoffeeEatingTime = lazy(() => import("./coffeeEatingTime"));
+const TODO = lazy(() => import("./todo"));
+const Loading = () => <></>;
 export function App() {
-  const [count, setCount] = useState(0)
+	return (
+		<Routes>
+			<Route path={import.meta.env.BASE_URL}>
+				<Route
+					path="test.html"
+					element={
+						<Suspense fallback={<Loading />}>
+							<TODO />
+						</Suspense>
+					}
+				/>
+				<Route path="" element={<Navigation />} />
+				<Route
+					path="turbo-seed-searcher.html"
+					element={
+						<Suspense fallback={<Loading />}>
+							<TurboSeedSearcher />
+						</Suspense>
+					}
+				/>
+				<Route
+					path="versus-seeds.html"
+					element={
+						<Suspense fallback={<Loading />}>
+							<Versus />
+						</Suspense>
+					}
+				/>
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} class="logo" alt="Vite logo" />
-        </a>
-        <a href="https://preactjs.com" target="_blank">
-          <img src={preactLogo} class="logo preact" alt="Preact logo" />
-        </a>
-      </div>
-      <h1>Vite + Preact</h1>
-      <div class="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/app.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p class="read-the-docs">
-        Click on the Vite and Preact logos to learn more
-      </p>
-    </>
-  )
+				<Route
+					path="normal-seed-searcher.html"
+					element={
+						<Suspense fallback={<Loading />}>
+							<NormalSeedSearcher />
+						</Suspense>
+					}
+				/>
+				<Route
+					path="branching-rerolls.html"
+					element={
+						<Suspense fallback={<Loading />}>
+							<BranchingRerollPage />
+						</Suspense>
+					}
+				/>
+				<Route
+					path="card-paths.html"
+					element={
+						<Suspense fallback={<Loading />}>
+							<CardPaths />
+						</Suspense>
+					}
+				/>
+				<Route
+					path="weekly-export.html"
+					element={
+						<Suspense fallback={<Loading />}>
+							<WeeklyRerollsExport />
+						</Suspense>
+					}
+				/>
+				<Route
+					path="weekly.html"
+					element={
+						<Suspense fallback={<Loading />}>
+							<WeeklyPage />
+						</Suspense>
+					}
+				/>
+
+				<Route
+					path="coffee.html"
+					element={
+						<Suspense fallback={<Loading />}>
+							<CoffeeEatingTime />
+						</Suspense>
+					}
+				/>
+				<Route
+					path="TODO.html"
+					element={
+						<Suspense fallback={<Loading />}>
+							<TODO />
+						</Suspense>
+					}
+				/>
+			</Route>
+		</Routes>
+	);
 }

@@ -1,5 +1,3 @@
-import { render } from "preact";
-import "./index.css";
 import { RestaurantSettings, Unlocks } from "./workers/db/unlocks";
 import { useEffect, useState } from "preact/hooks";
 import { Unlock } from "./kitchenTypes";
@@ -299,11 +297,11 @@ const SeedSearcher = () => {
 		</>
 	);
 };
-render(
-	<SeedSearcher />,
-	// <SeedSearcher defaultSeed={"t4tmhm8r"} />,
-	document.getElementById("app")!
-);
+// render(
+// 	<SeedSearcher />,
+// 	// <SeedSearcher defaultSeed={"t4tmhm8r"} />,
+// 	document.getElementById("app")!
+// );
 
 const spawnGoals = import.meta.env.DEV
 	? [
@@ -315,3 +313,4 @@ const spawnGoals = import.meta.env.DEV
 			"Grabber - Rotating",
 	  ]
 	: [];
+export default SeedSearcher;

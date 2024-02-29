@@ -1,5 +1,3 @@
-import { render } from "preact";
-import "./index.css";
 import { useEffect, useState } from "preact/hooks";
 import { UnlocksComboBox } from "./UnlockSelect";
 import {
@@ -249,11 +247,6 @@ const SeedSearcher = () => {
 		</div>
 	);
 };
-render(
-	<SeedSearcher />,
-	// <SeedSearcher defaultSeed={"t4tmhm8r"} />,
-	document.getElementById("app")!
-);
 
 const spawnGoals = import.meta.env.DEV
 	? [
@@ -265,3 +258,5 @@ const spawnGoals = import.meta.env.DEV
 			"Grabber - Rotating",
 	  ]
 	: [];
+
+export default SeedSearcher;
