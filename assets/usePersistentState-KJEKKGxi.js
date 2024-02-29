@@ -1,0 +1,1 @@
+import{h as i,p as l,T as S}from"./main-XZ7WbX9P.js";const f=(o,e)=>{const[n,s]=i();l(()=>{const t=localStorage.getItem(e);t===null||s(JSON.parse(t))},[o,e]);const a=S(t=>{typeof t=="function"?s(c=>{const r=t(c??o);return localStorage.setItem(e,JSON.stringify(r)),r}):(s(t),localStorage.setItem(e,JSON.stringify(t)))},[e,s]);return[n??o,a]};export{f as u};
