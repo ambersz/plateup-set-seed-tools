@@ -1,13 +1,14 @@
 import { FunctionComponent, VNode } from "preact";
-
 import { RerollConfig, Shop } from "./workers/reverse-engineered/shop";
 import Appliances, { Appliance } from "./workers/db/appliances";
 import { GhostBlueprints } from "./components/GhostBlueprints";
 import { Unlock } from "./kitchenTypes";
 import { UnlocksComboBox } from "./UnlockSelect";
 import { AppliancesComboBox } from "./ApplianceSelect";
-import Version from "./components/Version";
 import { usePersistentState } from "./hooks/usePersistentState";
+import { useSearchParams } from "react-router-dom";
+import { useEffect } from "preact/hooks";
+import { Unlocks } from "./workers/db/unlocks";
 
 function explainRerollConfig(c: RerollConfig[]) {
 	let res = "";
@@ -55,6 +56,7 @@ function explainRerollConfig(c: RerollConfig[]) {
 	);
 }
 interface BranchingRerollProps {
+	practiceMode?: boolean;
 	seed: string;
 	day: number;
 	startingConfig?: RerollConfig[];
@@ -76,8 +78,11 @@ function cellClassFromConfig(r: RerollConfig[]) {
 	if (f?.playerInside) return "OI";
 	return "OO";
 }
+const NormalCardDays = [0, 3, 5, 6, 9, 12];
+const TurboCardDays = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
 const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 	seed,
+	practiceMode = false,
 	day,
 	startingConfig = [],
 	baseUpgradeChance = 0,
@@ -96,7 +101,26 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 		spawnInside: true,
 	};
 	const shop = new Shop(seed, baseUpgradeChance);
-	for (const c of cards) shop.addCard(c);
+	const turbo = blueprintCount === 7;
+	let cardsForRerollsOnly: Unlock[] = [];
+	const days = turbo ? TurboCardDays : NormalCardDays;
+	{
+		let i = 0;
+		for (const d of days) {
+			if (d > day) {
+				console.log(
+					`added up to card ${i}: ${cards
+						.slice(0, i)
+						.map((a) => a.Name)
+						.join(", ")}`
+				);
+				break;
+			}
+			shop.addCard(cards[i]);
+			if (d === day) cardsForRerollsOnly.push(shop.Cards.pop()!); // don't get processes the day you get the card
+			i++;
+		}
+	}
 	shop.OwnedAppliances = [...shop.OwnedAppliances, ...appliances];
 	const configOptions: RerollConfig[] = [];
 	/*
@@ -146,6 +170,11 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 	let renders: VNode[] = [];
 	let cumulativeConfigs: RerollConfig[][] = [startingConfig];
 	for (let depth = 0; depth <= searchDepth; depth++) {
+		if (practiceMode && depth > 0) {
+			for (const c of cardsForRerollsOnly) {
+				shop.addCard(c);
+			}
+		}
 		let newConfigs: RerollConfig[][] = [];
 		let row: VNode[] = [];
 		for (let i = 0; i < cumulativeConfigs.length; i++) {
@@ -292,14 +321,15 @@ const SeedConfigForm = ({ onConfigChange, config }: SeedConfigFormProps) => {
 					}}
 				/>
 				<UnlocksComboBox
-					label="Selected cards:"
+					id=""
+					label="Enter all cards in the order you take them:"
 					onSelectionChange={(gcc) => {
 						setConfig("cards", gcc.cards);
 					}}
 					showSelectionMode={false}
 					cards={cards}
 					include={true}
-					modes={["themes", "dishes"]}
+					modes={["themes", "dishes", "customerCards"]}
 				/>
 				<AppliancesComboBox
 					label="Select owned appliances:"
@@ -329,6 +359,27 @@ const BranchingRerollPage = () => {
 		defaultBranchingRerollConfig,
 		"BRANCH_CONFIG"
 	);
+	const [params, setParams] = useSearchParams();
+
+	useEffect(() => {
+		if (params.has("schedule")) {
+			setConfig((config) => ({
+				...config,
+				seed: params.get("seed") ?? config.seed,
+				day: 1,
+				cards: params
+					.get("schedule")!
+					.split(",")
+					// .map((a) => Number(a))
+					.map((i) => Unlocks.filter((a) => a.Name === i)[0]),
+				initialRerollConfig: [],
+				blueprintCount: !!params.get("turbo") ? 7 : 5,
+				baseUpgradeChance: !!params.get("turbo") ? 0.25 : 0,
+				searchDepth: 2,
+			}));
+			setParams(new URLSearchParams(), { replace: true });
+		}
+	}, [params]);
 	return (
 		<>
 			<div>
@@ -373,7 +424,6 @@ const BranchingRerollPage = () => {
 					</div>
 				</div>
 			)}
-			<Version />
 		</>
 	);
 };

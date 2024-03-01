@@ -9,7 +9,7 @@ import {
 	ResultFormat,
 } from "./workers/seedSearchWorker";
 import { usePersistentState } from "./hooks/usePersistentState";
-import Version from "./components/Version";
+import { Link } from "react-router-dom";
 
 const cakes = Unlocks.filter((u) => u.Name === "Cakes")[0];
 
@@ -186,7 +186,9 @@ const SeedSearcher = () => {
 			setCardsByDay((orig) => {
 				const copy = [...orig];
 				if (day === 0 && newSelection.cards[0]?.Name !== "Turbo") {
-					newSelection.cards.splice(0, 0, copy[day].cards[0]);
+					newSelection.cards.push(
+						RestaurantSettings.filter((a) => a.Name === "Turbo")[0]
+					);
 				}
 				copy[day] = newSelection;
 				return copy;
@@ -245,6 +247,7 @@ const SeedSearcher = () => {
 						<>
 							<UnlocksComboBox
 								onSelectionChange={handleCardSelectionChange(0)}
+								id={0}
 								showSelectionMode={false}
 								label="Starting Cards"
 								{...cardsByDay[0]}
@@ -254,6 +257,7 @@ const SeedSearcher = () => {
 								<UnlocksComboBox
 									onSelectionChange={handleCardSelectionChange(day)}
 									label={"After Day " + day}
+									id={day}
 									showCopyPaste={day !== 5}
 									handleCopy={setClipboard}
 									handlePaste={() => handlePaste(day)}
@@ -283,17 +287,25 @@ const SeedSearcher = () => {
 						{results.map((r) => {
 							return (
 								<div>
-									{r.seed}
-									{r.mapSize && ` (${r.mapSize})`}:{" "}
-									<div>{r.cards.join(", ")}</div>
-									{r.blueprints.map((bp) => bp.Name).join(", ")}
+									<Link
+										to={`../branching-rerolls.html?turbo=1&seed=${
+											r.seed
+										}&schedule=${r.cards
+											.filter((a) => a !== "Turbo")
+											.map((a) => encodeURIComponent(a))
+											.join(",")}`}
+									>
+										{r.seed}
+										{r.mapSize && ` (${r.mapSize})`}:{" "}
+										<div>{r.cards.join(", ")}</div>
+										{r.blueprints.map((bp) => bp.Name).join(", ")}
+									</Link>
 								</div>
 							);
 						})}
 					</div>
 				</div>
 			</div>
-			<Version />
 		</>
 	);
 };

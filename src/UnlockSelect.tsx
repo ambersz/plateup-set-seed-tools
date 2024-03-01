@@ -11,11 +11,10 @@ import { UnlockGroup } from "./kitchenEnums";
 const dishes = Unlocks.filter((a) => a.UnlockGroup === UnlockGroup.Dish).sort(
 	(a, b) => (a.Name < b.Name ? -1 : 1)
 );
-const regularUnlocks = dishes.concat(
-	Unlocks.filter((a) => a.UnlockGroup === UnlockGroup.Generic).sort((a, b) =>
-		a.Name < b.Name ? -1 : 1
-	)
-);
+const customerCards = Unlocks.filter(
+	(a) => a.UnlockGroup === UnlockGroup.Generic
+).sort((a, b) => (a.Name < b.Name ? -1 : 1));
+const regularUnlocks = dishes.concat(customerCards);
 const allDishes: Unlock[] = [];
 {
 	const ids: { [t: string]: boolean } = {};
@@ -50,6 +49,9 @@ function getFilteredCards(
 	let options: Unlock[] = [];
 	for (const mode of modes) {
 		switch (mode) {
+			case "customerCards":
+				options = [...options, ...customerCards];
+				break;
 			case "unlocks":
 				options = [...options, ...regularUnlocks];
 				break;
@@ -70,12 +72,22 @@ function getFilteredCards(
 				break;
 		}
 	}
-	return options.filter(function filterCard(unlock) {
-		return (
-			!selectedItems.some((s) => s.ID === unlock.ID) &&
-			unlock.Name.toLowerCase().includes(lowerCasedInputValue)
-		);
-	});
+	let matchLevels: [Unlock, number][] = [];
+	for (const unlock of options) {
+		let name = unlock.Name.toLowerCase();
+		let matchLevel = 0;
+		if (selectedItems.some((a) => unlock.ID === a.ID)) continue;
+		if (!name.includes(lowerCasedInputValue)) continue;
+		if (name.match(new RegExp("^" + lowerCasedInputValue))) {
+			matchLevel += 2;
+		}
+		if (name.match(new RegExp("\\W" + lowerCasedInputValue))) {
+			matchLevel++;
+		}
+		matchLevels.push([unlock, matchLevel]);
+	}
+	matchLevels.sort((a, b) => b[1] - a[1]);
+	return matchLevels.map((a) => a[0]);
 }
 interface NoCopyPaste {
 	showCopyPaste?: false;
@@ -96,6 +108,7 @@ interface BaseProps {
 	cards: Unlock[];
 	showSelectionMode?: boolean;
 	modes?: UnlocksComboBoxMode[];
+	id: number | string;
 }
 type UnlocksComboBoxProps = BaseProps & CopyPaste;
 
@@ -105,7 +118,8 @@ type UnlocksComboBoxMode =
 	| "startingDishes"
 	| "themes"
 	| "dishes"
-	| "franchise";
+	| "franchise"
+	| "customerCards";
 const defaultModes: UnlocksComboBoxMode[] = ["unlocks"];
 const noop = () => {};
 export function UnlocksComboBox({
@@ -119,6 +133,7 @@ export function UnlocksComboBox({
 	showCopyPaste = false,
 	handleCopy = noop,
 	handlePaste = noop,
+	id,
 }: UnlocksComboBoxProps) {
 	const [inputValue, setInputValue] = useState("");
 	const items = useMemo(
@@ -156,19 +171,32 @@ export function UnlocksComboBox({
 		itemToString(item: Unlock | null) {
 			return item ? item.Name : "";
 		},
-		defaultHighlightedIndex: 0, // after selection, highlight the first item.
+		defaultHighlightedIndex: -1, // after selection, highlight the first item.
 		selectedItem: null,
 		inputValue,
 		stateReducer(_state, actionAndChanges) {
 			const { changes, type } = actionAndChanges;
-
+			console.log(type);
 			switch (type) {
+				case useCombobox.stateChangeTypes.InputChange:
+					if (actionAndChanges.inputValue) {
+						return { ...changes, highlightedIndex: 0 };
+					} else {
+						return { ...changes, highlightedIndex: -1 };
+					}
+					return changes;
 				case useCombobox.stateChangeTypes.InputKeyDownEnter:
+					// debugger;
+					return {
+						...changes,
+						isOpen: false, // keep the menu open after selection.
+						highlightedIndex: -1, // don't highlight anything
+					};
 				case useCombobox.stateChangeTypes.ItemClick:
 					return {
 						...changes,
 						isOpen: true, // keep the menu open after selection.
-						highlightedIndex: 0, // with the first option highlighted.
+						highlightedIndex: -1, // don't highlight anything
 					};
 				default:
 					return changes;
@@ -262,9 +290,11 @@ export function UnlocksComboBox({
 					</div>
 					{showSelectionMode && (
 						<>
-							<label for="selectionMode">Include/Exclude Selected Cards</label>
+							<label for={`${id}SelectionMode`}>
+								Include/Exclude Selected Cards
+							</label>
 							<input
-								id="selectionMode"
+								id={`${id}SelectionMode`}
 								type="checkbox"
 								checked={include}
 								onChange={toggleSelectionMode}

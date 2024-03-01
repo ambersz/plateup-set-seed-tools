@@ -7,6 +7,7 @@ import {
 	ResultFormat,
 } from "./workers/seedSearchWorker";
 import { usePersistentState } from "./hooks/usePersistentState";
+import { Link } from "react-router-dom";
 
 const seedSearchWorkers: Worker[] = [];
 const multithreading = 1;
@@ -190,6 +191,7 @@ const SeedSearcher = () => {
 					// cardsByDay !== defaultCardsByDay &&
 					<>
 						<UnlocksComboBox
+							id={0}
 							onSelectionChange={handleCardSelectionChange(0)}
 							showSelectionMode={false}
 							label="Starting Cards"
@@ -198,6 +200,7 @@ const SeedSearcher = () => {
 						/>
 						{cardDays.map((day, i) => (
 							<UnlocksComboBox
+								id={day}
 								onSelectionChange={handleCardSelectionChange(i + 1)}
 								label={"After Day " + (day > 15 ? `OT${day - 15}` : day)}
 								{...(cardsByDay[i + 1] ?? {})}
@@ -237,8 +240,17 @@ const SeedSearcher = () => {
 					{results.map((r) => {
 						return (
 							<div>
-								{r.seed} ({r.mapSize}): <div>{r.cards.join(", ")}</div>
-								{r.blueprints.map((bp) => bp.Name).join(", ")}
+								<Link
+									to={`../branching-rerolls.html?seed=${
+										r.seed
+									}&schedule=${r.cards
+										.filter((a) => a !== "Community")
+										.map((a) => encodeURIComponent(a))
+										.join(",")}`}
+								>
+									{r.seed} ({r.mapSize}): <div>{r.cards.join(", ")}</div>
+									{r.blueprints.map((bp) => bp.Name).join(", ")}
+								</Link>
 							</div>
 						);
 					})}

@@ -1,4 +1,3 @@
-import Version from "./components/Version";
 import { Link } from "react-router-dom";
 
 export const Navigation = () => {
@@ -48,7 +47,6 @@ export const Navigation = () => {
                 <Link to="layouts.html">Layouts</Link>
             </li> */}
 			</ul>
-			<Version />
 		</>
 	);
 };

@@ -74,19 +74,30 @@ export function AppliancesComboBox({
 		itemToString(item: Appliance | null) {
 			return item ? item.Name : "";
 		},
-		defaultHighlightedIndex: 0, // after selection, highlight the first item.
+		defaultHighlightedIndex: -1, // after selection, highlight the first item.
 		selectedItem: null,
 		inputValue,
 		stateReducer(_state, actionAndChanges) {
 			const { changes, type } = actionAndChanges;
 
 			switch (type) {
+				case useCombobox.stateChangeTypes.InputChange:
+					if (actionAndChanges.inputValue) {
+						return { ...changes, highlightedIndex: 0 };
+					} else {
+						return { ...changes, highlightedIndex: -1 };
+					}
 				case useCombobox.stateChangeTypes.InputKeyDownEnter:
+					return {
+						...changes,
+						isOpen: false, // keep the menu open after selection.
+						highlightedIndex: -1, // with the first option highlighted.
+					};
 				case useCombobox.stateChangeTypes.ItemClick:
 					return {
 						...changes,
 						isOpen: true, // keep the menu open after selection.
-						highlightedIndex: 0, // with the first option highlighted.
+						highlightedIndex: -1, // with the first option highlighted.
 					};
 				default:
 					return changes;
