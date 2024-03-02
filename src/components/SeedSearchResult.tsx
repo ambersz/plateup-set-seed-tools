@@ -16,7 +16,7 @@ const SeedSearchResult = ({
 			<div>
 				{r.cards.join(", ")}
 				<Link
-					to={`../branching-rerolls.html?turbo=${turbo ? 1 : 0}&seed=${
+					to={`../branching-rerolls.html?${turbo ? "turbo=1&" : ""}&seed=${
 						r.seed
 					}&cards=${r.cards
 						.filter((a) => !RestaurantSettings.some((b) => b.Name === a))
