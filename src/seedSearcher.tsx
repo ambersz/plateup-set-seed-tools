@@ -10,6 +10,7 @@ import {
 } from "./workers/seedSearchWorker";
 import { usePersistentState } from "./hooks/usePersistentState";
 import { Link } from "react-router-dom";
+import SeedSearchResult from "./components/SeedSearchResult";
 
 const cakes = Unlocks.filter((u) => u.Name === "Cakes")[0];
 
@@ -284,25 +285,9 @@ const SeedSearcher = () => {
 						<div>
 							<code>seed (starting tables): cards</code>
 						</div>
-						{results.map((r) => {
-							return (
-								<div>
-									<Link
-										to={`../branching-rerolls.html?turbo=1&seed=${
-											r.seed
-										}&schedule=${r.cards
-											.filter((a) => a !== "Turbo")
-											.map((a) => encodeURIComponent(a))
-											.join(",")}`}
-									>
-										{r.seed}
-										{r.mapSize && ` (${r.mapSize})`}:{" "}
-										<div>{r.cards.join(", ")}</div>
-										{r.blueprints.map((bp) => bp.Name).join(", ")}
-									</Link>
-								</div>
-							);
-						})}
+						{results.map((r) => (
+							<SeedSearchResult turbo result={r} />
+						))}
 					</div>
 				</div>
 			</div>

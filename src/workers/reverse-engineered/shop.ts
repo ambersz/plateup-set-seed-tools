@@ -84,19 +84,27 @@ export class Shop {
 		}
 		return [mapSize, numTiles];
 	}
-
-	addCard(card: Unlock) {
+	handleNewCardSpawnEffects(card: Unlock) {
 		if (card === undefined) return;
-		this.Cards.push(card);
+		if (card.UnlockGroup === UnlockGroup.PrimaryTheme) {
+			// @ts-expect-error
+			this.Theme = DecorationType[card.Name];
+		}
+	}
+	handleNewCardRerollEffects(card: Unlock) {
+		if (card === undefined) return;
 		this.OwnedAppliances = this.OwnedAppliances.concat(
 			card.IngredientProviders.flatMap((i) =>
 				Appliances.filter((a) => a.ID === i)
 			)
 		);
-		if (card.UnlockGroup === UnlockGroup.PrimaryTheme) {
-			// @ts-expect-error
-			this.Theme = DecorationType[card.Name];
-		}
+	}
+
+	addCard(card: Unlock) {
+		if (card === undefined) return;
+		this.handleNewCardSpawnEffects(card);
+		this.handleNewCardRerollEffects(card);
+		this.Cards.push(card);
 	}
 	getPrngAdvancements(configs: RerollConfig[], day: number): number {
 		let res = 0;

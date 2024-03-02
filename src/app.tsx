@@ -14,14 +14,16 @@ const WeeklyRerollsExport = lazy(() => import("./weeklyExport"));
 const WeeklyPage = lazy(() => import("./weekly"));
 const CoffeeEatingTime = lazy(() => import("./coffeeEatingTime"));
 const TODO = lazy(() => import("./todo"));
-const Loading = () => <>hi</>;
+const Loading = () => <>...</>;
 
 const Layout: FunctionalComponent = () => (
 	<>
 		<div>
 			<Link to={import.meta.env.BASE_URL}>{"<-- All Tools"}</Link>
 		</div>
-		<Outlet />
+		<Suspense fallback={<Loading />}>
+			<Outlet />
+		</Suspense>
 		{/* <Version /> */}
 	</>
 );
@@ -38,89 +40,31 @@ export function App() {
 			<Route path={import.meta.env.BASE_URL}>
 				<Route index element={<Navigation />} />
 				<Route element={<Layout />}>
-					<Route
-						path="TODO.html"
-						element={
-							<Suspense fallback={<Loading />}>
-								<TODO />
-							</Suspense>
-						}
-					/>
-					<Route
-						path="test.html"
-						element={
-							<Suspense fallback={<Loading />}>
-								<TODO />
-							</Suspense>
-						}
-					/>
+					<Route path="TODO.html" element={<TODO />} />
+					<Route path="test.html" element={<TODO />} />
 					<Route element={<GameLayout />}>
 						<Route
 							path="turbo-seed-searcher.html"
-							element={
-								<Suspense fallback={<Loading />}>
-									<TurboSeedSearcher />
-								</Suspense>
-							}
+							element={<TurboSeedSearcher />}
 						/>
-						<Route
-							path="versus-seeds.html"
-							element={
-								<Suspense fallback={<Loading />}>
-									<Versus />
-								</Suspense>
-							}
-						/>
+						<Route path="versus-seeds.html" element={<Versus />} />
 
 						<Route
 							path="normal-seed-searcher.html"
-							element={
-								<Suspense fallback={<Loading />}>
-									<NormalSeedSearcher />
-								</Suspense>
-							}
+							element={<NormalSeedSearcher />}
 						/>
 						<Route
 							path="branching-rerolls.html"
-							element={
-								<Suspense fallback={<Loading />}>
-									<BranchingRerollPage />
-								</Suspense>
-							}
+							element={<BranchingRerollPage />}
 						/>
-						<Route
-							path="card-paths.html"
-							element={
-								<Suspense fallback={<Loading />}>
-									<CardPaths />
-								</Suspense>
-							}
-						/>
+						<Route path="card-paths.html" element={<CardPaths />} />
 						<Route
 							path="weekly-export.html"
-							element={
-								<Suspense fallback={<Loading />}>
-									<WeeklyRerollsExport />
-								</Suspense>
-							}
+							element={<WeeklyRerollsExport />}
 						/>
-						<Route
-							path="weekly.html"
-							element={
-								<Suspense fallback={<Loading />}>
-									<WeeklyPage />
-								</Suspense>
-							}
-						/>
+						<Route path="weekly.html" element={<WeeklyPage />} />
 
-						<Route
-							path="coffee.html"
-							element={
-								<Suspense fallback={<Loading />}>
-									<CoffeeEatingTime />
-								</Suspense>
-							}
-						/>
+						<Route path="coffee.html" element={<CoffeeEatingTime />} />
 					</Route>
 				</Route>
 			</Route>

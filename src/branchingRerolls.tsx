@@ -82,7 +82,6 @@ const NormalCardDays = [0, 3, 5, 6, 9, 12];
 const TurboCardDays = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
 const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 	seed,
-	practiceMode = false,
 	day,
 	startingConfig = [],
 	baseUpgradeChance = 0,
@@ -116,8 +115,13 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 				);
 				break;
 			}
-			shop.addCard(cards[i]);
-			if (d === day) cardsForRerollsOnly.push(shop.Cards.pop()!); // don't get processes the day you get the card
+			if (d === day) {
+				// ingredients don't apply until people open boxes, and processes don't get updated until practice mode or next day (not sure about courses, but they don't appear to apply at spawn, and you wouldn't be able to get plates in rerolls anyway so... we just pretend it's the same as the processes?)
+				cardsForRerollsOnly.push(cards[i]);
+				shop.handleNewCardSpawnEffects(cards[i]);
+			} else {
+				shop.addCard(cards[i]);
+			}
 			i++;
 		}
 	}
@@ -170,9 +174,9 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 	let renders: VNode[] = [];
 	let cumulativeConfigs: RerollConfig[][] = [startingConfig];
 	for (let depth = 0; depth <= searchDepth; depth++) {
-		if (practiceMode && depth > 0) {
+		if (depth) {
 			for (const c of cardsForRerollsOnly) {
-				shop.addCard(c);
+				shop.handleNewCardRerollEffects(c);
 			}
 		}
 		let newConfigs: RerollConfig[][] = [];
@@ -322,7 +326,7 @@ const SeedConfigForm = ({ onConfigChange, config }: SeedConfigFormProps) => {
 				/>
 				<UnlocksComboBox
 					id=""
-					label="Enter all cards in the order you take them:"
+					label="Enter all cards in order, including your starting dish:"
 					onSelectionChange={(gcc) => {
 						setConfig("cards", gcc.cards);
 					}}
@@ -362,20 +366,18 @@ const BranchingRerollPage = () => {
 	const [params, setParams] = useSearchParams();
 
 	useEffect(() => {
-		if (params.has("schedule")) {
+		if (params.has("cards")) {
 			setConfig((config) => ({
 				...config,
 				seed: params.get("seed") ?? config.seed,
-				day: 1,
 				cards: params
-					.get("schedule")!
+					.get("cards")!
 					.split(",")
 					// .map((a) => Number(a))
 					.map((i) => Unlocks.filter((a) => a.Name === i)[0]),
-				initialRerollConfig: [],
 				blueprintCount: !!params.get("turbo") ? 7 : 5,
 				baseUpgradeChance: !!params.get("turbo") ? 0.25 : 0,
-				searchDepth: 2,
+				solo: !!Number(params.get("solo")),
 			}));
 			setParams(new URLSearchParams(), { replace: true });
 		}
