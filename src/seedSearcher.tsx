@@ -9,7 +9,6 @@ import {
 	ResultFormat,
 } from "./workers/seedSearchWorker";
 import { usePersistentState } from "./hooks/usePersistentState";
-import { Link } from "react-router-dom";
 import SeedSearchResult from "./components/SeedSearchResult";
 
 const cakes = Unlocks.filter((u) => u.Name === "Cakes")[0];
