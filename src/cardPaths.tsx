@@ -18,6 +18,7 @@ const CardPathsPage = () => {
 				/>
 			</div>
 			<UnlocksComboBox
+				id={""}
 				label="Starting Card(s)"
 				cards={startingConfig.cards}
 				onSelectionChange={setStartingConfig}

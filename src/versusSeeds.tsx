@@ -74,6 +74,7 @@ const VersusSeeds = () => {
 				allowedTables={allowedTables}
 			/>
 			<UnlocksComboBox
+				id={""}
 				onSelectionChange={setStartingCards}
 				showSelectionMode={false}
 				label="Starting Cards"
