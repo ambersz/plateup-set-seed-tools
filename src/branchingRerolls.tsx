@@ -55,7 +55,7 @@ function explainRerollConfig(c: RerollConfig[]) {
 		</div>
 	);
 }
-interface BranchingRerollProps {
+interface BaseBranchingRerollProps {
 	practiceMode?: boolean;
 	seed: string;
 	day: number;
@@ -69,11 +69,24 @@ interface BranchingRerollProps {
 	cards: Unlock[];
 	appliances: Appliance[];
 }
+
+type BranchingRerollProps = BaseBranchingRerollProps & SeedConfig;
 const defaultAppliances = Appliances.filter(
 	(a) => a.Name === "Booking Desk" || a.Name === "Blueprint Cabinet"
 ).sort((a, b) => (a.Name < b.Name ? 1 : -1));
-function cellClassFromConfig(r: RerollConfig[]) {
+function cellClassFromConfig(r: RerollConfig[], simpleBPSettings: boolean) {
 	const f = r.at(-1);
+	if (simpleBPSettings) {
+		switch ((f?.blueprintCount ?? 0) % 3) {
+			case 0:
+				return "I";
+			case 1:
+				return "OI";
+			default:
+				return "OO";
+				break;
+		}
+	}
 	if (f?.spawnInside) return "I";
 	if (f?.playerInside) return "OI";
 	return "OO";
@@ -93,6 +106,7 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 	solo,
 	cards = [],
 	appliances = [],
+	simpleBPSettings = false,
 }: BranchingRerollProps) => {
 	seed = seed.toLocaleLowerCase().trim();
 	const finalRollConfig: RerollConfig = {
@@ -145,7 +159,9 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 			spawnInside: true,
 			blueprintCount: blueprintCount + i,
 		};
+		if (i === 0) spawnConfigs.push(config);
 		configOptions.push(config as RerollConfig);
+		if (simpleBPSettings) continue;
 		if (!solo)
 			configOptions.push({
 				spawnInside: false,
@@ -158,7 +174,6 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 			blueprintCount: blueprintCount + i,
 		});
 		if (i === 0) {
-			spawnConfigs.push(config);
 			spawnConfigs.push({
 				spawnInside: false,
 				playerInside: true,
@@ -192,7 +207,10 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 				.map((a) => a.Name);
 			row.push(
 				<td
-					class={"reroll-cell " + cellClassFromConfig(cumulativeConfigs[i])}
+					class={
+						"reroll-cell " +
+						cellClassFromConfig(cumulativeConfigs[i], simpleBPSettings)
+					}
 					colspan={configOptions.length ** (searchDepth - depth)}
 					// TODO: non-tooltip version so people can copy the instructions https://stackoverflow.com/questions/13845003/tooltips-for-cells-in-html-table-no-javascript
 				>
@@ -231,6 +249,7 @@ interface SeedConfig {
 	appliances: Appliance[];
 	cards: Unlock[];
 	searchDepth: number;
+	simpleBPSettings?: boolean;
 }
 interface SeedConfigFormProps {
 	onConfigChange: (config: SeedConfig) => void;
@@ -245,6 +264,7 @@ const SeedConfigForm = ({ onConfigChange, config }: SeedConfigFormProps) => {
 		appliances = defaultAppliances,
 		cards,
 		searchDepth,
+		simpleBPSettings = false,
 	} = config;
 	const handleSettingChange: HTMLInputElement["onchange"] = (e) => {
 		let newConf = { ...config };
@@ -279,19 +299,31 @@ const SeedConfigForm = ({ onConfigChange, config }: SeedConfigFormProps) => {
 						setConfig("solo", !solo);
 					}}
 				/>
-				<label for="searchDepth">Number of Rerolls</label>{" "}
-				<input
-					id="searchDepth"
-					type="number"
-					value={searchDepth}
-					onChange={(e) => {
-						setConfig(
-							"searchDepth",
-							Number((e.target as HTMLInputElement).value)
-						);
-					}}
-				/>
-				<br />
+				<span style="margin:0 20px">
+					<label for="simpleRerollSettings">Spawn inside only:</label>
+					<input
+						type="checkbox"
+						id="simpleRerollSettings"
+						checked={!!simpleBPSettings}
+						onChange={() => {
+							setConfig("simpleBPSettings", !simpleBPSettings);
+						}}
+					/>
+				</span>
+				<div>
+					<label for="searchDepth">Number of Rerolls</label>{" "}
+					<input
+						id="searchDepth"
+						type="number"
+						value={searchDepth}
+						onChange={(e) => {
+							setConfig(
+								"searchDepth",
+								Number((e.target as HTMLInputElement).value)
+							);
+						}}
+					/>
+				</div>
 				<label for="seed" value={seed}>
 					Seed:{" "}
 				</label>
@@ -357,9 +389,10 @@ const defaultBranchingRerollConfig: SeedConfig = {
 	solo: false,
 	appliances: defaultAppliances,
 	searchDepth: 2,
+	simpleBPSettings: false,
 };
 const BranchingRerollPage = () => {
-	const [config, setConfig] = usePersistentState(
+	const [config, setConfig] = usePersistentState<SeedConfig>(
 		defaultBranchingRerollConfig,
 		"BRANCH_CONFIG"
 	);
