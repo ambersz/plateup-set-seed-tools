@@ -75,7 +75,11 @@ const WeeklyRerollsExport = () => {
 						shop.addCard(weeklyConfig.setting);
 						const addCards = [...selectedCardPath].slice(shop.Cards.length);
 						for (let day = 1; day < 15; day++) {
-							if (normalCardDays.includes(day)) shop.addCard(addCards.shift()!);
+							let card: undefined | Unlock = undefined;
+							if (normalCardDays.includes(day)) {
+								card = addCards.shift();
+								shop.handleNewCardSpawnEffects(card);
+							}
 							tsv.push(
 								(day + 1).toString() +
 									"\t0\t\t\t" +
@@ -91,6 +95,7 @@ const WeeklyRerollsExport = () => {
 								shop.OwnedAppliances.push(
 									Appliances.filter((a) => a.Name === "Research Desk")[0]
 								);
+							shop.handleNewCardRerollEffects(card);
 							for (const reroll of rerollConfigs) {
 								const conf = [reroll, lastRoll];
 								for (const rerollNumber of [1, 2]) {
@@ -112,6 +117,7 @@ const WeeklyRerollsExport = () => {
 									conf.splice(0, 0, reroll);
 								}
 							}
+							shop.addCard(card);
 						}
 						navigator.clipboard.writeText(tsv.join("\n"));
 					}}

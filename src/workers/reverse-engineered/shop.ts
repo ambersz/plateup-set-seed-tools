@@ -84,14 +84,14 @@ export class Shop {
 		}
 		return [mapSize, numTiles];
 	}
-	handleNewCardSpawnEffects(card: Unlock) {
+	handleNewCardSpawnEffects(card?: Unlock) {
 		if (card === undefined) return;
 		if (card.UnlockGroup === UnlockGroup.PrimaryTheme) {
 			// @ts-expect-error
 			this.Theme = DecorationType[card.Name];
 		}
 	}
-	handleNewCardRerollEffects(card: Unlock) {
+	handleNewCardRerollEffects(card?: Unlock) {
 		if (card === undefined) return;
 		this.OwnedAppliances = this.OwnedAppliances.concat(
 			card.IngredientProviders.flatMap((i) =>
@@ -100,7 +100,7 @@ export class Shop {
 		);
 	}
 
-	addCard(card: Unlock) {
+	addCard(card?: Unlock) {
 		if (card === undefined) return;
 		this.handleNewCardSpawnEffects(card);
 		this.handleNewCardRerollEffects(card);
