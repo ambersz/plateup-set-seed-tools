@@ -1,1 +1,0 @@
-import{u as t,g as l}from"./main-spyJSKMz.js";function s({ghostCount:e=2,bps:n}){return t(l,{children:n.map((h,r)=>t("span",{class:r+e<n.length?"":"ghost",children:h+(r<n.length-1?", ":"")}))})}export{s as G};
