@@ -5,6 +5,7 @@ import { Link, Outlet, Route, Routes } from "react-router-dom";
 import { Navigation } from "./Navigation";
 import Version from "./components/Version";
 import { FunctionalComponent } from "preact";
+import ResearchProbabilities from "./components/ResearchProbabilities";
 const TurboSeedSearcher = lazy(() => import("./seedSearcher"));
 const Versus = lazy(() => import("./versusSeeds"));
 const NormalSeedSearcher = lazy(() => import("./seedSearcherNormal"));
@@ -43,6 +44,10 @@ export function App() {
 					<Route path="TODO.html" element={<TODO />} />
 					<Route path="test.html" element={<TODO />} />
 					<Route element={<GameLayout />}>
+						<Route
+							path="researchProbabilities.html"
+							element={<ResearchProbabilities />}
+						/>
 						<Route
 							path="turbo-seed-searcher.html"
 							element={<TurboSeedSearcher />}

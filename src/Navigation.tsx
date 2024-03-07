@@ -43,6 +43,11 @@ export const Navigation = () => {
 				<li>
 					<Link to="TODO.html">TODO</Link>
 				</li>
+				{import.meta.env.DEV && (
+					<li>
+						<Link to="researchProbabilities.html">Research Probabilities</Link>
+					</li>
+				)}
 				{/* <li>
                 <Link to="layouts.html">Layouts</Link>
             </li> */}

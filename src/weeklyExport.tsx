@@ -3,7 +3,7 @@ import { CardPaths } from "./components/CardPaths";
 import { useState } from "preact/hooks";
 import { useInput } from "./utils/useInput";
 import { RerollConfig, Shop } from "./workers/reverse-engineered/shop";
-import Appliances from "./workers/db/appliances";
+import Appliances, { Appliance } from "./workers/db/appliances";
 import { Unlock } from "./kitchenTypes";
 const spawnConfig: RerollConfig[] = [{ spawnInside: true, blueprintCount: 5 }];
 const lastRoll: RerollConfig = { spawnInside: true, blueprintCount: 10 };
@@ -17,6 +17,38 @@ const weeklyConfig = getWeeklyConfig();
 const defaultAppliances = Appliances.filter(
 	(a) => a.Name === "Booking Desk" || a.Name === "Blueprint Cabinet"
 ).sort((a, b) => (a.Name < b.Name ? 1 : -1));
+
+const constantStaples = [
+	"Counter",
+	"Dining Table",
+	"Sink",
+	"Hob",
+	"Research Desk",
+];
+function organizeStapleSpawns(spawns: Appliance[]): Appliance[] {
+	// counter, table, hob, sink
+	const ordered: Appliance[] = [];
+	for (let j = 0; j < constantStaples.length; j++) {
+		const name = constantStaples[j];
+		for (let i = 0; i < spawns.length; i++) {
+			if (spawns[i].Name === name) {
+				ordered[j] = spawns.splice(i, 1)[0];
+			}
+		}
+	}
+	// prefer to put plates in the research desk column since they're both conditional-- generally will end up as far right as possible
+	spawns.sort(
+		(a, b) => (a.StapleWhenMissing ? 1 : 0) - (b.StapleWhenMissing ? 1 : 0)
+	);
+	// fill in remaining non-staples
+	let j = 0;
+	while (spawns.length) {
+		while (ordered[j]) j++;
+		ordered[j] = spawns.shift()!;
+		j++;
+	}
+	return ordered;
+}
 const WeeklyRerollsExport = () => {
 	const [selectedCardPath, setSelectedCardPath] = useState<Unlock[]>([]);
 	const [rowIndex, setRowIndex] = useState<number>();
@@ -47,8 +79,7 @@ const WeeklyRerollsExport = () => {
 							tsv.push(
 								(day + 1).toString() +
 									"\t0\t\t\t" +
-									shop
-										.getAppliances(spawnConfig, day)
+									organizeStapleSpawns(shop.getAppliances(spawnConfig, day))
 										.map((a) => a.Name)
 										.join("\t")
 							);

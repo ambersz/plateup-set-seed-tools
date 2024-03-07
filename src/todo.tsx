@@ -20,7 +20,11 @@ const TODO = () => {
 				<li>
 					Ingredients update immediately upon choosing the card, processes don't
 					update until the next day ends (requires knowing the day a card is
-					actually taken to fix)
+					actually taken to fix) -- most common case accounted for with card
+					schedule, but it doesn't account for practice mode/ingredient box
+					shenanigans... Adding UI for those is probably just going to confuse
+					most people? Do I make a more "advanced" tool, or just assume people
+					don't care?
 				</li>
 				<ul>
 					<li>
@@ -64,7 +68,8 @@ const TODO = () => {
 						</li>
 						<li>
 							prevent starting the restaurant on set seed if using one of a
-							configurable list "random seed" layout seeds?
+							configurable list "random seed" layout seeds? -- done, waiting on
+							approval for speedrunning
 						</li>
 					</ul>
 				</li>
@@ -74,9 +79,22 @@ const TODO = () => {
 			<ul>
 				<li>
 					use a Router to centralize rendering? or will that break bundle
-					splitting benefits...
+					splitting benefits?
+					<ul>
+						<li>
+							Router done, it didn't impact bundle splitting, but it did make
+							page loads really laggy
+						</li>
+						<li>
+							setup SSR to pre-compile pages, should be even faster than the
+							original setup because the UI will be baked into the html
+						</li>
+					</ul>
 				</li>
-				<li>separate the page rendering from the underlying components</li>
+				<li>
+					separate the page rendering from the underlying components-- done with
+					router refac
+				</li>
 			</ul>
 			<h3>Cards</h3>
 			<ul>
