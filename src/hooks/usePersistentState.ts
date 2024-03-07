@@ -2,14 +2,19 @@ import { StateUpdater, useCallback, useEffect, useState } from "preact/hooks";
 
 export const usePersistentState = <T>(
 	defaultState: T,
-	ID: string
+	ID: string,
+	versionUpgrader?: (stored: T) => T
 ): [T, StateUpdater<T>] => {
 	const [state, _setState] = useState<T>();
 	useEffect(() => {
 		const stored = localStorage.getItem(ID);
 		if (stored === null) {
 		} else {
-			_setState(JSON.parse(stored));
+			if (versionUpgrader) {
+				_setState(versionUpgrader(JSON.parse(stored)));
+			} else {
+				_setState(JSON.parse(stored));
+			}
 		}
 	}, [defaultState, ID]);
 	const setState = useCallback<StateUpdater<T>>(

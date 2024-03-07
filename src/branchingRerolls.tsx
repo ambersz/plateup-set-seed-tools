@@ -74,9 +74,30 @@ type BranchingRerollProps = BaseBranchingRerollProps & SeedConfig;
 const defaultAppliances = Appliances.filter(
 	(a) => a.Name === "Booking Desk" || a.Name === "Blueprint Cabinet"
 ).sort((a, b) => (a.Name < b.Name ? 1 : -1));
-function cellClassFromConfig(r: RerollConfig[], simpleBPSettings: boolean) {
+function cellClassFromConfig(
+	r: RerollConfig[],
+	simpleBPSettings: BranchingRerollProps["simpleBPSettings"],
+	solo: boolean
+) {
 	const f = r.at(-1);
-	if (simpleBPSettings) {
+	switch (simpleBPSettings) {
+		case "full":
+		case false:
+			break;
+		case "insideOnly":
+		case true:
+			break;
+		case "noSwitching":
+			break;
+
+		default:
+			break;
+	}
+	if (
+		simpleBPSettings === "insideOnly" ||
+		(solo && simpleBPSettings === "noSwitching") ||
+		(simpleBPSettings === "noSwitching" && f?.spawnInside)
+	) {
 		switch ((f?.blueprintCount ?? 0) % 3) {
 			case 0:
 				return "I";
@@ -141,38 +162,15 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 	}
 	shop.OwnedAppliances = [...shop.OwnedAppliances, ...appliances];
 	const configOptions: RerollConfig[] = [];
-	/*
-	for (const spawnInside of spawnInsides) {
-		if (spawnInside) {
-			configOptions.push({ spawnInside: true, blueprintCount });
-			continue;
-		}
-		for (const playerInside of playerInsides) {
-			configOptions.push({ spawnInside: false, blueprintCount, playerInside });
-		}
-	}
-	*/
-	const spawnConfigs = [];
-	// for (let i = -blueprintCount + 1; i <= blueprintCabinets; i++) {
+	const spawnConfigs: RerollConfig[] = [];
 	for (let i = -blueprintCabinets - 1; i <= blueprintCabinets; i++) {
 		const config = {
 			spawnInside: true,
 			blueprintCount: blueprintCount + i,
 		};
-		if (i === 0) spawnConfigs.push(config);
+		if (i === 0) spawnConfigs.push(config as RerollConfig);
 		configOptions.push(config as RerollConfig);
-		if (simpleBPSettings) continue;
-		if (!solo)
-			configOptions.push({
-				spawnInside: false,
-				playerInside: true,
-				blueprintCount: blueprintCount + i,
-			});
-		configOptions.push({
-			spawnInside: false,
-			playerInside: false,
-			blueprintCount: blueprintCount + i,
-		});
+		if (simpleBPSettings === "insideOnly") continue;
 		if (i === 0) {
 			spawnConfigs.push({
 				spawnInside: false,
@@ -185,6 +183,17 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 				blueprintCount: blueprintCount + i,
 			});
 		}
+		if (!solo)
+			configOptions.push({
+				spawnInside: false,
+				playerInside: true,
+				blueprintCount: blueprintCount + i,
+			});
+		configOptions.push({
+			spawnInside: false,
+			playerInside: false,
+			blueprintCount: blueprintCount + i,
+		});
 	}
 	let renders: VNode[] = [];
 	let cumulativeConfigs: RerollConfig[][] = [startingConfig];
@@ -205,14 +214,19 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 			const roll = shop
 				.getAppliances([...cumulativeConfigs[i], final], day)
 				.map((a) => a.Name);
+			const expansionFactor =
+				simpleBPSettings === "noSwitching"
+					? solo || cumulativeConfigs[i]?.[0]?.spawnInside
+						? configOptions.length / (solo ? 2 : 3)
+						: (configOptions.length * 2) / 3
+					: configOptions.length;
 			row.push(
 				<td
 					class={
 						"reroll-cell " +
-						cellClassFromConfig(cumulativeConfigs[i], simpleBPSettings)
+						cellClassFromConfig(cumulativeConfigs[i], simpleBPSettings, solo)
 					}
-					colspan={configOptions.length ** (searchDepth - depth)}
-					// TODO: non-tooltip version so people can copy the instructions https://stackoverflow.com/questions/13845003/tooltips-for-cells-in-html-table-no-javascript
+					colspan={expansionFactor ** (searchDepth - depth)}
 				>
 					<GhostBlueprints
 						bps={roll}
@@ -222,10 +236,18 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 					{explainRerollConfig(cumulativeConfigs[i])}
 				</td>
 			);
-			const options =
+			const options: RerollConfig[] =
 				startingConfig.length + depth === 0 ? spawnConfigs : configOptions;
 			for (const branchConfig of options) {
-				const newConfig = [...cumulativeConfigs[i], branchConfig];
+				const newConfig = [...cumulativeConfigs[i]];
+				if (
+					simpleBPSettings === "noSwitching" &&
+					newConfig.length &&
+					newConfig[0].spawnInside !== branchConfig.spawnInside
+				) {
+					continue;
+				}
+				newConfig.push(branchConfig);
 				newConfigs.push(newConfig as RerollConfig[]);
 			}
 		}
@@ -249,7 +271,7 @@ interface SeedConfig {
 	appliances: Appliance[];
 	cards: Unlock[];
 	searchDepth: number;
-	simpleBPSettings?: boolean;
+	simpleBPSettings?: boolean | "insideOnly" | "noSwitching" | "full";
 }
 interface SeedConfigFormProps {
 	onConfigChange: (config: SeedConfig) => void;
@@ -300,15 +322,29 @@ const SeedConfigForm = ({ onConfigChange, config }: SeedConfigFormProps) => {
 					}}
 				/>
 				<span style="margin:0 20px">
-					<label for="simpleRerollSettings">Spawn inside only:</label>
-					<input
-						type="checkbox"
-						id="simpleRerollSettings"
-						checked={!!simpleBPSettings}
-						onChange={() => {
-							setConfig("simpleBPSettings", !simpleBPSettings);
+					<label for="simpleRerollSettings">Spawn setting configs: </label>
+					<select
+						value={
+							simpleBPSettings === true
+								? "insideOnly"
+								: simpleBPSettings === false
+								? "full"
+								: simpleBPSettings
+						}
+						onChange={(e) => {
+							setConfig(
+								"simpleBPSettings",
+								// @ts-ignore
+								(e.target as HTMLOptionElement)?.value ?? "full"
+							);
 						}}
-					/>
+					>
+						<option value="full">All spawn settings</option>
+						<option value="insideOnly">Spawn Inside only</option>
+						<option value="noSwitching">
+							Don't switch bp settings after spawn
+						</option>
+					</select>
 				</span>
 				<div>
 					<label for="searchDepth">Number of Rerolls</label>{" "}
@@ -335,7 +371,7 @@ const SeedConfigForm = ({ onConfigChange, config }: SeedConfigFormProps) => {
 						setConfig("seed", (e.target as HTMLInputElement).value);
 					}}
 				/>
-				<label for="setting">Turbo?</label>
+				<label for="setting"> Turbo?</label>
 				<input
 					id="setting"
 					type="checkbox"
@@ -357,7 +393,7 @@ const SeedConfigForm = ({ onConfigChange, config }: SeedConfigFormProps) => {
 					}}
 				/>
 				<UnlocksComboBox
-					id=""
+					id="cardSchedule"
 					label="Enter all cards in order, including your starting dish:"
 					onSelectionChange={(gcc) => {
 						setConfig("cards", gcc.cards);
@@ -394,8 +430,19 @@ const defaultBranchingRerollConfig: SeedConfig = {
 const BranchingRerollPage = () => {
 	const [config, setConfig] = usePersistentState<SeedConfig>(
 		defaultBranchingRerollConfig,
-		"BRANCH_CONFIG"
+		"BRANCH_CONFIG",
+		(config: SeedConfig) => {
+			if (typeof config.simpleBPSettings === "boolean") {
+				debugger;
+				return {
+					...config,
+					simpleBPSettings: config.simpleBPSettings ? "insideOnly" : "full",
+				};
+			}
+			return config;
+		}
 	);
+
 	const [params, setParams] = useSearchParams();
 
 	useEffect(() => {
@@ -406,7 +453,6 @@ const BranchingRerollPage = () => {
 				cards: params
 					.get("cards")!
 					.split(",")
-					// .map((a) => Number(a))
 					.map((i) => Unlocks.filter((a) => a.Name === i)[0]),
 				blueprintCount: !!params.get("turbo") ? 7 : 5,
 				baseUpgradeChance: !!params.get("turbo") ? 0.25 : 0,
