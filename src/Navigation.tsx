@@ -6,6 +6,9 @@ export const Navigation = () => {
 			<h2>Set Seed Tools:</h2>
 			<ul>
 				<li>
+					<Link to="branching-rerolls.html">Blueprint Rerolls</Link>
+				</li>
+				<li>
 					<Link to="turbo-seed-searcher.html">Turbo Seed Searcher</Link>
 				</li>
 				<li>
@@ -21,9 +24,6 @@ export const Navigation = () => {
 				</li>
 				<li>Incomplete/very buggy:</li>
 				<ul>
-					<li>
-						<Link to="branching-rerolls.html">Blueprint Rerolls</Link>
-					</li>
 					<li>
 						<Link to="card-paths.html">Card Paths</Link>
 					</li>
@@ -48,6 +48,9 @@ export const Navigation = () => {
 						<Link to="researchProbabilities.html">Research Probabilities</Link>
 					</li>
 				)}
+				<li>
+					<Link to="breakfast-auto.html">Breakfast Auto Timings?</Link>
+				</li>
 				{/* <li>
                 <Link to="layouts.html">Layouts</Link>
             </li> */}

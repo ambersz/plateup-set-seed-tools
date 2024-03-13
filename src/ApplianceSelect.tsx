@@ -7,17 +7,24 @@ const Options = [...Appliances];
 function getFilteredCards(
 	selectedItems: Appliance[],
 	inputValue: string,
-	stapleRelatedOnly: boolean
+	shopModifiersOnly: boolean
 ) {
 	const lowerCasedInputValue = inputValue.toLowerCase();
 
 	return Options.filter(function filterCard(appliance) {
+		if (shopModifiersOnly) {
+			// after you buy one item that enables supplies, don't clog the list up with the other stuff
+			if (appliance.AllowRefreshes && !appliance.SellOnlyAsDuplicate) {
+				if (selectedItems.some((a) => a.AllowRefreshes)) return false;
+			}
+		}
 		return (
 			!selectedItems.some((s) => s.ID === appliance.ID) &&
 			appliance.Name.toLowerCase().includes(lowerCasedInputValue) &&
-			(!stapleRelatedOnly ||
+			(!shopModifiersOnly ||
 				appliance.StapleWhenMissing ||
-				appliance.SellOnlyAsUnique)
+				appliance.SellOnlyAsUnique ||
+				(!appliance.SellOnlyAsDuplicate && appliance.AllowRefreshes))
 		);
 	}).sort((a, b) => (a.Name < b.Name ? -1 : 1));
 }
@@ -28,7 +35,7 @@ interface AppliancesComboBoxProps {
 	include?: boolean;
 	appliances?: Appliance[];
 	showSelectionMode?: boolean;
-	stapleRelatedOnly?: boolean;
+	shopModifiersOnly?: boolean;
 }
 export function AppliancesComboBox({
 	onSelectionChange,
@@ -36,11 +43,11 @@ export function AppliancesComboBox({
 	placeholder,
 	include = true,
 	appliances: cards = [],
-	stapleRelatedOnly = true,
+	shopModifiersOnly = true,
 }: AppliancesComboBoxProps) {
 	const [inputValue, setInputValue] = useState("");
 	const items = useMemo(
-		() => getFilteredCards(cards, inputValue, stapleRelatedOnly),
+		() => getFilteredCards(cards, inputValue, shopModifiersOnly),
 		[cards, inputValue]
 	);
 	const { getSelectedItemProps, getDropdownProps, removeSelectedItem } =

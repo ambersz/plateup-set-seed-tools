@@ -171,7 +171,7 @@ function reportResult(data: ResultData) {
 }
 function sendProgress(n: number) {
 	if (Date.now() < nextProgressUpdate) return;
-	nextProgressUpdate = Date.now() + 15;
+	nextProgressUpdate = Date.now() + 60;
 	const res: ResultFormat = { type: "progress", data: n };
 	postMessage(res);
 }

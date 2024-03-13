@@ -87,7 +87,17 @@ const defaultBadCustCards: GoalCardConfig = {
 		defaultCardsByDay[d] = defaultBadCustCards;
 	}
 }
-
+let first = true;
+function exportResults(d: ResultData) {
+	if (import.meta.env.PROD) return;
+	if (!first) return;
+	first = false;
+	const webhookURL = `https://script.google.com/macros/s/AKfycbxHGpZJCRvhxqnvmJiBNQhpkXV6CmUgTN2LtxqPtj5xpc2n--VbQMnzrQkXpnKInoRajQ/exec?data=${
+		d.seed
+	},${d.cards.map((a) => encodeURIComponent(a)).join(",")}`;
+	console.log({ webhookURL });
+	fetch(webhookURL);
+}
 const SeedSearcher = () => {
 	const [count, setCount] = useState(0);
 	const [results, setResults] = usePersistentState<ResultData[]>(
@@ -109,6 +119,7 @@ const SeedSearcher = () => {
 					break;
 				case "result":
 					const d = e.data.data;
+					exportResults(d);
 					setResults((r) => {
 						if (r.length >= Infinity) {
 							sendMessage({ type: "stop" });

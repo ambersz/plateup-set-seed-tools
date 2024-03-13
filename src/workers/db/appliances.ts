@@ -15,10 +15,10 @@ export interface Appliance {
 	// PurchaseCost
 	ShopRequirementFilter: ShopRequirementFilter;
 	StapleWhenMissing: boolean;
+	AllowRefreshes: boolean;
 }
 
-// @ts-ignore
-const APPLIANCE_KEYS: keyof Appliance = [
+const APPLIANCE_KEYS: (keyof Appliance)[] = [
 	"ID",
 	"IsPurchasable",
 	"IsPurchasableAsUpgrade",
@@ -31,6 +31,7 @@ const APPLIANCE_KEYS: keyof Appliance = [
 	"ThemeRequired",
 	"ShopRequirementFilter",
 	"StapleWhenMissing",
+	"AllowRefreshes",
 ];
 
 const APPLIANCE_PROPERTY_TYPES = [
@@ -45,6 +46,7 @@ const APPLIANCE_PROPERTY_TYPES = [
 	"number", // enum
 	"number", // enum
 	"number", // enum
+	"boolean",
 	"boolean",
 ];
 // @ts-ignore

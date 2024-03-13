@@ -2,6 +2,14 @@ const TODO = () => {
 	return (
 		<div>
 			<h1>Dev</h1>
+			<h2>Integrations?</h2>
+			<ul>
+				<li>
+					GAS webapp to live export to sheets? -- can do, but not user-friendly
+					and... quite slow
+				</li>
+				<li>Discord webhook? But why?</li>
+			</ul>
 			<h2>Weekly</h2>
 			<ul>
 				<li>data export--seems to be sufficient?</li>
@@ -45,6 +53,10 @@ const TODO = () => {
 			</ul>
 			<h2>QOL?</h2>
 			<ul>
+				<li>
+					browser extension to show unverified runs inline on the src
+					leaderboards?
+				</li>
 				<li>
 					Seed searcher: estimate number of seeds in existance that fit all the
 					requirements, warn if too low
@@ -103,6 +115,12 @@ const TODO = () => {
 			</ul>
 			<h1>Theorycraft/Jank?</h1>
 			<ul>
+				<li>
+					Can you have a coffee franchise with starter/sides but no main? --
+					yes, only 2 courses with starters but reductions equivalent to 3
+					because game always assumes you have a main. Sides can't be ordered
+					because there's no main course
+				</li>
 				<li>investigate auto-supplies/specials interactions</li>
 				<li>auto-plater/charming 3/dirty dish stack race condition?</li>
 				<li>force teleport table layout? </li>

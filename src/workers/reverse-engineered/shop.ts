@@ -201,7 +201,6 @@ export class Shop {
 					if (OwnedAppliances.some((a) => a.ID === app.ID))
 						option.IsRemoved = true;
 				}
-
 				if (
 					option.Appliance.Name === "Sink" ||
 					option.Appliance.Name === "Plates"
@@ -210,9 +209,9 @@ export class Shop {
 				}
 
 				if (option.Filter == ShopRequirementFilter.RefreshableProvider) {
-					// 2. handle Supplies only dropping when you own a refillable (or not? I will probably never buy a consumable)
-					// TODO AZ
-					option.IsRemoved = false; // allow them to stay because I want to search for Supplies!
+					if (!OwnedAppliances.some((app) => app.AllowRefreshes)) {
+						option.IsRemoved = true;
+					}
 				}
 				if (
 					option.DecorationRequired != DecorationType.Null &&

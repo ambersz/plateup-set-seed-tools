@@ -466,7 +466,10 @@ const BranchingRerollPage = () => {
 			<div>
 				Hover over a cell for instructions on how to get those blueprints.
 				Getting the blueprints in grey requires taking extra blueprints out of
-				cabinets
+				cabinets.{" "}
+				<span style="font-size:small">
+					(Rerolls are inaccurate if you bought a blueprint desk)
+				</span>
 			</div>
 			<SeedConfigForm onConfigChange={setConfig} config={config} />
 			<BranchingRerolls {...config} blueprintCabinets={1} />
