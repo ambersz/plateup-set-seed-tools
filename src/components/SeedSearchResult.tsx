@@ -1,18 +1,23 @@
 import { Link } from "react-router-dom";
 import { ResultData } from "../workers/seedSearchWorker";
 import { RestaurantSettings } from "../workers/db/unlocks";
+import { Run } from "../workers/reverse-engineered/run";
 interface SeedSearchResultProps {
 	turbo?: boolean;
 	result: ResultData;
+	door?: boolean; // show door info feature flag
 }
 const SeedSearchResult = ({
 	turbo = false,
 	result: r,
+	door = import.meta.env.DEV,
 }: SeedSearchResultProps) => {
 	return (
 		<div>
 			{r.seed}
-			{r.mapSize && ` (${r.mapSize})`}:{" "}
+			{r.mapSize &&
+				` (${r.mapSize}${door ? `, ${new Run(r.seed).frontDoor}` : ""})`}
+			:{" "}
 			<div>
 				{r.cards.join(", ")}
 				<Link

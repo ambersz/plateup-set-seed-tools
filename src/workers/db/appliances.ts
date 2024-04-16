@@ -12,7 +12,7 @@ export interface Appliance {
 
 	ShoppingTags: ShoppingTags;
 	ThemeRequired: DecorationType;
-	// PurchaseCost
+	PurchaseCost: number;
 	ShopRequirementFilter: ShopRequirementFilter;
 	StapleWhenMissing: boolean;
 	AllowRefreshes: boolean;
@@ -32,6 +32,7 @@ const APPLIANCE_KEYS: (keyof Appliance)[] = [
 	"ShopRequirementFilter",
 	"StapleWhenMissing",
 	"AllowRefreshes",
+	"PurchaseCost",
 ];
 
 const APPLIANCE_PROPERTY_TYPES = [
@@ -48,37 +49,41 @@ const APPLIANCE_PROPERTY_TYPES = [
 	"number", // enum
 	"boolean",
 	"boolean",
+	"number",
 ];
 // @ts-ignore
-const Appliances: Appliance[] = s.split("\r\n").map((line) => {
-	const l = line.split(",");
-	// @ts-ignore
-	let appliance: Appliance = {};
-	for (let i = 0; i < l.length; i++) {
-		let val;
-		switch (APPLIANCE_PROPERTY_TYPES[i]) {
-			case "number":
-				val = Number(l[i]);
-				break;
-			case "boolean":
-				val = l[i] === "True" ? true : false;
-				// if (!val) console.log(l[i] === "True\r");
-				break;
-			case "number[]":
-				if (l[i] === "") {
-					val = [];
-				} else {
-					val = l[i].split(":").map((a) => Number(a));
-				}
-				break;
-			default:
-				val = l[i];
-		}
+const Appliances: Appliance[] = s
+	.trim()
+	.split("\r\n")
+	.map((line) => {
+		const l = line.split(",");
 		// @ts-ignore
-		appliance[APPLIANCE_KEYS[i]] = val;
-	}
-	return appliance;
-});
+		let appliance: Appliance = {};
+		for (let i = 0; i < l.length; i++) {
+			let val;
+			switch (APPLIANCE_PROPERTY_TYPES[i]) {
+				case "number":
+					val = Number(l[i]);
+					break;
+				case "boolean":
+					val = l[i] === "True" ? true : false;
+					// if (!val) console.log(l[i] === "True\r");
+					break;
+				case "number[]":
+					if (l[i] === "") {
+						val = [];
+					} else {
+						val = l[i].split(":").map((a) => Number(a));
+					}
+					break;
+				default:
+					val = l[i];
+			}
+			// @ts-ignore
+			appliance[APPLIANCE_KEYS[i]] = val;
+		}
+		return appliance;
+	});
 
 export class CShopBuilderOption {
 	Staple: ShopStapleType;

@@ -2,27 +2,27 @@ const TODO = () => {
 	return (
 		<div>
 			<h1>Dev</h1>
-			<h2>Integrations?</h2>
-			<ul>
-				<li>
-					GAS webapp to live export to sheets? -- can do, but not user-friendly
-					and... quite slow
-				</li>
-				<li>Discord webhook? But why?</li>
-			</ul>
-			<h2>Weekly</h2>
-			<ul>
-				<li>data export--seems to be sufficient?</li>
-				<li>
-					Romantic........ eventually. Lower priority since it only shows up
-					~once a month for in-game speedruns
-				</li>
-			</ul>
-			<h2>Autumn</h2>
-			Turkey, Nut Roast get <s>boosted</s> <i>blocked </i>
-			25% of the time -- done
 			<h2>Blueprints</h2>
 			<ul>
+				<li>
+					Build-A-Rig?
+					<ul>
+						Pre-reqs:
+						<li>Player Count input</li>
+						<li>Group count, group size calculation</li>
+						<li>
+							Money estimation-- booking desk, player count bonus, double order,
+							starter/side/dessert order chances and costs
+						</li>
+						<li>Optimizations needed for deeper searches</li>
+						<li>Caching for blueprints across multiple days</li>
+						<li>Caching for blueprints to handle conditional appliances</li>
+						<li>
+							Is A-star even a good alg for this? admissable metrics are so
+							useless here due to prng shenanigans...
+						</li>
+					</ul>
+				</li>
 				<li>Plates staple-ness wrong on Coffee/Cakes -- done I think?</li>
 				<li>Supplies</li>
 				<li>
@@ -51,6 +51,41 @@ const TODO = () => {
 					count(?)
 				</li>
 			</ul>
+			<h2>Integrations?</h2>
+			<ul>
+				<li>
+					GAS webapp to live export to sheets? -- can do, but not user-friendly
+					and... quite slow
+				</li>
+				<li>Discord webhook? But why?</li>
+			</ul>
+			<h2>Sheets QOL?</h2>
+			<ul>
+				<li>
+					I wonder how the SRC leaderboard tool is getting around the SRC API's
+					obsolete run bug?
+				</li>
+				<li>
+					GAS trigger to automatically pull data from SRC API instead of
+					requiring manual copy-paste
+				</li>
+				<li>
+					(Or trigger automatically pulls data into master sheet & other
+					copy-sheets pull data from master data sheet? since SRC APIs are so
+					bloated and slow....)
+				</li>
+			</ul>
+			<h2>Weekly</h2>
+			<ul>
+				<li>data export--seems to be sufficient?</li>
+				<li>
+					Romantic........ eventually. Lower priority since it only shows up
+					~once a month for in-game speedruns
+				</li>
+			</ul>
+			<h2>Autumn</h2>
+			Turkey, Nut Roast get <s>boosted</s> <i>blocked </i>
+			25% of the time -- done
 			<h2>QOL?</h2>
 			<ul>
 				<li>

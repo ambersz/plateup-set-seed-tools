@@ -17,6 +17,7 @@ const CoffeeEatingTime = lazy(() => import("./coffeeEatingTime"));
 const Scratch = lazy(() => import("./scratch"));
 const BreakfastAuto = lazy(() => import("./BreakfastAuto"));
 const TODO = lazy(() => import("./todo"));
+const IceCreamActions = lazy(() => import("./explainers/IceCreamActions"));
 const Loading = () => <>...</>;
 
 const Layout: FunctionalComponent = () => (
@@ -77,6 +78,7 @@ export function App() {
 							<Route path="weekly.html" element={<WeeklyPage />} />
 
 							<Route path="coffee.html" element={<CoffeeEatingTime />} />
+							<Route path="ice-cream.html" element={<IceCreamActions />} />
 						</Route>
 					</Route>
 				</Route>

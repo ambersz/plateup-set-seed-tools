@@ -40,6 +40,8 @@ export class Shop {
 	OwnedAppliances: Appliance[];
 	Cards: Unlock[];
 	Theme: DecorationType;
+	private cache: Map<number, Appliance[]> = new Map<number, Appliance[]>();
+	private cacheDay: number;
 	constructor(seed: string, baseUpgradeChance = 0) {
 		this.seed = seed;
 		[this.mapSize, this.numTiles] = this.getLayoutInfo();
@@ -48,6 +50,7 @@ export class Shop {
 		// Appliances.filter((a) => a.Name === "Blueprint Cabinet");
 		this.Cards = [];
 		this.Theme = DecorationType.Null;
+		this.cacheDay = -1;
 	}
 	getLayoutInfo(): [number, number] {
 		const r = new FixedSeedContext(this.seed, 5078598);
@@ -86,6 +89,7 @@ export class Shop {
 	}
 	handleNewCardSpawnEffects(card?: Unlock) {
 		if (card === undefined) return;
+		if (card.Name === "Turbo") this.baseUpgradeChance = 0.25;
 		if (card.UnlockGroup === UnlockGroup.PrimaryTheme) {
 			// @ts-expect-error
 			this.Theme = DecorationType[card.Name];
@@ -243,22 +247,16 @@ export class Shop {
 	 * @param day -- this is the day that you just finished (i.e. the first set of blueprint spawns is on day=1)
 	 */
 	getAppliances(configs: RerollConfig[], day: number): Appliance[] {
+		if (day !== this.cacheDay) {
+			this.cacheDay = day;
+			this.cache.clear();
+		}
 		const isSpawn = configs.length === 1;
 		const ShopOptions = this.buildShopOptions(
 			this.OwnedAppliances,
 			this.Theme,
 			this.Cards
 		);
-		const Random = this.initRandom(day).random;
-		let padPRNG = this.getPrngAdvancements(
-			configs.slice(0, configs.length - 1),
-			day
-		);
-		while (padPRNG--) {
-			// get to the starting point before this reroll first
-			Random.value;
-		}
-
 		let numberOfBlueprints = configs[configs.length - 1].blueprintCount;
 		let components: ShoppingTags[];
 		if (day % 5 == 0) {
@@ -307,6 +305,23 @@ export class Shop {
 				}
 			}
 		}
+		const Random = this.initRandom(day).random;
+		let padPRNG = this.getPrngAdvancements(
+			configs.slice(0, configs.length - 1),
+			day
+		);
+		if (
+			this.cache.has(padPRNG) &&
+			this.cache.get(padPRNG)!.length >= numberOfBlueprints
+		) {
+			return this.cache.get(padPRNG)!.slice(0, numberOfBlueprints);
+		}
+		const cacheKey = padPRNG;
+		while (padPRNG--) {
+			// get to the starting point before this reroll first
+			Random.value;
+		}
+
 		// logger.LogInfo(components.Join((a) => a.ToString(), ","));
 
 		// using (var randomState = GetRandomState(day, seed))
@@ -317,8 +332,7 @@ export class Shop {
 			// copy shop options in order
 			const list: CShopBuilderOption[] = [...ShopOptions];
 			const result: Appliance[] = [];
-			const upgradeChance =
-				1 - (1 - Math.floor(day / 5) * 0.1) * (1 - this.baseUpgradeChance);
+			const upgradeChance = this.getUpgradeChance(day);
 			const TmpOffered: Appliance[] = [];
 			for (let k = 0; k < numberOfBlueprints; k++) {
 				const requestedShoppingTag = components[k];
@@ -364,8 +378,13 @@ export class Shop {
 					console.log(`Wasn't able to find a valid roll for blueprint ${k}`);
 				}
 			}
+			this.cache.set(cacheKey, result);
 			return result;
 		}
+	}
+
+	getUpgradeChance(day: number) {
+		return 1 - (1 - Math.floor(day / 5) * 0.1) * (1 - this.baseUpgradeChance);
 	}
 }
 

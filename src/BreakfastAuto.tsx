@@ -30,13 +30,13 @@ const BreakfastAuto = () => {
 				cookTime: 1 / 0.75,
 				burnTime: Infinity,
 				conveyTime: 1,
-				description: ["Safety Hob"],
+				description: ["Upgrade", "Safety Hob"],
 			},
 			{
 				cookTime: 1 / 2,
 				burnTime: 1 / 2,
 				conveyTime: 1,
-				description: ["Danger Hob"],
+				description: ["Upgrade", "Danger Hob"],
 			},
 		],
 		[
@@ -112,15 +112,23 @@ const BreakfastAuto = () => {
 		});
 	let i = 0;
 	let bestCookTime = Infinity;
+	let bestDescriptionLength = Infinity;
 	while (i < sorted.length) {
 		if (bestCookTime <= sorted[i].totalCookTime) {
-			if (sorted[i].description.join(",") !== "grabber auto,Danger Hob") {
+			if (
+				sorted[i].description.join(",") !== "grabber auto,Danger Hob" &&
+				sorted[i].description.length >= bestDescriptionLength
+			) {
 				sorted.splice(i, 1);
 			} else {
 				i++;
 			}
 		} else {
 			bestCookTime = Math.min(sorted[i].totalCookTime, bestCookTime);
+			bestDescriptionLength = Math.min(
+				bestDescriptionLength,
+				sorted[i].description.length
+			);
 			i++;
 		}
 	}

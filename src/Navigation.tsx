@@ -41,16 +41,23 @@ export const Navigation = () => {
 					<Link to="coffee.html">Coffee Eating Times</Link>
 				</li>
 				<li>
+					<Link to="ice-cream.html">Ice Cream</Link>
+				</li>
+				<li>
 					<Link to="TODO.html">TODO</Link>
 				</li>
 				{import.meta.env.DEV && (
-					<li>
-						<Link to="researchProbabilities.html">Research Probabilities</Link>
-					</li>
+					<>
+						<li>
+							<Link to="researchProbabilities.html">
+								Research Probabilities
+							</Link>
+						</li>
+						<li>
+							<Link to="breakfast-auto.html">Breakfast Auto Timings?</Link>
+						</li>
+					</>
 				)}
-				<li>
-					<Link to="breakfast-auto.html">Breakfast Auto Timings?</Link>
-				</li>
 				{/* <li>
                 <Link to="layouts.html">Layouts</Link>
             </li> */}
