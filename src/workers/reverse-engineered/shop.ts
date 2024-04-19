@@ -10,7 +10,7 @@ import Appliances, {
 import { numDecors } from "../db/decor";
 import { Unlock } from "../../kitchenTypes";
 import { ShuffleInPlace } from "../../utils/utils";
-import { FixedSeedContext } from "./prng";
+import { FixedSeedContext, RestaurantSystemSeed } from "./prng";
 import { UnlockGroup } from "../../kitchenEnums";
 
 export let fixPRNG = { value: 0 };
@@ -240,7 +240,7 @@ export class Shop {
 	}
 
 	initRandom(day: number): FixedSeedContext {
-		return new FixedSeedContext(this.seed, 823828 * 1231231 + day);
+		return RestaurantSystemSeed(823828, day, this.seed);
 	}
 
 	/**

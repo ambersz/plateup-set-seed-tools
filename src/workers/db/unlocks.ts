@@ -19,6 +19,8 @@ export const Unlocks: Unlock[] = cardExport
 			isMainString,
 			isStarterOrSideString,
 			DishTypeString,
+			CustomerMultiplierString,
+			DishValueString,
 		] = line.split(",");
 		const ID = Number(idString);
 		const UnlockGroup = Number(unlockGroupString);
@@ -37,6 +39,8 @@ export const Unlocks: Unlock[] = cardExport
 		const isMain = isMainString === "True";
 		const isStarterOrSide = isStarterOrSideString === "True";
 		const DishType = Number(DishTypeString);
+		const CustomerMultiplier = Number(CustomerMultiplierString);
+		const DishValue = Number(DishValueString);
 		return {
 			ID,
 			Name,
@@ -48,6 +52,8 @@ export const Unlocks: Unlock[] = cardExport
 			isMain,
 			isStarterOrSide,
 			DishType,
+			CustomerMultiplier,
+			DishValue,
 		};
 	});
 
@@ -111,6 +117,8 @@ export const SpeedrunRestaurantSettings: Unlock[] = [
 		isMain: false,
 		isStarterOrSide: false,
 		DishType: DishType.Null,
+		CustomerMultiplier: 0,
+		DishValue: 0,
 	},
 	{
 		ID: 2002876295,
@@ -123,6 +131,8 @@ export const SpeedrunRestaurantSettings: Unlock[] = [
 		isMain: false,
 		isStarterOrSide: false,
 		DishType: DishType.Null,
+		CustomerMultiplier: 0,
+		DishValue: 0,
 	},
 	{
 		ID: -1864906012,
@@ -135,6 +145,8 @@ export const SpeedrunRestaurantSettings: Unlock[] = [
 		isMain: false,
 		isStarterOrSide: false,
 		DishType: DishType.Null,
+		CustomerMultiplier: 0,
+		DishValue: 0,
 	},
 	Unlocks.filter((a) => a.Name === "Community")[0], // the Autumn Setting gets this card
 	// {
@@ -160,6 +172,8 @@ export const SpeedrunRestaurantSettings: Unlock[] = [
 		isMain: false,
 		isStarterOrSide: false,
 		DishType: DishType.Null,
+		CustomerMultiplier: 0,
+		DishValue: 0,
 	},
 	{
 		ID: 1958825350,
@@ -172,6 +186,8 @@ export const SpeedrunRestaurantSettings: Unlock[] = [
 		isMain: false,
 		isStarterOrSide: false,
 		DishType: DishType.Null,
+		CustomerMultiplier: 0,
+		DishValue: 0,
 	},
 ];
 export const RestaurantSettings = [...SpeedrunRestaurantSettings].sort((a, b) =>
@@ -190,7 +206,7 @@ export const SpeedrunDishes = [
 	"Turkey",
 ].map((name) => Unlocks.filter((a) => a.Name === name)[0]);
 
-export const StartingDishes = startingDishExport
+export const StartingDishes: Unlock[] = startingDishExport
 	.trim()
 	.split("\r\n")
 	.filter((a) => a)
@@ -204,6 +220,8 @@ export const StartingDishes = startingDishExport
 			isMainString,
 			isStarterOrSideString,
 			DishTypeString,
+			CustomerMultiplierString,
+			DishValueString,
 		] = line.split(",");
 		const ID = Number(idString);
 		const UnlockGroup = Number(unlockGroupString);
@@ -216,6 +234,8 @@ export const StartingDishes = startingDishExport
 		const isMain = isMainString === "True";
 		const isStarterOrSide = isStarterOrSideString === "True";
 		const DishType = Number(DishTypeString);
+		const CustomerMultiplier = Number(CustomerMultiplierString);
+		const DishValue = Number(DishValueString);
 		return {
 			ID,
 			Name,
@@ -227,8 +247,10 @@ export const StartingDishes = startingDishExport
 			isMain,
 			isStarterOrSide,
 			DishType,
+			CustomerMultiplier,
+			DishValue,
 		};
 	})
 	.sort((a, b) => (a.Name < b.Name ? -1 : 1));
 
-import.meta.env.DEV && console.log({ Unlocks });
+import.meta.env.DEV && console.log({ Unlocks, StartingDishes });

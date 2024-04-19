@@ -7,7 +7,7 @@ import { UnlocksComboBox } from "./UnlockSelect";
 import { AppliancesComboBox } from "./ApplianceSelect";
 import { usePersistentState } from "./hooks/usePersistentState";
 import { useSearchParams } from "react-router-dom";
-import { useEffect } from "preact/hooks";
+import { StateUpdater, useEffect } from "preact/hooks";
 import { Unlocks } from "./workers/db/unlocks";
 
 function explainRerollConfig(c: RerollConfig[]) {
@@ -274,7 +274,7 @@ interface SeedConfig {
 	simpleBPSettings?: boolean | "insideOnly" | "noSwitching" | "full";
 }
 interface SeedConfigFormProps {
-	onConfigChange: (config: SeedConfig) => void;
+	onConfigChange: StateUpdater<SeedConfig>;
 	config: SeedConfig;
 }
 const SeedConfigForm = ({ onConfigChange, config }: SeedConfigFormProps) => {
@@ -304,9 +304,11 @@ const SeedConfigForm = ({ onConfigChange, config }: SeedConfigFormProps) => {
 		key: T,
 		value: SeedConfig[T]
 	) => {
-		let newConf = { ...config };
-		newConf[key] = value;
-		onConfigChange(newConf);
+		onConfigChange((config: SeedConfig) => {
+			let newConf = { ...config };
+			newConf[key] = value;
+			return newConf;
+		});
 	};
 	return (
 		<div>
@@ -415,7 +417,7 @@ const SeedConfigForm = ({ onConfigChange, config }: SeedConfigFormProps) => {
 		</div>
 	);
 };
-const defaultBranchingRerollConfig: SeedConfig = {
+export const defaultBranchingRerollConfig: SeedConfig = {
 	seed: "az",
 	day: 2,
 	cards: [],

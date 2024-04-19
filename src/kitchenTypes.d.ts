@@ -5,12 +5,13 @@ export interface Unlock {
 	Name: string;
 	// isUnlockable: boolean;
 	UnlockGroup: UnlockGroup;
-	// CustomerMultiplier: number;
 	// SelectionBias: number; // Not used anymore???
 	Requires: number[];
 	BlockedBy: number[];
 	RequiredProcesses: Process[];
 	IngredientProviders: number[]; // ID of Appliance
+	CustomerMultiplier: number;
+	DishValue: number;
 
 	// Derivative properties that I want to add for filtering convenience
 	isMain: boolean; // true if it's a dish that dish.ProvidesPhase(MenuPhase.Main)

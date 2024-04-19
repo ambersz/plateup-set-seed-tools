@@ -1,13 +1,20 @@
-import { useState, useMemo } from "preact/hooks";
+import { useState, useMemo, useCallback } from "preact/hooks";
 import { useMultipleSelection, useCombobox } from "downshift/preact"; // if this is giving typescript errors, copy the type file from `node_modules\downshift\typings\index.d.ts` to `node_modules\downshift\preact\index.d.ts`
 import Appliances, { Appliance } from "./workers/db/appliances";
 type Appliances = Appliance[];
-const Options = [...Appliances];
+const Options = [...Appliances].filter(
+	(a) => a.IsPurchasable || a.IsPurchasableAsUpgrade
+);
+console.log({
+	options: Options.length,
+	unique: new Set(Options.map((a) => a.ID)).size,
+});
 
 function getFilteredCards(
 	selectedItems: Appliance[],
 	inputValue: string,
-	shopModifiersOnly: boolean
+	shopModifiersOnly: boolean,
+	allowDupes: boolean
 ) {
 	const lowerCasedInputValue = inputValue.toLowerCase();
 
@@ -19,7 +26,7 @@ function getFilteredCards(
 			}
 		}
 		return (
-			!selectedItems.some((s) => s.ID === appliance.ID) &&
+			(allowDupes || !selectedItems.some((s) => s.ID === appliance.ID)) &&
 			appliance.Name.toLowerCase().includes(lowerCasedInputValue) &&
 			(!shopModifiersOnly ||
 				appliance.StapleWhenMissing ||
@@ -36,6 +43,7 @@ interface AppliancesComboBoxProps {
 	appliances?: Appliance[];
 	showSelectionMode?: boolean;
 	shopModifiersOnly?: boolean;
+	allowDupes?: boolean;
 }
 export function AppliancesComboBox({
 	onSelectionChange,
@@ -44,10 +52,11 @@ export function AppliancesComboBox({
 	include = true,
 	appliances: cards = [],
 	shopModifiersOnly = true,
+	allowDupes = false,
 }: AppliancesComboBoxProps) {
 	const [inputValue, setInputValue] = useState("");
 	const items = useMemo(
-		() => getFilteredCards(cards, inputValue, shopModifiersOnly),
+		() => getFilteredCards(cards, inputValue, shopModifiersOnly, allowDupes),
 		[cards, inputValue]
 	);
 	const { getSelectedItemProps, getDropdownProps, removeSelectedItem } =
@@ -134,13 +143,18 @@ export function AppliancesComboBox({
 			}
 		},
 	});
-
+	const handleClear = useCallback(() => {
+		onSelectionChange([]);
+	}, []);
 	return (
 		<div className="combo-container">
 			<div className="">
 				<label className="" {...getLabelProps()}>
-					{label ?? "Select desired cards"}
+					{label ?? "Select desired appliances"}
 				</label>
+				<div>
+					<button onClick={handleClear}>Clear Appliances</button>
+				</div>
 				<div className="">
 					{cards.map(function renderSelectedItem(selectedItemForRender, index) {
 						return (
@@ -169,7 +183,7 @@ export function AppliancesComboBox({
 					})}
 					<div className="">
 						<input
-							placeholder={placeholder ?? "Card Selection(s)"}
+							placeholder={placeholder ?? "Appliance Selection(s)"}
 							className=""
 							{...getInputProps(getDropdownProps({ preventKeyAction: isOpen }))}
 						/>

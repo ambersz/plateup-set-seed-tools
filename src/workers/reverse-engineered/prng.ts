@@ -66,3 +66,11 @@ export function hash(seed: string): number {
 
 	return num >> 0;
 }
+
+export function RestaurantSystemSeed(
+	categorySeed: number,
+	instance: number,
+	seed: string
+): FixedSeedContext {
+	return new FixedSeedContext(seed, categorySeed * 1231231 + instance);
+}

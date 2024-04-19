@@ -14,11 +14,14 @@ const CardPaths = lazy(() => import("./cardPaths"));
 const WeeklyRerollsExport = lazy(() => import("./weeklyExport"));
 const WeeklyPage = lazy(() => import("./weekly"));
 const CoffeeEatingTime = lazy(() => import("./coffeeEatingTime"));
-const Scratch = lazy(() => import("./scratch"));
+const Scratch = lazy(() =>
+	import.meta.env.DEV ? import("./scratch") : Promise.resolve(() => <></>)
+);
 const BreakfastAuto = lazy(() => import("./BreakfastAuto"));
 const TODO = lazy(() => import("./todo"));
 const IceCreamActions = lazy(() => import("./explainers/IceCreamActions"));
 const Loading = () => <>...</>;
+const AutoRig = lazy(() => import("./components/AutoRig"));
 
 const Layout: FunctionalComponent = () => (
 	<>
@@ -46,7 +49,9 @@ export function App() {
 			<Route element={<SuspenseWrapper />}>
 				<Route path={import.meta.env.BASE_URL}>
 					<Route index element={<Navigation />} />
-					<Route path="scratch" element={<Scratch />} />
+					{import.meta.env.DEV && (
+						<Route path="scratch" element={<Scratch />} />
+					)}
 					<Route element={<Layout />}>
 						<Route path="TODO.html" element={<TODO />} />
 						<Route path="test.html" element={<TODO />} />
@@ -70,6 +75,7 @@ export function App() {
 								path="branching-rerolls.html"
 								element={<BranchingRerollPage />}
 							/>
+							<Route path="build-a-rig.html" element={<AutoRig />} />
 							<Route path="card-paths.html" element={<CardPaths />} />
 							<Route
 								path="weekly-export.html"

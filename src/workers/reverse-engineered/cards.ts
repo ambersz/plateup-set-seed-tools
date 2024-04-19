@@ -1,7 +1,7 @@
 import { getUnblockedCards } from "../db/unlocks";
 import { Unlock } from "../../kitchenTypes";
 import { DishType, UnlockGroup } from "../../kitchenEnums";
-import { FixedSeedContext, Random } from "./prng";
+import { FixedSeedContext, Random, RestaurantSystemSeed } from "./prng";
 interface IUnlockPack {
 	GetOptions: (
 		cards: Unlock[],
@@ -215,7 +215,7 @@ export class FindNewUnlocks {
 	}
 
 	getUnlockOptions(day: number) {
-		const context = Seed(848292, day, this.seed);
+		const context = RestaurantSystemSeed(848292, day, this.seed);
 		const forPack = context.useSubcontext(1);
 		const options = this.unlockPack.GetOptions(this.cards, day, forPack);
 		return options;
@@ -304,10 +304,6 @@ class UnlockPack {
 	}
 }
 //*/
-
-function Seed(category_seed: number, instance: number, seed: string) {
-	return new FixedSeedContext(seed, category_seed * 1231231 + instance);
-}
 
 function genericPriority(a: Unlock, prioritiseRequirements: boolean = true) {
 	if (a.UnlockGroup === UnlockGroup.Special) return true;

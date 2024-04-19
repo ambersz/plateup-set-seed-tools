@@ -33,6 +33,9 @@ export const Navigation = () => {
 					<li>
 						<Link to="weekly-export.html">Weekly Speedrun Data Export</Link>
 					</li>
+					<li>
+						<Link to="build-a-rig.html">Build-A-Rig?</Link>
+					</li>
 				</ul>
 			</ul>
 			<h2>Notes/Weird Mechanics?</h2>
