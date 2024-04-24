@@ -74,10 +74,11 @@ const SaveScumCabinetLayouts = () => {
 				id="cabinets"
 				defaultValue={cabinets.toString()}
 				onChange={(e) => {
-					const orig = Number((e.target as HTMLInputElement).value);
+					const target = e.target as HTMLInputElement;
+					const orig = Number(target.value);
 					const clamped = Math.min(7, Math.max(targets + 1, orig));
 					setCabinets(clamped);
-					if (clamped !== orig) e.target.value = clamped.toString();
+					if (clamped !== orig) target.value = clamped.toString();
 				}}
 			/>
 			<br />
@@ -87,10 +88,11 @@ const SaveScumCabinetLayouts = () => {
 				id="targets"
 				defaultValue={targets.toString()}
 				onChange={(e) => {
-					const orig = Number((e.target as HTMLInputElement).value);
+					const target = e.target as HTMLInputElement;
+					const orig = Number(target.value);
 					const clamped = Math.min(cabinets - 1, Math.max(1, orig));
 					setTargets(clamped);
-					if (clamped !== orig) e.target.value = clamped.toString();
+					if (clamped !== orig) target.value = clamped.toString();
 				}}
 			/>
 			<div>{getLayouts(cabinets, targets)}</div>
