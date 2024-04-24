@@ -22,6 +22,8 @@ export default defineConfig({
 				cardPaths: resolve(__dirname, "card-paths.html"),
 				// worker: resolve(__dirname, "workers/seedSearcher.ts"),
 				weeklyExport: resolve(__dirname, "weekly-export.html"),
+				scumming: resolve(__dirname, "scumming.html"),
+				iceCream: resolve(__dirname, "ice-cream.html"),
 			},
 		},
 	},
