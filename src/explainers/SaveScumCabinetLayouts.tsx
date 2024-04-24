@@ -59,6 +59,9 @@ function getLayouts(
 					first.
 				</>
 			)}
+			<div>R: Research Desk</div>
+			<div>T: Scum Target(s)</div>
+			<div>C: Any other cabinets that contain researchable blueprints</div>
 			<div>{res}</div>
 		</div>
 	);
@@ -95,6 +98,7 @@ const SaveScumCabinetLayouts = () => {
 					if (clamped !== orig) target.value = clamped.toString();
 				}}
 			/>
+
 			<div>{getLayouts(cabinets, targets)}</div>
 		</div>
 	);
