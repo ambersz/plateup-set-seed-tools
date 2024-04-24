@@ -20,6 +20,9 @@ const Scratch = lazy(() =>
 const BreakfastAuto = lazy(() => import("./BreakfastAuto"));
 const TODO = lazy(() => import("./todo"));
 const IceCreamActions = lazy(() => import("./explainers/IceCreamActions"));
+const SaveScumCabinetLayouts = lazy(
+	() => import("./explainers/SaveScumCabinetLayouts")
+);
 const Loading = () => <>...</>;
 const AutoRig = lazy(() => import("./components/AutoRig"));
 
@@ -85,6 +88,10 @@ export function App() {
 
 							<Route path="coffee.html" element={<CoffeeEatingTime />} />
 							<Route path="ice-cream.html" element={<IceCreamActions />} />
+							<Route
+								path="scumming.html"
+								element={<SaveScumCabinetLayouts />}
+							/>
 						</Route>
 					</Route>
 				</Route>

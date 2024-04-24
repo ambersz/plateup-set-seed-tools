@@ -47,6 +47,9 @@ export const Navigation = () => {
 					<Link to="ice-cream.html">Ice Cream</Link>
 				</li>
 				<li>
+					<Link to="scumming.html">Save Scum Cabinet Layouts</Link>
+				</li>
+				<li>
 					<Link to="TODO.html">TODO</Link>
 				</li>
 				{import.meta.env.DEV && (
