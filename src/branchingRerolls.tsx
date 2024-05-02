@@ -8,7 +8,7 @@ import { AppliancesComboBox } from "./ApplianceSelect";
 import { usePersistentState } from "./hooks/usePersistentState";
 import { useSearchParams } from "react-router-dom";
 import { StateUpdater, useEffect } from "preact/hooks";
-import { Unlocks } from "./workers/db/unlocks";
+import { RestaurantSettings, Unlocks } from "./workers/db/unlocks";
 
 function explainRerollConfig(c: RerollConfig[]) {
 	let res = "";
@@ -139,7 +139,9 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 	let cardsForRerollsOnly: Unlock[] = [];
 	const days = turbo ? TurboCardDays : NormalCardDays;
 	{
-		let i = 0;
+		let i = cards.filter((a) =>
+			RestaurantSettings.some((b) => b.ID === a.ID)
+		).length;
 		for (const d of days) {
 			if (d > day) {
 				console.log(
@@ -455,7 +457,13 @@ const BranchingRerollPage = () => {
 				cards: params
 					.get("cards")!
 					.split(",")
-					.map((i) => Unlocks.filter((a) => a.Name === i)[0]),
+					.map((i) => {
+						if (i === "Turbo") debugger;
+						return (
+							Unlocks.filter((a) => a.Name === i)[0] ??
+							RestaurantSettings.filter((a) => a.Name === i)[0]
+						);
+					}),
 				blueprintCount: !!params.get("turbo") ? 7 : 5,
 				baseUpgradeChance: !!params.get("turbo") ? 0.25 : 0,
 				solo: !!Number(params.get("solo")),

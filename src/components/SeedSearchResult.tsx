@@ -23,10 +23,9 @@ const SeedSearchResult = ({
 				<Link
 					to={`../branching-rerolls.html?${turbo ? "turbo=1&" : ""}&seed=${
 						r.seed
-					}&cards=${r.cards
-						.filter((a) => !RestaurantSettings.some((b) => b.Name === a))
-						.map((a) => encodeURIComponent(a))
-						.join(",")}&solo=${r.mapSize === 1 ? 1 : 0}`}
+					}&cards=${r.cards.map((a) => encodeURIComponent(a)).join(",")}&solo=${
+						r.mapSize === 1 ? 1 : 0
+					}`}
 				>
 					{/* {r.blueprints.map((bp) => bp.Name).join(", ")} */} (Blueprints)
 				</Link>
