@@ -24,6 +24,7 @@ export default defineConfig({
 				weeklyExport: resolve(__dirname, "weekly-export.html"),
 				scumming: resolve(__dirname, "scumming.html"),
 				iceCream: resolve(__dirname, "ice-cream.html"),
+				autoRig: resolve(__dirname, "build-a-rig.html"),
 			},
 		},
 	},

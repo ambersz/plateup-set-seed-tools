@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import { ResultData } from "../workers/seedSearchWorker";
-import { RestaurantSettings } from "../workers/db/unlocks";
 import { Run } from "../workers/reverse-engineered/run";
 interface SeedSearchResultProps {
 	turbo?: boolean;
