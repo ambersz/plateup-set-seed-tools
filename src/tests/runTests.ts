@@ -36,11 +36,10 @@ export function customerCountTests() {
 		const err = expectCustomerCount(run, day, expectedGroups[day - 1]);
 		if (err) {
 			console.error(err);
-			return false;
+			return err;
 		}
 	}
-	console.log("customer count tests passed!");
-	return true;
+	return "customer count tests passed!";
 }
 
 function expectCustomerCount(run: Run, day: number, expectedGroups: number[]) {

@@ -8,7 +8,7 @@ const Tests = () => {
 	useEffect(() => {
 		shopTests();
 		unlockTests();
-		customerCountTests();
+		setMess(customerCountTests());
 	}, []);
 	return (
 		<>

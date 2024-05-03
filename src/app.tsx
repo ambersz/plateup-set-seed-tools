@@ -6,7 +6,9 @@ import { Navigation } from "./Navigation";
 import Version from "./components/Version";
 import { FunctionalComponent } from "preact";
 import ResearchProbabilities from "./components/ResearchProbabilities";
-import Table from "./shh";
+const Table = lazy(() =>
+	import.meta.env.DEV ? import("./shh") : Promise.resolve(() => <></>)
+);
 const TurboSeedSearcher = lazy(() => import("./seedSearcher"));
 const Versus = lazy(() => import("./versusSeeds"));
 const NormalSeedSearcher = lazy(() => import("./seedSearcherNormal"));
