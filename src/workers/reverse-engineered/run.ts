@@ -22,7 +22,13 @@ export class Run {
 		this.startingCards = startingCards;
 		this.cards = cards;
 		this.playerCount = this.mapSize;
-		this.turbo = this.startingCards.some((a) => a.Name === "Turbo");
+		this.turbo = this.startingCards.some((a) => {
+			if (a === undefined) {
+				console.log({ startingCards });
+				debugger;
+			}
+			return a.Name === "Turbo";
+		});
 	}
 
 	guessMoney(day: number): number {
@@ -32,12 +38,16 @@ export class Run {
 		}
 
 		const custs = this.getCustomerCount(day);
-		const cost = this.startingCards.reduce((a, b) => a + b.DishValue, 0);
+		let cost = this.startingCards.reduce((a, b) => a + b.DishValue, 0);
+		if (this.getCardsByDay(day).some((a) => a.Name === "Double Helpings"))
+			cost += 3;
 		if (Number.isNaN(custs)) debugger;
 		if (Number.isNaN(cost)) debugger;
+
 		return (
-			custs * cost +
-			this.getBookingDeskCount(day) * this.getBookingDeskMoney(day)
+			getPlayerCountMoneyBonus(this.playerCount) *
+			(custs * cost +
+				this.getBookingDeskCount(day) * this.getBookingDeskMoney(day))
 		);
 	}
 	getBookingDeskMoney(day: number) {
@@ -52,28 +62,39 @@ export class Run {
 				n = day - 1;
 			} else {
 				n = Math.max(0, Math.floor((day - 1) / 3));
+				if (day > 5) n++;
 			}
 			this._cardsByDay[day] = [
 				...this.startingCards,
 				...this.cards.slice(0, n),
 			];
+			// debugger;
+			console.log(
+				`Day ${day} has ${this._cardsByDay[day].map((a) => a.Name).join(", ")}`
+			);
 		}
 		return this._cardsByDay[day];
 	}
 	getBookingDeskCount(day: number): number {
-		return Math.ceil(
-			this.getExpectedCustomers(day) / this.getExpectedGroupSize(day)
+		return (
+			Math.ceil(
+				this.getExpectedCustomers(day) / this.getExpectedGroupSize(day)
+			) +
+			(this.turbo
+				? 3
+				: this.getCardsByDay(day).filter((a) => a.Name.includes(" Rush"))
+						.length)
 		);
 	}
 	getGroupCount(day: number): number {
-		return Math.ceil(
-			(this.getExpectedCustomers(day) *
-				(1 +
-					this.getCardsByDay(day).filter((a) => a.Name === "Closing Time")
-						.length *
-						0.2)) /
-				this.getExpectedGroupSize(day)
-		);
+		const custs = this.getExpectedCustomers(day);
+		const closingTimeAdjust =
+			this.getCardsByDay(day).filter((a) => a.Name === "Closing Time?").length *
+			0.2;
+		const avgGroupSize = this.getExpectedGroupSize(day);
+		const goalGroups = (custs * (1 + closingTimeAdjust)) / avgGroupSize;
+		console.log({ custs, closingTimeAdjust, avgGroupSize, goalGroups });
+		return Math.ceil(goalGroups);
 	}
 	getCustomerCount(day: number): number {
 		return this.getGroupSizes(day).reduce((a, b) => a + b, 0);
@@ -87,6 +108,7 @@ export class Run {
 		let g = gc;
 		let groups: number[] = [];
 		let [min, max] = this.getGroupSizeRange(day);
+		console.log({ min, max, gc, herd });
 		{
 			let i = g - 1;
 			// shuffle group types-- actually need to implement this if I want to support Romantic
@@ -96,7 +118,7 @@ export class Run {
 		}
 		while (g--) {
 			groups.push(random.range(min, max + 1));
-			if (herd || g !== gc) {
+			if (!herd && g !== gc - 1) {
 				random.value; // schedules the exact time of arrival... might want to implement later but I don't think runners generally care too much about the exact time
 			}
 		}
@@ -108,9 +130,11 @@ export class Run {
 			Math.max(1, this.getExpectedCustomers(day) * 0.15)
 		);
 		let totalRushGroups = rushCount * rushGroups;
+		console.log({ totalRushGroups });
 		while (totalRushGroups--) {
 			groups.push(random.range(min, max + 1));
 		}
+		console.log({ groups });
 		return groups;
 	}
 	getExpectedGroupSize(day: number) {
@@ -137,6 +161,11 @@ export class Run {
 					min--;
 					max++;
 					break;
+				case "Community":
+					const increases = Math.floor((day - 1) / 3);
+					min += increases;
+					max += increases;
+					break;
 				default:
 					break;
 			}
@@ -150,19 +179,25 @@ export class Run {
 		const playerModifier = this.getPlayerModifier();
 		const courseModifier = this.getCourseModifier(day);
 		const dayRate = this.getDayRate(day);
-		const kitchenParamCustomers = this.turbo ? 1.5 * (1 + 0.1 * day) : 1;
+		const kitchenParamCustomers = this.getCustomersPerHour(day);
 		const advertising = this.getAdvertisingModifier(day);
 
-		return (
-			((0.85 ** reductions *
-				((dayLength / 25) *
-					this.getCustomersPerHour(day) *
-					dayRate *
-					playerModifier)) /
+		const res =
+			((0.85 ** reductions * ((dayLength / 25) * dayRate * playerModifier)) /
 				courseModifier) *
 			kitchenParamCustomers *
-			advertising
-		);
+			advertising;
+		console.log({
+			reductions,
+			dayLength,
+			playerModifier,
+			courseModifier,
+			dayRate,
+			kitchenParamCustomers,
+			advertising,
+			res,
+		});
+		return res;
 	}
 	getAdvertisingModifier(day: number) {
 		const cards = this.getCardsByDay(day);
@@ -216,8 +251,9 @@ export class Run {
 		return 100 + Math.floor(day / 3) * 25;
 	}
 	getCustomersPerHour(day: number) {
-		let r = 1.5;
+		let r = 1;
 		if (this.turbo) {
+			r = 1.5;
 			r *= 1 + day / 10;
 		}
 		return r;
@@ -261,5 +297,16 @@ export class Run {
 			r.value;
 		}
 		return r.range(0, 4);
+	}
+}
+
+function getPlayerCountMoneyBonus(players: number) {
+	switch (players) {
+		case 1:
+			return 1.25;
+		case 2:
+			return 1.1;
+		default:
+			return 1;
 	}
 }

@@ -36,6 +36,9 @@ export const Navigation = () => {
 					<li>
 						<Link to="build-a-rig.html">Build-A-Rig?</Link>
 					</li>
+					<li>
+						<Link to="seed-info.html">Group Sizes</Link>
+					</li>
 				</ul>
 			</ul>
 			<h2>Notes/Weird Mechanics?</h2>

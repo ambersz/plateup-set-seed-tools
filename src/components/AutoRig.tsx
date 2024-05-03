@@ -15,6 +15,32 @@ function postMessage(worker: Worker, message: AutoRigWorkerInput) {
 	worker.postMessage(message);
 }
 interface AutoRigProps {}
+const UPGRADE_MAP: { [appName: string]: string[] } = {
+	"Grabber - Rotating": ["Grabber", "Smart Grabber"],
+	Grabber: ["Conveyor", "Grabber - Rotating"],
+	Freezer: ["Counter"],
+	Workstation: ["Counter"],
+	"Frozen Prep Station": ["Prep Station"],
+	"Rapid Mixer": ["Mixer", "Conveyor Mixer"],
+	"Heated Mixer": ["Rapid Mixer"],
+	"Conveyor Mixer": ["Heated Mixer"],
+	Bin: ["Affordable Bin"],
+	"Compactor Bin": ["Expanded Bin", "Bin"],
+	"Composter Bin": ["Compactor Bin", "Bin"],
+	"Expanded Bin": ["Composter Bin", "Bin"],
+	"Metal Table": ["Dining Table"],
+	"Table - Simple Cloth": ["Dining Table"],
+	"Power Sink": ["Soaking Sink"],
+	"Danger Hob": ["Safety Hob", "Hob"],
+	"Safety Hob": ["Hob", "Danger Hob"],
+	Microwave: ["Oven"],
+	"Robot Mop": ["Fast Mop"],
+	"Robot Buffer": ["Floor Buffer"],
+	"Copying Desk": ["Research Desk", "Discount Desk"],
+	"Discount Desk": ["Research Desk", "Blueprint Desk"],
+	Teleporter: ["Dumbwaiter"],
+	"Soaking Sink": ["Sink", "Dish Washer"],
+};
 const AutoRig: FunctionComponent<AutoRigProps> = ({}: AutoRigProps) => {
 	const [config, setConfig] = usePersistentState<SeedConfig>(
 		defaultBranchingRerollConfig,
@@ -34,6 +60,10 @@ const AutoRig: FunctionComponent<AutoRigProps> = ({}: AutoRigProps) => {
 		[[]],
 		"RIG_TIERS"
 	);
+	const [playerCount, setPlayerCount] = usePersistentState<number>(
+		1,
+		"RIG_PLAYER_COUNT"
+	);
 	const [result, setResult] = usePersistentState<string>("", "RIG_RESULT");
 	const handleMessage: (a: MessageEvent<AutoRigWorkerOutput>) => void =
 		useCallback((mess) => {
@@ -48,12 +78,22 @@ const AutoRig: FunctionComponent<AutoRigProps> = ({}: AutoRigProps) => {
 			);
 		worker.current.onmessage = handleMessage;
 	}, []);
-	function requestRoute(tiers: RigPiece[][]) {
-		postMessage(worker.current!, { config, tiers });
-	}
+	const requestRoute = (tiers: RigPiece[][]) => {
+		postMessage(worker.current!, { config, tiers, playerCount });
+	};
 
 	return (
 		<div>
+			<label for="playerCount">Player Count</label>
+			<input
+				id="playerCount"
+				defaultValue={playerCount.toString()}
+				type="number"
+				onChange={(e) => {
+					const target = e.target as HTMLInputElement;
+					setPlayerCount(Number(target.value));
+				}}
+			/>
 			<SeedConfigForm onConfigChange={setConfig} config={config} />
 			{tiers.map((appliances, i) => {
 				return (
@@ -87,7 +127,7 @@ const AutoRig: FunctionComponent<AutoRigProps> = ({}: AutoRigProps) => {
 						}
 						let res = [];
 						for (const [goal, number] of Object.entries(count)) {
-							res.push({ goal, substitutes: [], number });
+							res.push({ goal, substitutes: UPGRADE_MAP[goal] ?? [], number });
 						}
 						return res;
 					});
@@ -95,6 +135,13 @@ const AutoRig: FunctionComponent<AutoRigProps> = ({}: AutoRigProps) => {
 				}}
 			>
 				Route Rig
+			</button>
+			<button
+				onClick={() => {
+					setResult("");
+				}}
+			>
+				Clear Previous Results
 			</button>
 			{/* {(!tiers.length || tiers.at(-1)!.length) && (
 				<AppliancesComboBox
@@ -118,7 +165,10 @@ interface SeedConfigFormProps {
 	onConfigChange: (config: SeedConfig) => void;
 	config: SeedConfig;
 }
-const SeedConfigForm = ({ onConfigChange, config }: SeedConfigFormProps) => {
+export const SeedConfigForm = ({
+	onConfigChange,
+	config,
+}: SeedConfigFormProps) => {
 	const {
 		seed,
 		blueprintCount,

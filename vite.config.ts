@@ -25,6 +25,7 @@ export default defineConfig({
 				scumming: resolve(__dirname, "scumming.html"),
 				iceCream: resolve(__dirname, "ice-cream.html"),
 				autoRig: resolve(__dirname, "build-a-rig.html"),
+				seedInfo: resolve(__dirname, "seed-info.html"),
 			},
 		},
 	},

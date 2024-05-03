@@ -6,6 +6,7 @@ import { Navigation } from "./Navigation";
 import Version from "./components/Version";
 import { FunctionalComponent } from "preact";
 import ResearchProbabilities from "./components/ResearchProbabilities";
+import Table from "./shh";
 const TurboSeedSearcher = lazy(() => import("./seedSearcher"));
 const Versus = lazy(() => import("./versusSeeds"));
 const NormalSeedSearcher = lazy(() => import("./seedSearcherNormal"));
@@ -17,14 +18,19 @@ const CoffeeEatingTime = lazy(() => import("./coffeeEatingTime"));
 const Scratch = lazy(() =>
 	import.meta.env.DEV ? import("./scratch") : Promise.resolve(() => <></>)
 );
+const GroupSizes = lazy(() => import("./components/GroupSizes"));
 const BreakfastAuto = lazy(() => import("./BreakfastAuto"));
 const TODO = lazy(() => import("./todo"));
+const Tests = lazy(() =>
+	import.meta.env.DEV ? import("./Tests") : Promise.resolve(() => <></>)
+);
 const IceCreamActions = lazy(() => import("./explainers/IceCreamActions"));
 const SaveScumCabinetLayouts = lazy(
 	() => import("./explainers/SaveScumCabinetLayouts")
 );
 const Loading = () => <>...</>;
 const AutoRig = lazy(() => import("./components/AutoRig"));
+const CourseOrders = lazy(() => import("./explainers/CourseOrders"));
 
 const Layout: FunctionalComponent = () => (
 	<>
@@ -53,11 +59,14 @@ export function App() {
 				<Route path={import.meta.env.BASE_URL}>
 					<Route index element={<Navigation />} />
 					{import.meta.env.DEV && (
-						<Route path="scratch" element={<Scratch />} />
+						<>
+							<Route path="scratch" element={<Scratch />} />
+							<Route path="test.html" element={<Tests />} />
+							<Route path="shh" element={<Table />} />
+						</>
 					)}
 					<Route element={<Layout />}>
 						<Route path="TODO.html" element={<TODO />} />
-						<Route path="test.html" element={<TODO />} />
 						<Route element={<GameLayout />}>
 							<Route
 								path="researchProbabilities.html"
@@ -88,10 +97,12 @@ export function App() {
 
 							<Route path="coffee.html" element={<CoffeeEatingTime />} />
 							<Route path="ice-cream.html" element={<IceCreamActions />} />
+							<Route path="course-orders.html" element={<CourseOrders />} />
 							<Route
 								path="scumming.html"
 								element={<SaveScumCabinetLayouts />}
 							/>
+							<Route path="seed-info.html" element={<GroupSizes />} />
 						</Route>
 					</Route>
 				</Route>
