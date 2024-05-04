@@ -385,7 +385,7 @@ export function niceRerolls(
 						`best so far missing ${missing} pieces ` + summary(newRoute)
 					);
 				}
-				if (missing <= 0) {
+				if (missing <= 0 && !newRoute.upgradesInProgress) {
 					if (finalRoutes.add(newRoute)) {
 						reportTier();
 					}
