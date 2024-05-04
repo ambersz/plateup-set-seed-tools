@@ -421,7 +421,7 @@ const SeedConfigForm = ({ onConfigChange, config }: SeedConfigFormProps) => {
 };
 export const defaultBranchingRerollConfig: SeedConfig = {
 	seed: "az",
-	day: 2,
+	day: 1,
 	cards: [],
 	initialRerollConfig: [],
 	blueprintCount: 5,
