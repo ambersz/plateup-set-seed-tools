@@ -1,10 +1,77 @@
 import { useState } from "preact/hooks";
 import "./SaveScumCabinetLayouts.css";
+import { ShuffleInPlace } from "../utils/utils";
 const ORDER = [
 	[6, 2, 5],
 	[3, 0, 1],
 	[8, 4, 7],
 ];
+const RAND_CABS = new Array(8).fill(false);
+RAND_CABS[0] = true;
+RAND_CABS[1] = true;
+ShuffleInPlace(RAND_CABS);
+RAND_CABS.splice(0, 0, false);
+
+const CalculateLayouts = () => {
+	const [cabLocations, setCabLocations] = useState<boolean[]>(RAND_CABS);
+	const p: number[] = new Array(8).fill(1);
+	const min = cabLocations.reduce((m, cab, i) => {
+		if (cab) return Math.min(m, i);
+		return m;
+	}, Infinity);
+	for (let i = 0; i < p.length; i++) {
+		if (!cabLocations[((i + min) % p.length) + 1]) {
+			p[(i + min + 1) % p.length] += p[(i + min) % p.length];
+			p[(i + min) % p.length] = 0;
+		}
+	}
+
+	return (
+		<div>
+			<hr />
+			<h3>Cabinet Probability Calculator</h3>
+			<ul style={{ marginTop: -15 }}>
+				AKA{" "}
+				<i>I want to use my own layout-- just tell me which cabinet to use</i>
+			</ul>
+
+			<div>
+				<table>
+					{ORDER.map((r) => {
+						return (
+							<tr>
+								{r.map((i) => {
+									if (i === 0) {
+										// research desk location
+										return <td>R</td>;
+									}
+									return (
+										<td style={{ minWidth: "2lh" }}>
+											{((p[i - 1] / 8) * 100).toString().slice(0, 4)}%
+											<br />
+											<input
+												type="checkbox"
+												checked={!!cabLocations[i]}
+												onChange={(e) => {
+													const target = e.target as HTMLInputElement;
+													setCabLocations((a) => {
+														const copy = [...a];
+														copy[i] = target.checked;
+														return copy;
+													});
+												}}
+											/>
+										</td>
+									);
+								})}
+							</tr>
+						);
+					})}
+				</table>
+			</div>
+		</div>
+	);
+};
 function getLayouts(
 	cabinets: number,
 	targets: number
@@ -71,6 +138,7 @@ const SaveScumCabinetLayouts = () => {
 	const [targets, setTargets] = useState(1);
 	return (
 		<div>
+			<h3>Optimal Layouts</h3>
 			<label for="cabinets">Number of Blueprint Cabinets: </label>
 			<input
 				type="number"
@@ -100,6 +168,7 @@ const SaveScumCabinetLayouts = () => {
 			/>
 
 			<div>{getLayouts(cabinets, targets)}</div>
+			<CalculateLayouts />
 		</div>
 	);
 };
