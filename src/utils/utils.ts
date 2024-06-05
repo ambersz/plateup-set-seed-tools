@@ -1,16 +1,20 @@
 import { Random } from "../workers/reverse-engineered/prng";
-
-export function ShuffleInPlace<T>(array: T[], Random: Random): T[] {
+function jsRandomRange(min: number, maxExclusive: number) {
+	return Math.floor(Math.random() * (maxExclusive - min)) + min;
+}
+export function ShuffleInPlace<T>(array: T[], Random?: Random): T[] {
 	// This advances PRNG by array.length-1
 	let i = array.length;
 	while (i-- > 1) {
-		let swapIndex = Random.range(0, i + 1);
+		let swapIndex =
+			Random === undefined ? jsRandomRange(0, i + 1) : Random.range(0, i + 1);
 		[array[i], array[swapIndex]] = [array[swapIndex], array[i]];
 	}
 	return array;
 }
 
-export const chars = "abcdefghijklmnopqrstuvwxyz123456789";
+export const chars = "abcdefghijklmnopqruvyz12569"; // collision-free on 3 char strings
+// export const chars = "abcdefghijklmnopqrstuvwxyz123456789";
 export const IN_GAME_SEED_CHARS = "bdghjmqrtvwxy346789";
 
 export function randomAZSeed() {
