@@ -16,10 +16,8 @@ const BranchingRerollPage = lazy(() => import("./branchingRerolls"));
 const CardPaths = lazy(() => import("./cardPaths"));
 const WeeklyRerollsExport = lazy(() => import("./weeklyExport"));
 const WeeklyPage = lazy(() => import("./weekly"));
-const CoffeeEatingTime = lazy(() => import("./coffeeEatingTime"));
-const Scratch = lazy(() =>
-	import.meta.env.DEV ? import("./scratch") : Promise.resolve(() => <></>)
-);
+const CoffeeEatingTime = lazy(() => import("./explainers/coffeeEatingTime"));
+const Scratch = lazy(() => (import.meta.env.DEV ? import("./scratch") : Empty));
 const GroupSizes = lazy(() => import("./components/GroupSizes"));
 const BreakfastAuto = lazy(() => import("./BreakfastAuto"));
 const TODO = lazy(() => import("./todo"));
