@@ -1,9 +1,8 @@
-import { Unlock } from "../kitchenTypes";
+import { SeedConfig } from "../SeedConfigForm";
 import { RigPiece, niceRerolls } from "../utils/niceRerolls";
-import { Appliance } from "./db/appliances";
+import Appliances from "./db/appliances";
 import { RestaurantSettings } from "./db/unlocks";
-import { Run } from "./reverse-engineered/run";
-import { RerollConfig } from "./reverse-engineered/shop";
+import { getRunMoneyInfo } from "./reverse-engineered/run";
 
 // @ts-ignore
 var worker = self as Worker;
@@ -14,52 +13,42 @@ export type AutoRigWorkerInput = {
 };
 export type AutoRigWorkerOutput = string;
 function report(message: string) {
-	console.log(`reporting - ${message.split("\n")[0]}`);
+	import.meta.env.DEV && console.log(`reporting - ${message.split("\n")[0]}`);
 	worker.postMessage(message);
 }
+const alwaysUseful = [
+	"Copying Desk",
+	"Blueprint Cabinet",
+	"Clipboard Stand",
+	"Research Desk",
+];
 const defaultFinalTier: RigPiece[] = [
 	{ goal: "Copying Desk", number: 1, substitutes: [], skipMissing: true },
 	{ goal: "Blueprint Cabinet", number: 8, substitutes: [], skipMissing: true },
 	{ goal: "Clipboard Stand", number: 1, substitutes: [], skipMissing: true },
+	{ goal: "Research Desk", number: 1, substitutes: [], skipMissing: true },
 	{
 		goal: "Starter Bin",
 		number: 999,
-		substitutes: [
-			"Auto Plater",
-			"Dining Table",
-			"Sink",
-			"Hob",
-			"Counter",
-			"Bin",
-			"Compactor Bin",
-			"Composter Bin",
-			"Conveyor",
-			"Dish Rack",
-			"Expanded Bin",
-			"Fire Extinguisher",
-			"Freezer",
-			"Kitchen Floor Protector",
-			"Mop",
-			"Plates",
-			"Pot Stack",
-			"Rolling Pin",
-			"Sharp Knife",
-			"Soaking Sink",
-		],
+		substitutes: Appliances.filter((a) => !alwaysUseful.includes(a.Name)).map(
+			(a) => a.Name
+		),
 		skipMissing: true,
 	},
 ];
-worker.onmessage = function (e: MessageEvent<AutoRigWorkerInput>) {
+worker.onmessage = (e: MessageEvent<AutoRigWorkerInput>) => {
 	let { config, tiers, playerCount } = e.data;
 	tiers = tiers.filter((a) => a.length);
 	const copyDefaultFinalTier = [...defaultFinalTier];
 	const nonTrash = tiers.flatMap((tier) =>
 		tier.flatMap((goal) => [goal.goal, ...goal.substitutes])
 	);
-	copyDefaultFinalTier[3].substitutes =
-		copyDefaultFinalTier[3].substitutes.filter((a) => {
-			return !nonTrash.some((b) => a === b);
-		});
+	const fodder = copyDefaultFinalTier.length - 1;
+	copyDefaultFinalTier[fodder].substitutes = copyDefaultFinalTier[
+		fodder
+	].substitutes.filter((a) => {
+		return !nonTrash.some((b) => a === b);
+	});
 	tiers[tiers.length - 1].push(...copyDefaultFinalTier);
 	// tiers.splice(-1, 1, defaultFinalTier);
 	const numStarting =
@@ -67,21 +56,11 @@ worker.onmessage = function (e: MessageEvent<AutoRigWorkerInput>) {
 			RestaurantSettings.some((b) => b.Name === a.Name)
 		).length + 1;
 	const startingCards = config.cards.slice(0, numStarting);
-	if (config.blueprintCount === 7) {
-		startingCards.push(RestaurantSettings.filter((a) => a.Name === "Turbo")[0]);
-	}
-	let expectedMoneyByDay: number[] = [];
-	const duringRunCards = config.cards.slice(numStarting);
-	console.log({ startingCards, duringRunCards });
-	let run = new Run(config.seed, startingCards, duringRunCards);
-	run.playerCount = playerCount;
-	let cumulative = run.guessMoney(0);
-	console.log({ cumulative });
-	for (let i = 1; i <= 15; i++) {
-		cumulative += run.guessMoney(i);
-		expectedMoneyByDay.push(cumulative);
-	}
-	console.log({ expectedMoneyByDay });
+	let {
+		expectedMoneyByDay,
+		expectedBookingDesksByDay,
+	}: { expectedMoneyByDay: number[]; expectedBookingDesksByDay: number[] } =
+		getRunMoneyInfo(config, numStarting, startingCards, playerCount);
 
 	niceRerolls(
 		config.seed,
@@ -90,18 +69,7 @@ worker.onmessage = function (e: MessageEvent<AutoRigWorkerInput>) {
 		tiers,
 		config.solo,
 		expectedMoneyByDay,
+		expectedBookingDesksByDay,
 		report
 	);
 };
-export interface SeedConfig {
-	seed: string;
-	initialRerollConfig: RerollConfig[];
-	day: number;
-	blueprintCount: number;
-	baseUpgradeChance: number;
-	solo: boolean;
-	appliances: Appliance[];
-	cards: Unlock[];
-	searchDepth: number;
-	simpleBPSettings?: boolean | "insideOnly" | "noSwitching" | "full";
-}

@@ -1,6 +1,5 @@
 import { FunctionComponent } from "preact";
 import { AppliancesComboBox } from "../ApplianceSelect";
-import { UnlocksComboBox } from "../UnlockSelect";
 import { Appliance } from "../workers/db/appliances";
 import { useCallback, useEffect, useRef } from "preact/hooks";
 import { defaultBranchingRerollConfig } from "../branchingRerolls";
@@ -8,29 +7,39 @@ import { usePersistentState } from "../hooks/usePersistentState";
 import {
 	AutoRigWorkerInput,
 	AutoRigWorkerOutput,
-	SeedConfig,
 } from "../workers/autoRigWorker";
 import { RigPiece } from "../utils/niceRerolls";
+import { SeedConfigForm, SeedConfig } from "../SeedConfigForm";
 function postMessage(worker: Worker, message: AutoRigWorkerInput) {
 	worker.postMessage(message);
 }
 interface AutoRigProps {}
 const UPGRADE_MAP: { [appName: string]: string[] } = {
 	"Grabber - Rotating": ["Grabber", "Smart Grabber"],
-	Grabber: ["Conveyor", "Grabber - Rotating"],
+	Grabber: ["Conveyor", "Grabber - Rotating", "Smart Grabber"],
 	Freezer: ["Counter"],
 	Workstation: ["Counter"],
+	"Prep Station": ["Frozen Prep Station"],
 	"Frozen Prep Station": ["Prep Station"],
+	Mixer: ["Rapid Mixer", "Conveyor Mixer", "Heated Mixer"],
+	// "Kitchen Floor Protector": ["Robot Buffer", "Floor Buffer"],
+	"Dish Rack": ["Dish Washer"],
 	"Rapid Mixer": ["Mixer", "Conveyor Mixer"],
-	"Heated Mixer": ["Rapid Mixer"],
-	"Conveyor Mixer": ["Heated Mixer"],
-	Bin: ["Affordable Bin"],
+	"Heated Mixer": ["Mixer", "Rapid Mixer"],
+	"Conveyor Mixer": ["Heated Mixer", "Mixer"],
+	Bin: ["Affordable Bin", "Expanded Bin", "Compactor Bin", "Composter Bin"],
 	"Compactor Bin": ["Expanded Bin", "Bin"],
 	"Composter Bin": ["Compactor Bin", "Bin"],
 	"Expanded Bin": ["Composter Bin", "Bin"],
 	"Metal Table": ["Dining Table"],
 	"Table - Simple Cloth": ["Dining Table"],
-	"Power Sink": ["Soaking Sink"],
+	"Table - Fancy Cloth": import.meta.env.DEV
+		? ["Table - Simple Cloth", "Dining Table", "Metal Table", "Bar Table"]
+		: ["Dining Table"],
+	// "Bar Table": ["Dining Table"],
+	"Power Sink": ["Soaking Sink", "Sink"],
+	"Soaking Sink": ["Sink", "Dish Washer"],
+	"Dish Washer": ["Sink", "Wash Basin"],
 	"Danger Hob": ["Safety Hob", "Hob"],
 	"Safety Hob": ["Hob", "Danger Hob"],
 	Microwave: ["Oven"],
@@ -39,7 +48,6 @@ const UPGRADE_MAP: { [appName: string]: string[] } = {
 	"Copying Desk": ["Research Desk", "Discount Desk"],
 	"Discount Desk": ["Research Desk", "Blueprint Desk"],
 	Teleporter: ["Dumbwaiter"],
-	"Soaking Sink": ["Sink", "Dish Washer"],
 };
 const AutoRig: FunctionComponent<AutoRigProps> = ({}: AutoRigProps) => {
 	const [config, setConfig] = usePersistentState<SeedConfig>(
@@ -101,6 +109,7 @@ const AutoRig: FunctionComponent<AutoRigProps> = ({}: AutoRigProps) => {
 						shopModifiersOnly={false}
 						appliances={appliances}
 						allowDupes={true}
+						label={`Tier ${i + 1} appliances: `}
 						onSelectionChange={(newAppliances: Appliance[]) => {
 							setTiers((tiers) => {
 								const copy = [...tiers];
@@ -157,132 +166,6 @@ const AutoRig: FunctionComponent<AutoRigProps> = ({}: AutoRigProps) => {
 				{result.split("\n").map((line) => (
 					<div>{line}</div>
 				))}
-			</div>
-		</div>
-	);
-};
-interface SeedConfigFormProps {
-	onConfigChange: (config: SeedConfig) => void;
-	config: SeedConfig;
-}
-export const SeedConfigForm = ({
-	onConfigChange,
-	config,
-}: SeedConfigFormProps) => {
-	const {
-		seed,
-		blueprintCount,
-		solo,
-		cards,
-		searchDepth,
-		simpleBPSettings = false,
-	} = config;
-	const handleSettingChange: HTMLInputElement["onchange"] = (e) => {
-		let newConf = { ...config };
-		if ((e.target as HTMLInputElement).checked) {
-			newConf.blueprintCount = 7;
-			newConf.baseUpgradeChance = 0.25;
-		} else {
-			newConf.blueprintCount = 5;
-			newConf.baseUpgradeChance = 0;
-		}
-		onConfigChange(newConf);
-	};
-
-	const setConfig = <T extends keyof SeedConfig>(
-		key: T,
-		value: SeedConfig[T]
-	) => {
-		let newConf = { ...config };
-		newConf[key] = value;
-		onConfigChange(newConf);
-	};
-	return (
-		<div>
-			<div>
-				<div>Run Config:</div>
-				<label for="solo">Solo:</label>
-				<input
-					type="checkbox"
-					id="solo"
-					checked={solo}
-					onChange={() => {
-						setConfig("solo", !solo);
-					}}
-				/>
-				<span style="margin:0 20px">
-					<label for="simpleRerollSettings">Spawn setting configs: </label>
-					<select
-						value={
-							simpleBPSettings === true
-								? "insideOnly"
-								: simpleBPSettings === false
-								? "full"
-								: simpleBPSettings
-						}
-						onChange={(e) => {
-							setConfig(
-								"simpleBPSettings",
-								// @ts-ignore
-								(e.target as HTMLOptionElement)?.value ?? "full"
-							);
-						}}
-					>
-						<option value="full">All spawn settings</option>
-						<option value="insideOnly">Spawn Inside only</option>
-						<option value="noSwitching">
-							Don't switch bp settings after spawn
-						</option>
-					</select>
-				</span>
-				<div>
-					<label for="searchDepth">Number of Rerolls</label>{" "}
-					<input
-						id="searchDepth"
-						type="number"
-						value={searchDepth}
-						onChange={(e) => {
-							setConfig(
-								"searchDepth",
-								Number((e.target as HTMLInputElement).value)
-							);
-						}}
-					/>
-				</div>
-				<label for="seed" value={seed}>
-					Seed:{" "}
-				</label>
-				<input
-					type="text"
-					id="seed"
-					value={seed}
-					disabled
-					onChange={(e) => {
-						setConfig("seed", (e.target as HTMLInputElement).value);
-					}}
-				/>
-				<label for="setting"> Turbo?</label>
-				<input
-					id="setting"
-					type="checkbox"
-					disabled
-					checked={blueprintCount === 7}
-					onChange={handleSettingChange}
-				/>
-			</div>
-			<div>
-				<UnlocksComboBox
-					id="cardSchedule"
-					// label="Enter all cards in order, including your starting dish:"
-					// onSelectionChange={(gcc) => {
-					// 	setConfig("cards", gcc.cards);
-					// }}
-					onSelectionChange={() => {}} // don't allow changes?
-					showSelectionMode={false}
-					cards={cards}
-					include={true}
-					modes={["themes", "dishes", "customerCards"]}
-				/>
 			</div>
 		</div>
 	);

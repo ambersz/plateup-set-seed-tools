@@ -1,3 +1,4 @@
+import { SeedConfig } from "../../SeedConfigForm";
 import { DishType } from "../../kitchenEnums";
 import { Unlock } from "../../kitchenTypes";
 import { FixedSeedContext, Random, RestaurantSystemSeed } from "./prng";
@@ -36,19 +37,30 @@ export class Run {
 			if (this.turbo) return 30;
 			return 0;
 		}
-
-		const custs = this.getCustomerCount(day);
+		const currentCards = this.getCardsByDay(day);
+		const repeat =
+			1 +
+			currentCards.filter(
+				(a) => a.Name === "All You Can Eat" || a.Name === "Double Helpings"
+			).length *
+				0.25;
+		const custs = this.getCustomerCount(day) * repeat;
 		let cost = this.startingCards.reduce((a, b) => a + b.DishValue, 0);
-		if (this.getCardsByDay(day).some((a) => a.Name === "Double Helpings"))
-			cost += 3;
+		if (
+			!this.startingCards.some((a) => (a.DishType = DishType.Dessert)) &&
+			currentCards.some((a) => a.Name === "Ice Cream")
+		) {
+			cost = (cost + 2) / 2;
+		}
+		if (currentCards.some((a) => a.Name === "Doughnut")) cost = 5;
+		if (currentCards.some((a) => a.Name === "Double Helpings")) cost += 3;
 		if (Number.isNaN(custs)) debugger;
 		if (Number.isNaN(cost)) debugger;
 
-		return (
-			getPlayerCountMoneyBonus(this.playerCount) *
-			(custs * cost +
-				this.getBookingDeskCount(day) * this.getBookingDeskMoney(day))
-		);
+		const bonusMoney = getPlayerCountMoneyBonus(this.playerCount);
+		const bookingDeskTimes = this.getBookingDeskCount(day);
+		const bookingDeskMoney = this.getBookingDeskMoney(day);
+		return bonusMoney * (custs * cost + bookingDeskTimes * bookingDeskMoney);
 	}
 	getBookingDeskMoney(day: number) {
 		return Math.ceil((day + 1) / 2) + 2;
@@ -68,18 +80,17 @@ export class Run {
 				...this.startingCards,
 				...this.cards.slice(0, n),
 			];
-			// debugger;
-			console.log(
-				`Day ${day} has ${this._cardsByDay[day].map((a) => a.Name).join(", ")}`
-			);
 		}
 		return this._cardsByDay[day];
 	}
 	getBookingDeskCount(day: number): number {
+		const normalGroups = Math.ceil(
+			this.getExpectedCustomers(day) / this.getExpectedGroupSize(day)
+		);
+		if (this.getCardsByDay(day).some((a) => a.Name === "Herd Mentality"))
+			return Math.min(normalGroups, 3) + 1;
 		return (
-			Math.ceil(
-				this.getExpectedCustomers(day) / this.getExpectedGroupSize(day)
-			) +
+			normalGroups +
 			(this.turbo
 				? 3
 				: this.getCardsByDay(day).filter((a) => a.Name.includes(" Rush"))
@@ -93,7 +104,6 @@ export class Run {
 			0.2;
 		const avgGroupSize = this.getExpectedGroupSize(day);
 		const goalGroups = (custs * (1 + closingTimeAdjust)) / avgGroupSize;
-		console.log({ custs, closingTimeAdjust, avgGroupSize, goalGroups });
 		return Math.ceil(goalGroups);
 	}
 	getCustomerCount(day: number): number {
@@ -108,7 +118,6 @@ export class Run {
 		let g = gc;
 		let groups: number[] = [];
 		let [min, max] = this.getGroupSizeRange(day);
-		console.log({ min, max, gc, herd });
 		{
 			let i = g - 1;
 			// shuffle group types-- actually need to implement this if I want to support Romantic
@@ -130,11 +139,9 @@ export class Run {
 			Math.max(1, this.getExpectedCustomers(day) * 0.15)
 		);
 		let totalRushGroups = rushCount * rushGroups;
-		console.log({ totalRushGroups });
 		while (totalRushGroups--) {
 			groups.push(random.range(min, max + 1));
 		}
-		console.log({ groups });
 		return groups;
 	}
 	getExpectedGroupSize(day: number) {
@@ -187,16 +194,6 @@ export class Run {
 				courseModifier) *
 			kitchenParamCustomers *
 			advertising;
-		console.log({
-			reductions,
-			dayLength,
-			playerModifier,
-			courseModifier,
-			dayRate,
-			kitchenParamCustomers,
-			advertising,
-			res,
-		});
 		return res;
 	}
 	getAdvertisingModifier(day: number) {
@@ -222,7 +219,12 @@ export class Run {
 	getCourseModifier(day: number) {
 		let modifier = 1; // this is bugged if the restaurant has no mains, but the actual game is bugged like that so... successful reverse engineer?
 		const cards = this.getCardsByDay(day);
-		if (cards.some((a) => a.DishType === DishType.Dessert)) modifier += 0.25;
+		if (
+			cards.some(
+				(a) => a.DishType === DishType.Dessert || a.Name === "Black Coffee"
+			)
+		)
+			modifier += 0.25;
 		if (cards.some((a) => a.DishType === DishType.Starter)) modifier += 0.25;
 		return modifier;
 	}
@@ -285,6 +287,45 @@ export class Run {
 		}
 		return mapSize;
 	}
+	/**
+	 *
+	 * @returns [map size, num tiles]
+	 */
+	getLayoutInfo(): [number, number] {
+		const r = new FixedSeedContext(this.seed, 5078598);
+		const roll = r.useSubcontext(0).random.range(0, 8);
+		let mapSize: number;
+		let numTiles: number;
+		switch (roll) {
+			case 0:
+				numTiles = 70;
+				mapSize = 2;
+				break;
+			case 4:
+				numTiles = 84;
+				mapSize = 2;
+				break;
+			case 1:
+			case 5:
+				numTiles = 60;
+				mapSize = 1;
+				break;
+			case 2:
+			case 6:
+				numTiles = 9 * 13;
+				mapSize = 3;
+				break;
+			case 3:
+			case 7:
+				numTiles = 12 * 16;
+				mapSize = 4;
+				break;
+			default:
+				throw new Error();
+				break;
+		}
+		return [mapSize, numTiles];
+	}
 	getDoorInfo() {
 		if (this.mapSize !== 1) {
 			return -1; // not implemented for non-diner
@@ -309,4 +350,22 @@ function getPlayerCountMoneyBonus(players: number) {
 		default:
 			return 1;
 	}
+}
+export function getRunMoneyInfo(
+	config: SeedConfig,
+	numStarting: number,
+	startingCards: Unlock[],
+	playerCount: number
+) {
+	let expectedMoneyByDay: number[] = [];
+	let expectedBookingDesksByDay: number[] = [];
+	const duringRunCards = config.cards.slice(numStarting);
+	let run = new Run(config.seed, startingCards, duringRunCards);
+	run.playerCount = playerCount;
+	for (let i = 1; i <= 15; i++) {
+		expectedMoneyByDay.push(run.guessMoney(i));
+		expectedBookingDesksByDay.push(run.getBookingDeskCount(i));
+	}
+	expectedMoneyByDay[0] += run.guessMoney(0);
+	return { expectedMoneyByDay, expectedBookingDesksByDay };
 }
