@@ -64,7 +64,7 @@ const defaultBadCustCards: GoalCardConfig = {
 		"Leisurely",
 		"Mandarin",
 		"Bread",
-		"Closing Time",
+		"Closing Time?",
 		"Picky",
 		"Medium",
 		"Advertising",
@@ -90,6 +90,7 @@ const defaultBadCustCards: GoalCardConfig = {
 let first = true;
 function exportResults(d: ResultData) {
 	if (import.meta.env.PROD) return;
+	return;
 	if (!first) return;
 	first = false;
 	const webhookURL = `https://script.google.com/macros/s/AKfycbxHGpZJCRvhxqnvmJiBNQhpkXV6CmUgTN2LtxqPtj5xpc2n--VbQMnzrQkXpnKInoRajQ/exec?data=${
