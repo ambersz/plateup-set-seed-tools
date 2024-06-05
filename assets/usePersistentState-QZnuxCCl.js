@@ -1,0 +1,1 @@
+import{h as l,p as S,T as f}from"./main-LoDFSLAM.js";const m=(o,e,n)=>{const[a,s]=l();S(()=>{const t=localStorage.getItem(e);t===null||s(n?n(JSON.parse(t)):JSON.parse(t))},[o,e]);const c=f(t=>{typeof t=="function"?s(i=>{const r=t(i??o);return localStorage.setItem(e,JSON.stringify(r)),r}):(s(t),localStorage.setItem(e,JSON.stringify(t)))},[e,s]);return[a??o,c]};export{m as u};
