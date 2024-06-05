@@ -55,6 +55,11 @@ export const Navigation = () => {
 				<li>
 					<Link to="TODO.html">TODO</Link>
 				</li>
+				<li>
+					<Link to="randomRerollManip.html">
+						Random Seed Reroll Manipulation?
+					</Link>
+				</li>
 				{import.meta.env.DEV && (
 					<>
 						<li>

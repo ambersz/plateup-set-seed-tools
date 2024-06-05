@@ -26,6 +26,7 @@ export default defineConfig({
 				iceCream: resolve(__dirname, "ice-cream.html"),
 				autoRig: resolve(__dirname, "build-a-rig.html"),
 				seedInfo: resolve(__dirname, "seed-info.html"),
+				randomSeedRerollManip: resolve(__dirname, "randomRerollManip.html"),
 			},
 		},
 	},

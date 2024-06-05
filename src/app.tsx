@@ -5,9 +5,19 @@ import { Link, Outlet, Route, Routes } from "react-router-dom";
 import { Navigation } from "./Navigation";
 import Version from "./components/Version";
 import { FunctionalComponent } from "preact";
-import ResearchProbabilities from "./components/ResearchProbabilities";
+
+const Empty = Promise.resolve(() => <></>);
 const Table = lazy(() =>
 	import.meta.env.DEV ? import("./shh") : Promise.resolve(() => <></>)
+);
+const ExtrasEatingTime = lazy(() =>
+	import.meta.env.DEV ? import("./explainers/extrasEatingTime") : Empty
+);
+const RandomSeedRerollManip = lazy(
+	() => import("./explainers/RandomSeedRerollManip")
+);
+const ResearchProbabilities = lazy(() =>
+	import.meta.env.DEV ? import("./components/ResearchProbabilities") : Empty
 );
 const TurboSeedSearcher = lazy(() => import("./seedSearcher"));
 const Versus = lazy(() => import("./versusSeeds"));
@@ -63,9 +73,14 @@ export function App() {
 							<Route path="scratch" element={<Scratch />} />
 							<Route path="test.html" element={<Tests />} />
 							<Route path="shh" element={<Table />} />
+							<Route path="extras" element={<ExtrasEatingTime />} />
 						</>
 					)}
 					<Route element={<Layout />}>
+						<Route
+							path="randomRerollManip.html"
+							element={<RandomSeedRerollManip />}
+						/>
 						<Route path="TODO.html" element={<TODO />} />
 						<Route element={<GameLayout />}>
 							<Route
