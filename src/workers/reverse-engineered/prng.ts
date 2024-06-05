@@ -59,9 +59,8 @@ export function hash(seed: string): number {
 	const bytes = utf8Encode.encode(seed);
 	let num = 5381;
 	let i = bytes.length;
-	while (i > 0) {
-		let n3 = --i;
-		num = (num << 5) + num + bytes[n3];
+	while (i--) {
+		num = (num << 5) + num + bytes[i];
 	}
 
 	return num >> 0;
@@ -70,7 +69,7 @@ export function hash(seed: string): number {
 export function RestaurantSystemSeed(
 	categorySeed: number,
 	instance: number,
-	seed: string
+	seed: string | number
 ): FixedSeedContext {
 	return new FixedSeedContext(seed, categorySeed * 1231231 + instance);
 }

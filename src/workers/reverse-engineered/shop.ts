@@ -33,7 +33,7 @@ const shopSize = Appliances.filter(
 	(appliance) => appliance.IsPurchasable || appliance.IsPurchasableAsUpgrade
 ).length;
 export class Shop {
-	seed: string;
+	seed: string | number;
 	mapSize: number;
 	numTiles: number;
 	baseUpgradeChance: number;
@@ -348,34 +348,34 @@ export class Shop {
 				for (let l = 0; l < list.length; l++) {
 					const cshopBuilderOption = list[l];
 					const isRemoved = cshopBuilderOption.IsRemoved;
-					if (!isRemoved) {
-						const alreadyInShop = TmpOffered.includes(
-							cshopBuilderOption.Appliance
-						);
-						if (!alreadyInShop) {
-							const tagsDifferentFromRequest =
-								!cshopBuilderOption.MatchesRequestTags(requestedShoppingTag);
-							if (!tagsDifferentFromRequest) {
-								const isDisallowedUpgrade =
-									!rollUpgradeable &&
-									cshopBuilderOption.Staple == ShopStapleType.NonStaple &&
-									cshopBuilderOption.SellAsUpgrade;
-								if (!isDisallowedUpgrade) {
-									const nonDecoration =
-										requestedShoppingTag != ShoppingTags.Decoration;
-									if (nonDecoration) {
-										TmpOffered.push(cshopBuilderOption.Appliance); // prevent duplicates for appliances only
-									}
-									// logger.LogInfo($"trying to add id:{cshopBuilderOption.Appliance}");
-									result[k] = cshopBuilderOption.Appliance;
-									break;
-								}
-							}
-						}
+					if (isRemoved) continue;
+
+					const alreadyInShop = TmpOffered.includes(
+						cshopBuilderOption.Appliance
+					);
+					if (alreadyInShop) continue;
+
+					const tagsDifferentFromRequest =
+						!cshopBuilderOption.MatchesRequestTags(requestedShoppingTag);
+					if (tagsDifferentFromRequest) continue;
+
+					const isDisallowedUpgrade =
+						!rollUpgradeable &&
+						cshopBuilderOption.Staple == ShopStapleType.NonStaple &&
+						cshopBuilderOption.SellAsUpgrade;
+					if (isDisallowedUpgrade) continue;
+
+					const nonDecoration = requestedShoppingTag != ShoppingTags.Decoration;
+					if (nonDecoration) {
+						TmpOffered.push(cshopBuilderOption.Appliance); // prevent duplicates for appliances only
 					}
+					// logger.LogInfo($"trying to add id:{cshopBuilderOption.Appliance}");
+					result[k] = cshopBuilderOption.Appliance;
+					break;
 				}
 				if (result[k] == null) {
-					console.log(`Wasn't able to find a valid roll for blueprint ${k}`);
+					import.meta.env.DEV &&
+						console.log(`Wasn't able to find a valid roll for blueprint ${k}`);
 				}
 			}
 			this.cache.set(cacheKey, result);
