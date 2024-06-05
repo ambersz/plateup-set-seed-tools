@@ -237,8 +237,8 @@ const SeedSearcher = () => {
 					<div>
 						<code>seed (starting tables): cards</code>
 					</div>
-					{results.map((r) => (
-						<SeedSearchResult key={r.seed} result={r} />
+					{results.map((r, i) => (
+						<SeedSearchResult key={i} result={r} />
 					))}
 				</div>
 			</div>
