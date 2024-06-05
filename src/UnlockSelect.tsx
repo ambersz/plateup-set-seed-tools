@@ -176,7 +176,6 @@ export function UnlocksComboBox({
 		inputValue,
 		stateReducer(_state, actionAndChanges) {
 			const { changes, type } = actionAndChanges;
-			console.log(type);
 			switch (type) {
 				case useCombobox.stateChangeTypes.InputChange:
 					if (actionAndChanges.inputValue) {
