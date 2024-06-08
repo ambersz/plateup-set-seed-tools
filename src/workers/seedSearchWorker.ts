@@ -1,5 +1,5 @@
 import { FindNewUnlocks } from "./reverse-engineered/cards";
-import { Run } from "./reverse-engineered/run";
+import { LayoutProfileName, Run } from "./reverse-engineered/run";
 import { RerollConfig, Shop } from "./reverse-engineered/shop";
 import type { Unlock } from "../kitchenTypes";
 import Appliances, { Appliance } from "./db/appliances";
@@ -68,14 +68,14 @@ export type ResultFormat =
 export interface ResultData {
 	seed: string;
 	cards: string[];
-	mapSize: number;
+	mapSize: LayoutProfileName;
 	blueprints: Appliance[];
 }
 
 export interface SearchParams {
 	goalCards: GoalCardConfig[];
 	goalAppliances: string[];
-	mapSizes: number[];
+	mapSizes: LayoutProfileName[];
 	maxSeeds?: number;
 	partial?: boolean;
 }
@@ -134,10 +134,6 @@ async function search({
 		}
 		const run = new Run(seed);
 		const ms = run.mapSize;
-		if (import.meta.env.DEV && ms === 2) {
-			if (run.getLayoutInfo()[1] !== 84) continue;
-		}
-
 		if (!mapSizes.includes(ms)) continue;
 		for (const dish of startingDishes) {
 			const candMetric: [number, string[]] = test(

@@ -8,6 +8,7 @@ import {
 } from "./workers/seedSearchWorker";
 import { usePersistentState } from "./hooks/usePersistentState";
 import SeedSearchResult from "./components/SeedSearchResult";
+import { LayoutProfileName, tables } from "./workers/reverse-engineered/run";
 
 const seedSearchWorkers: Worker[] = [];
 const multithreading = 1;
@@ -44,11 +45,12 @@ const SeedSearcher = () => {
 		"SEED_SEARCHER_NORMAL_RESULTS"
 	);
 	const [searching, setSearching] = useState<boolean>(false);
-	const [allowedTables, setAllowedTables] = usePersistentState(
-		[1, 2, 3, 4],
+	const [allowedTables, setAllowedTables] = usePersistentState<
+		LayoutProfileName[]
+	>(
+		["Diner (1)", "Small (2)", "Medium (2)", "Large (3)", "Huge (4)"],
 		"SEED_SEARCHER_NORMAL_ALLOWED_TABLES"
 	);
-	const tables = [1, 2, 3, 4];
 	useEffect(() => {
 		console.log("useEffect registering message done");
 		const handleSearchResults = (m: { data: ResultFormat }) => {
@@ -140,7 +142,7 @@ const SeedSearcher = () => {
 		};
 	};
 
-	const handleToggleTable = (n: number) => {
+	const handleToggleTable = (n: LayoutProfileName) => {
 		return () => {
 			if (allowedTables.includes(n)) {
 				setAllowedTables(allowedTables.filter((a) => a !== n));

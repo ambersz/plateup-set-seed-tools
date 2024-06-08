@@ -9,6 +9,7 @@ import {
 	ResponseDataFormat,
 	ResponseFormat,
 } from "./workers/versusWorker";
+import { LayoutProfileName } from "./workers/reverse-engineered/run";
 const defaultConfig = { include: true, cards: StartingDishes };
 const worker = new Worker(
 	new URL("./workers/versusWorker.ts", import.meta.url),
@@ -17,13 +18,14 @@ const worker = new Worker(
 function sendMessage(message: RequestFormat) {
 	worker.postMessage(message);
 }
-const defaultTables = [1];
+const defaultTables: LayoutProfileName[] = ["Diner (1)"];
 const VersusSeeds = () => {
 	const [startingCards, setStartingCards] =
 		useState<GoalCardConfig>(defaultConfig);
 	const [strict, setStrict] = useState(true);
 	const [autumn, setAutumn] = useState(false);
-	const [allowedTables, setAllowedTables] = useState<number[]>(defaultTables);
+	const [allowedTables, setAllowedTables] =
+		useState<LayoutProfileName[]>(defaultTables);
 	const [results, setResults] = useState<ResponseDataFormat[]>([]);
 	useEffect(() => {
 		worker.onmessage = (e: MessageEvent<ResponseFormat>) => {

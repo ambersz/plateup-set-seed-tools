@@ -1,13 +1,13 @@
-const tables = [1, 2, 3, 4];
+import { LayoutProfileName, tables } from "../workers/reverse-engineered/run";
 
 export const LayoutSize = ({
 	setAllowedTables,
 	allowedTables,
 }: {
-	setAllowedTables: (ns: number[]) => void;
-	allowedTables: number[];
+	setAllowedTables: (ns: LayoutProfileName[]) => void;
+	allowedTables: LayoutProfileName[];
 }) => {
-	const handleToggleTable = (n: number) => {
+	const handleToggleTable = (n: LayoutProfileName) => {
 		return () => {
 			if (allowedTables.includes(n)) {
 				setAllowedTables(allowedTables.filter((a) => a !== n));

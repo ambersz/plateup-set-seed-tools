@@ -3,10 +3,23 @@ import { DishType } from "../../kitchenEnums";
 import { Unlock } from "../../kitchenTypes";
 import { FixedSeedContext, Random, RestaurantSystemSeed } from "./prng";
 // TODO roll Shop and FindNewUnlocks into Run
+export type LayoutProfileName =
+	| "Diner (1)"
+	| "Small (2)"
+	| "Medium (2)"
+	| "Large (3)"
+	| "Huge (4)";
 
+const profileNameToTables = {
+	"Diner (1)": 1,
+	"Small (2)": 2,
+	"Medium (2)": 2,
+	"Large (3)": 3,
+	"Huge (4)": 4,
+};
 export class Run {
 	seed: string;
-	mapSize: number;
+	mapSize: LayoutProfileName;
 	frontDoor: number;
 	startingCards: readonly Unlock[];
 	cards: Unlock[];
@@ -22,7 +35,7 @@ export class Run {
 		this.frontDoor = this.getDoorInfo();
 		this.startingCards = startingCards;
 		this.cards = cards;
-		this.playerCount = this.mapSize;
+		this.playerCount = profileNameToTables[this.mapSize];
 		this.turbo = this.startingCards.some((a) => {
 			if (a === undefined) {
 				console.log({ startingCards });
@@ -264,22 +277,28 @@ export class Run {
 		const cards = this.getCardsByDay(day);
 		return cards.reduce((a, b) => a + b.CustomerMultiplier, 0);
 	}
-	getMapSize() {
+	getMapSize(): LayoutProfileName {
 		const r = new FixedSeedContext(this.seed, 5078598);
-		const roll = r.useSubcontext(0).random.range(0, 4);
-		let mapSize: number;
+		const roll = r.useSubcontext(0).random.range(0, 8);
+		let mapSize: LayoutProfileName;
 		switch (roll) {
 			case 0:
-				mapSize = 2;
+				mapSize = "Small (2)";
+				break;
+			case 4:
+				mapSize = "Medium (2)";
 				break;
 			case 1:
-				mapSize = 1;
+			case 5:
+				mapSize = "Diner (1)";
 				break;
 			case 2:
-				mapSize = 3;
+			case 6:
+				mapSize = "Large (3)";
 				break;
 			case 3:
-				mapSize = 4;
+			case 7:
+				mapSize = "Huge (4)";
 				break;
 			default:
 				throw new Error();
@@ -327,7 +346,7 @@ export class Run {
 		return [mapSize, numTiles];
 	}
 	getDoorInfo() {
-		if (this.mapSize !== 1) {
+		if (this.mapSize !== "Diner (1)") {
 			return -1; // not implemented for non-diner
 		}
 		let r = new Random(
@@ -369,3 +388,11 @@ export function getRunMoneyInfo(
 	expectedMoneyByDay[0] += run.guessMoney(0);
 	return { expectedMoneyByDay, expectedBookingDesksByDay };
 }
+export const tables: LayoutProfileName[] = [
+	"Diner (1)",
+	"Small (2)",
+	"Medium (2)",
+	"Large (3)",
+	"Huge (4)",
+];
+

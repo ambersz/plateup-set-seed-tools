@@ -1,7 +1,7 @@
 import { FindNewUnlocks } from "./reverse-engineered/cards";
 import { Unlock } from "../kitchenTypes";
 import { randomInGameSeed } from "../utils/utils";
-import { Run } from "./reverse-engineered/run";
+import { LayoutProfileName, Run } from "./reverse-engineered/run";
 const DAYS = [3, 5, 6, 9, 12];
 
 const worker = self as unknown as Worker;
@@ -10,12 +10,12 @@ export interface RequestFormat {
 	data: {
 		mapSettings: Unlock[];
 		startingDishes: Unlock[];
-		allowedTables: number[];
+		allowedTables: LayoutProfileName[];
 	};
 }
 export interface ResponseDataFormat {
 	seed: string;
-	mapSize: number;
+	mapSize: LayoutProfileName;
 	startingDish: string;
 }
 export type ResponseFormat = {

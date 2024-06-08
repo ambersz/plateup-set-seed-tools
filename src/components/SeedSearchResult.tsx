@@ -23,7 +23,7 @@ const SeedSearchResult = ({
 					to={`../branching-rerolls.html?${turbo ? "turbo=1&" : ""}&seed=${
 						r.seed
 					}&cards=${r.cards.map((a) => encodeURIComponent(a)).join(",")}&solo=${
-						r.mapSize === 1 ? 1 : 0
+						r.mapSize === "Diner (1)" ? 1 : 0
 					}`}
 				>
 					{/* {r.blueprints.map((bp) => bp.Name).join(", ")} */} (Blueprints)
