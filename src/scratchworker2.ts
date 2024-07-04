@@ -4,6 +4,7 @@ import { Unlock } from "./kitchenTypes";
 import { RestaurantSettings, Unlocks } from "./workers/db/unlocks";
 import { FindNewUnlocks } from "./workers/reverse-engineered/cards";
 import { Run } from "./workers/reverse-engineered/run";
+import { RerollConfig, Shop } from "./workers/reverse-engineered/shop";
 console.log("a");
 const chars = "abcdefghijklmnopqrstuvwxyz123456789";
 let seedHashes: (number | undefined)[] = [];
@@ -33,6 +34,152 @@ const prevSoloLocalStorages: string[] = [];
 let prevLocalStorages: string[] = [].concat(prevSoloLocalStorages);
 // prevLocalStorages = [];
 let retestSeeds: string[] = [
+	"azgfxued",
+	"aze18dzo",
+	"azqgw2zq",
+	"azz5945i",
+	"azv1ch18",
+	"azjnnnv2",
+	"azh1s1qf",
+	"aza6akox",
+	"azq8ls8r",
+	"az53fgdj",
+	"az5cr65n",
+	"azjk2dk4",
+	"az27s33x",
+	"azwswhp5",
+	"azme94ke",
+	"aztiuf7r",
+	"azuxxpfp",
+	"azqfm4s1",
+	"az94e7pt",
+	"azn46yc7",
+	"azj5h6m2",
+	"az1j3taz",
+	"azxi51rs",
+	"azh9afve",
+	"azafyybb",
+	"azatump8",
+	"azy9rkhb",
+	"azb9fb3s",
+	"azc4y5ng",
+	"azsejj2b",
+	"aza7wuaw",
+	"azijifn7",
+	"azdw89ye",
+	"azezp6qw",
+	"az58gymi",
+	"azvh326b",
+	"az5brdjf",
+	"az83qto6",
+	"azzccpk2",
+	"az6u2h62",
+	"azg9xee1",
+	"azqhzwx3",
+	"azbfio6e",
+	"az8yw1sx",
+	"az4bt1v3",
+	"azz4ufvh",
+	"azsb6vlh",
+	"azouye3y",
+	"azetmdwq",
+	"azkknrge",
+	"azqvi51s",
+	"azwg45ow",
+	"az3fkfh9",
+	"az186u2i",
+	"azhmgdzf",
+	"azwheqea",
+	"az5pdkyj",
+	"azv2463a",
+	"azwiusqr",
+	"az8cfinq",
+	"azbv9zqo",
+	"az2rupvs",
+	"azgp2kom",
+	"aznz4nlk",
+	"azbug4aa",
+	"azh2p6qk",
+	"azj8pgch",
+	"azqvo8y6",
+	"azt2am8h",
+	"az51e6bw",
+	"az4p78rd",
+	"azlk47sq",
+	"azd972cs",
+	"az2afwbk",
+	"az6nr439",
+	"az75vps5",
+	"azcba79h",
+	"azb1rb38",
+	"azzjgayq",
+	"aza1wkpf",
+	"azhjtsfx",
+	"azqbqfwd",
+	"azynz7dc",
+	"azr3g8x3",
+	"azng1s5f",
+	"azpz3t5j",
+	"azkhfjmh",
+	"aznw3dgk",
+	"az1sp7jy",
+	"az72dl63",
+	"azqxg56w",
+	"azrj2wfw",
+	"azyegeqx",
+	"azkzqrur",
+	"azk8fw59",
+	"azdhwr2b",
+	"azcwq2l5",
+	"azm6k8pj",
+	"azymzx9b",
+	"azpnogbw",
+	"az14dwwq",
+	"azvivhj8",
+	"az4libd4",
+	"azpl915z",
+	"azvli4ur",
+	"azmecah2",
+	"az5t5q69",
+	"azhvylwa",
+	"azl8wfuh",
+	"azcx6cr6",
+	"azxmteqb",
+	"azrulfae",
+	"azfrpkgu",
+	"azt515uv",
+	"azrsq69u",
+	"azsqxkjw",
+	"azbpwg9z",
+	"azavtfdw",
+	"azfsqr3d",
+	"azyw6ewt",
+	"azvhdtco",
+	"aztf6jh5",
+	"azpl62bm",
+	"azrxpd3m",
+	"azzqrw71",
+	"az8f4l23",
+	"azwrygmv",
+	"az3ak4w9",
+	"azjhawhx",
+	"az8wm4k6",
+	"azixs7ok",
+	"aztt3jgj",
+	"azg1auv6",
+	"azitsiqq",
+	"azl8wfuh",
+	"azvivhj8",
+	"az88p5f5",
+	"azy6mnry",
+	"azyeuhts",
+	"azvt5xbo",
+	"azfywpr2",
+	"azcwq2l5",
+	"azpnogbw",
+	"azyegeqx",
+	"az2ig5d9",
+	"azbpwg9z",
 	"azqi1oje",
 	"azsv2iw4",
 	"azibr2la",
@@ -316,6 +463,9 @@ let retestSeeds: string[] = [
 	"az1bf8jx",
 	"azs7fl83",
 	"azl7tvg1",
+	"azeyjs6u",
+	"azi7ddvo",
+	"az6x4kqd",
 ]
 	.concat(
 		"azvbmzgc,azyjtvt1,azcctxr6,azzf34ym,aznvdjrt,azm3dcjh,azsa26m3,az4xgudb,azoa4pvx,aztwt1pl,az9djq39,azvb5ybk,az585szl,azvli4ur,azph71ar,aziau242,azpww854,azjsxm5v,azl7tvg1,azfqveit,az1zzrj2,azd7jk5a,azj6c1up,az65okq2,az4libd4,azbsmtxq,azyh7712,azls73bu,azsf5jgd,az4of8q6,aztqmsvs,azbs5env,azu54j88,azv4787m,az8ne2i6,azwktbg6,azqq88z5,azkbx1iw,azfc6nxs,azj78q57,azzhrpee,azqw5pps,azycd8zs,azasoghu,aznspxqc,azyxc5bk,azboktvr,azf5kby7,azvd8xtm,azpl915z,azyakmzt,azes1o75,azx8qlvg,azs2hxqa,az8n1vpr,az58uiaj,azur1yt2,azva73y8,az9ft3vh,az2clzih,azyawh6l,az76ghmf,az27m2sh,azb1zlds,azww9lcf,azihy5ga,azjmb1mv,az132naj,azh6ines,azhi8uvx,azhmhlq5,azbizgpp,az2ufcme,azqfejeq,azikbyxu,azegzqgm,azrdzbf4,az4gk3yw,azhzlp6k,azxijv1f,azzovydr,azp9prhm,azf6sl8a,azfwcrpt,azj18dl6,azmtaje8,azlp5wqv,azyw6ewt,az23ycge,az5qimva,azsx48y4,az9ymiwg,az84zvpe,azauircs,azuz58oe,azdjo5pn,azyppcvo,azdmzkwb,az1boaie,az9463ha,az4k42tm,az5ni442,azuoc7k5,azb7kcdn,azggdsgw,azfigivs,az7bfbcc,azv8vd8k,azdtqf6w,az4mk7hy,azp5kkkt,azh8mh67,azosjucy,azz3my45,azbvo2og,az5i97il,azk81k6w,azpl62bm,aznd8kip,azfjb9au,azmnnq6u,azx4ib4o,azyyq3ot,azq8nw78,az71kpnh,az5no6wz,azagaox1,az1uww1i,aztnhvzy,azo57lej,az4glui7,az4oqylz,azz7wrla,azy79osl,azih7gle,az4vtnap,azlxk29h,aze5bsl3,azgewxwj,az6ugwt5,az8hm7hr,azeioefm,azmgv9vx,aztpinbq,azagzl8c,az9n5eow,azb9s1fe,az7bxkrh,aznp28r1,azp2lujt,azi97zzt,az4lq42w,azynfawr,az46byiu,aztkiww5,az2yrgri,az2auj8n,azayql9c,azqkr7hm,azrsq69u,azhm4t2b,azw65frx,azax4o8s,az71zw4b,azw15s13,azdytwql,az422u7n,azlo5stf,azedtvjl,azxsd6fs,azt515uv,az4jwa6n,azbpdnyu,azih63x8,azp5ckm1,azv4hlcu,aziah8ax,az2rqzee,azn9n9ct,azs5py5x,azkg7zsi,azn4cvsg,azu5j282,azt6tqny,azrulfae,azx6mkmj,az29lyla,azuopf6q,azf1v6vo,azuo1le6,azjl78uw,azs1oys4,azxx7zav,azjldxoy,aznrunba,az999xlm,az9pmov6,az5zjxus,azjkjyb6,az31njn7,az8m85if,az4al59b,azrv7x6q,azpwkjto,azq2f6wd,azwl6nps,azdluxnw,azhonfd9,az7dmyha,azictdkf,azt96m9m,azstghbd,az8vm6xo,azdnu7ha,azhv2x15,azvk3bgj,azmecah2,azvkmzd3,azpjnat7,aznsrlbo,azfffc2t,azlje7yr,azc4ofbv,azza944d,azdn31hb,azati6eo,azvz6k8l,azse5c2q,aze612bt,azr5tlm5,azsnnc6o,azwwprar,az11wib6,azovwf7d,azd7vtop,azc1d5fp,azivp8yo,azuehgx1,az7t5v97,azf1venj,azctszz7,azyi6zkv,azwg1yst,azkzqrur,azgvz1ki,azkkhynf,azrsq6uw,azeg97dw,azphgh38,azsp13q9,azwq6oxl,azfdo36m,az7zo89z,az6gxntz,azkicdox,az1peuu7,az1axyqr,az63bgct,azitwh8o,aznv6qef,aznko28p,az8zo67o,azcmirlk,az2uhrtg,azu54uop,azwoj8da,azgwng9s,az7o41c2,azq5kng1,azbrdh3p,az45wqa5,azeolejp,azmmis24,aziezk5z,azigl17u,azft8l7c,az89sioo,azk8fw59,azr9e4jd,azjaw8n8,az6pwr73,azpm6mmj,azpjxw6a,azmg2n3u,azj6mjbq,azyee4zt,az52gjcv,azjxht7j,azqbm6h1,azxh46co,azet6p4v,azqmw7y6,aztaiocs,az2i6fuo,azlwsfh2,az1nb6w6,az8zl7mx,azqxg56w,azlep6r9,azcjvpe2,azqg3b11,az9zduyv,azf6lh6a,aztxds7k,azyks6dg,azmnbp3w,aza3oj7t,az9msjno,azz1qs8p,azmwcumf,azr3f7li,azhgwg6o,azp3kd2f,aztisdug,az26vn25,az8jebyl,azawqd6c,azhvylwa,azialap7,azcq8lpj,az8kks1u,azbfas4e,aznscnk1,az2dssvh,azilc49m,az1y4wrg,azcv3m6l,azbsn6jw,az43zh7u,azto5mll,azr9xhti,az5t5q69,az2hqfn9,azsr8l43,azyxs3d6,azhwqs8m,azf1ahnq,azof6sn7,aznaxjrd,az1z956d,azhi6qyu,azqz4ell,az46ghax,azg2ruix,azw1pfvk,az5uj5fm,aztisui6,azk14x9m,azf3f846,azbqts92,az421yko,az98cfmj,azyirnw1,azziq9wt,azi4v3gg,azu3oo35,azwxjwfd,aztn979p,azedzydk,azoedoca,azrjc8wr,az2pu93a,azxik5ra,azli29qq,az9w9yaf,az3jdny4,az7tcczz,azfm1ymz,aznuycws,az3buxnp,az9zudhx,azjeerus,azavtfdw,azmh9tfh,azywoa2z,azujuoyb,azivrfga,azjhz5os,azb86yqw,azo591ni,azrfdicu,azoy3yx1,azcybmhw,azmzo5tc,azbqgum3,az52qpen,az8gbyjs,azwrp2gi,azebj11l,azyimvs9,azocygys,azdprhwx,azj56xt8,az59756z,azbe91k2,az471oi9,azuoz1mn,azrfvby9,az3ultyx,azi3f54w,azrp6wab,azgeb7er,az268g41,azbo7idd,az68zqco,azau3lmp,azopc8ra,azo5zrwm,azt5hcg8,azblamby,azghenlf,az43mcgf,azltjohf,azc2u5lw,azqwbsdf,azbsti2y,azj12re3,azdirgxy,azbfe5g4,azcen4v9,azood3ly,azte6ayl,az14dwwq,azbpr7c5,azs3tean,azpmi4ry,azyzvoq1,az8bog5p,azgczeoo,azggsux6,azs64ksd,az3dolxa,azc4wc4u,az2lperj,azjzhhk2,azi35mtx,azjttog3,azb28wc8,az1r2v3r,azjpk5q1,az1e149n,azr5zpkm,az9nth8b,aznc8ce8,azotcw2s,aznkzua9,az1kkh9b,azxmteqb,azaeacbb,azvcpp25,azxpdcyu,azprek9h,az6rwcnx,aziogmqs,azgpugyk,azuxmlxh,aze7a6nl,az1ttvzn,azwrixfq,az7iq591,azkkzah6,azhex7qk,azip3z6f,azzg6sex,az7zzn5x,az5ewp2s,azhoigpz,aza9b9by,azo4tubb,azj5i1w2,azytpq52,azfjhff4,azibintf,az3q1sge,azdtqnfo,azfeo45u,azox2dq3,azjrccl5,azxnapwn,azrxpd3m,az45wqa5,azwxyacg,azano1zy,az8ziu36,azzngymz,azh8o1tc,az8qyal1,azkm13hi,azvhdtco,azvf22d7,aziqvllb,az7eaikg,azj8mis2,az9prp8g,az42h4fx,azfhlcyl,aze4iy2l,azn1rtx9,azic8m5j,az9rb7k8,azgld2a7,azq8enhh,az6bku25,azk6nhhr,az2ek979,az2u4wju,az587jw6,azldfdvb,azhqozq7,az8rfl1h,azr9nl8g,az6tr9rv,azi7fduz,azchd92a,az6mo7pi,azg8r89r,azjufv8x,az32qu7e,azcko5dn,az6o5285,azsatrzj,azxqia84,azmk2ok7,azrd9y9e,aztf6jen,azzz8gaw,azz8lghm,az5pmvg3,azct5kzk,azzomj4t,az2okwvf,az655l5e,azxrlk9o,azmogmfo,az74rcj1,azt8d7i8,az1drc9c,az319n7k,azdc2fn6,azvux976,az6nnp7t,azi3mzb1,azbihf1o,azz637oy,azckxzbe,aztmh1oc,az5fgkvl,azxsr7y2,azzip9pu,az5krbzh,azgko1r1,azmf8bze,az8fzr54,azyva1pm,azof9uc7,aztf6jh5,az53a7r2,azwtv8vl,azpgtl4g,azu7sjz9,azljuvke,az5t32i7,az5j1w2e,az48uglw,azor69i1,az62e7v1,az2ssylr,azvb4nmm,azmikwr7,aziucs3k,azqowau5,azhgip2c,azhy2izx,az9cjiqw,az6wcr8c,azgeroof,az1cnwe7,azn4lkxy,azrs94lb,azaiioqn,azq2hsn2,azzqrw71,azx6ktm8,az8zu6ne,azalmero,azec4qnd,azigg6oq,azsi7rjv,az6nffux,az231am4,azxxgex1,azbrvlms,az1q9jmn,az6wbngk,az7iudxz,azzio9x7,azt92zqi,azj8b62j,azpiuk96,azmv8wd1,azb15due,azxqq8vg,az2pbais,azwptq5w,az4dtay2,azy5r3pl,aza5layw,azbdxs21,azyqn21i,azd353zj,azf96xnc,azyupleb,azl1tnuf,az8ap6e5,az4kzc8b,azseiqmj,azwoy84v,az93yt3x,azclxtad,azjxiwt8,azxkbr7d,aznlp2rj,azlvjerh,azcj6ty1,az4n4e4s,azc9eavm,azsckjte,azc4msti,azsvjieq,azy4r1fr,az3bcg9u,azirlht8,azxyai93,az597o8u,az3aqorw,azgnx3vj,az7vpe9y,aza25ewo,azdboyjr,azw3it34,az3sou55,azhguy4k,az6cnwl4,azwu7dv2,azashiew,azuxqtr7,azmb3m6x,azmg4za7,azw9nlj9,azrhou39,az724hdt,azle5ybe,azltxh5k,azftil6e,az5o8ca8,azztyrgs,azzbm9dn,azyrxzi2,azhahtja,azkdulgm,azr7c8km,azewtx92,aze1wk2f,azlsq7be,azp4unep,az6uwsy5,azsqxkjw,aze75igi,aziczcmt,azfcfyin,az7nnkr2,azhtu6ck,azey6xyr,aztgqdu7,azm4fjth,aznnzqir,azap7ns7,az4wkhbl,azqie31z,azzk7fx1,az29vq15,azg41e6o,azuy86ur,azh19jlb,aznc9f8l,azxc8gax,azw2y14e,az1vdqbl,azkkq9fk,az9doi1v,azqnlp9j,azqee2s3,azajna7e,azrf9kfy,aznalj8d,azphsg6z,aziprzwf,azanvlv7,azzocfo8,az9hhzbh,aznkuhai,azfrpkgu,azfsqr3d,azn28vno,az1fr4z4,az2ftou2,az1aiakv,az93ouvi,azrvq43g,azamcjte,azuyprc6,azt2w629,aznlpv3l,az2zlaer,azxyd7ju,az6idp2s,azemj15j,azvacnxk,azrj2wfw,azt1mx2g,az3yetyg,azqh6asb,az8ebef9,aziegc4t,azj26p6o,azymzx9b,azs3mty4,azd3p4vk,azksvzff,az72dl63,azg8t8yt,azuog9cl,aznqbzq7,azxds1px,az1bo6xr,azuqn58x,azprrflv,azlpvoqv,azpsju9v,azs3bhj4,aztstky5,azx5sm5h,azpth3hg,azbtfwh9,azbc3evl,azhx6pxm,az6kq3bz,azcx6cr6,az1xegfe,azjgm6ad,azs87kig,azqm6wcj,azqwua4w,azhscf16,azlepp6i,azlkq3w3,azmc9924,azemt9so,az147jjz,azpn2946,az2larl6,azee9x9t,azzn2zqg,azdt9qra,azdnxt4u,az5eqi9k,az3bwkdj,azor6gbk,azk75gpz,az3d4n1u,azw9nnv9,az7szwxs,aznv2trc,aztb1d9w,azbmdkyd,azxcfcz4,azakefz6,azugb1uk,az3olg94,az3j3c6e,az3d2678,az9l3gp7,azmkgdje,az5zret9,az7doyzu,azm6k8pj,azmwjeuo,azvnuh4g,azrkrdtn,azo7ryd2,azooa8yw,az1j328j,azrhlg8c,azwqm7qf,azn8xrlg,azi4am5k,azhqxc4u,azqzgta5,azg5woz2,az21jn6l,az4ztsme,azfqe788,azsvgfvy,azo4uk1u,aztzekxr,az7xstq8,azqfrowd,azej88vh,azkfwv2f,azabldol,az4azuk9,azkrbblz,az1rbw8e,azeg2k31,azl5qiq4,aza6li8a,azba65do,azq9xrfr,azw5387p,az977fa8,azjauejq,azdewwxk,azdq82hd,azk1t8uv,az6u7n4b,azdhwr2b,azuqdcse".split(
@@ -350,6 +500,27 @@ type QueueType = {
 	reduction: number;
 	req: number;
 }[];
+const spawnConfigs: RerollConfig[][] = [
+	[{ spawnInside: true, blueprintCount: 5 }],
+	[{ spawnInside: false, playerInside: true, blueprintCount: 5 }],
+	[{ spawnInside: false, playerInside: false, blueprintCount: 5 }],
+];
+const soloRerollConfigs: RerollConfig[][] = [
+	[{ spawnInside: true, blueprintCount: 3 }],
+	[{ spawnInside: false, playerInside: false, blueprintCount: 3 }],
+	[{ spawnInside: true, blueprintCount: 4 }],
+	[{ spawnInside: false, playerInside: false, blueprintCount: 4 }],
+	[{ spawnInside: true, blueprintCount: 5 }],
+	[{ spawnInside: false, playerInside: false, blueprintCount: 5 }],
+	[{ spawnInside: true, blueprintCount: 6 }],
+	[{ spawnInside: false, playerInside: false, blueprintCount: 6 }],
+	[{ spawnInside: true, blueprintCount: 7 }],
+	[{ spawnInside: false, playerInside: false, blueprintCount: 7 }],
+];
+const finalRerollConfig: RerollConfig = {
+	spawnInside: true,
+	blueprintCount: 6,
+};
 {
 	// const CUSTOMER_INCREASING_CARDS = [
 	// 	"Burgers",
@@ -402,6 +573,8 @@ type QueueType = {
 	const dataPointsPerCardDay: number[] = cardDays.map(() => 0);
 	let maxRuns = Infinity;
 	const cards = new FindNewUnlocks("");
+	const shop = new Shop("");
+	shop.addCard(autumn);
 	cards.addCard(autumn);
 	const lastDay = Math.min(30, cardDays.at(-1)!);
 	const defaultStartingCards: QueueType = [
@@ -431,7 +604,7 @@ type QueueType = {
 	let bestN = 5;
 	let runCount = 0;
 	let logThresh = 1;
-	while (maxRuns--) {
+	out: while (maxRuns--) {
 		runCount++;
 		if (runCount > logThresh) {
 			logThresh *= 2;
@@ -441,22 +614,60 @@ type QueueType = {
 		let r = new Run(seed);
 		if (r.mapSize < 3) continue; // diners are too small for this many recipes...
 		cards.seed = seed;
+		shop.seed = seed;
 
 		let queue: QueueType = [...defaultStartingCards];
 		// goal is to get all the mains that are unlocked later, plus maximum reductions
 		// fish, pie, stir fry ; breakfast, hot dogs
 		// try all card paths on a seed, really helpful if you find a good card early, you should try both decor instead of randomly doing one and giving up on the seed once you don't find what you want
 		// will the queue balloon too much if I allow anything...?
+		let prevDesks = 0;
+		if (false)
+			for (const day of [6, 7]) {
+				const goalDesks = 2;
+				// I want 2 desks in the rerolls, ideally 1 discount to buy immediately, and 1 discount/copy to research and discount for tomorrow
+				let foundDesks = 0;
+				let spawnDesks = shop
+					.getAppliances(spawnConfigs[0], day)
+					.filter((a) => a.Name !== "Research Desk")
+					.filter((a) => a.Name.includes("Desk")).length;
+				rerolls: for (const conf of spawnConfigs) {
+					let rerollOneDesks = shop
+						.getAppliances([...conf, finalRerollConfig], day)
+						.filter((a) => a.Name !== "Research Desk")
+						.filter((a) => a.Name.includes("Desk")).length;
+					foundDesks = Math.max(
+						spawnDesks + rerollOneDesks + prevDesks,
+						foundDesks
+					);
+					if (foundDesks >= goalDesks) {
+						break rerolls;
+					}
+					for (const r of soloRerollConfigs) {
+						let rerollTwoDesks = shop
+							.getAppliances([...conf, ...r, finalRerollConfig], day)
+							.filter((a) => a.Name.includes("Desk")).length;
+						// foundDesks = Math.max(
+						// 	spawnDesks + rerollOneDesks + rerollTwoDesks,
+						// 	foundDesks + prevDesks
+						// );
+						if (spawnDesks + rerollOneDesks + rerollTwoDesks >= goalDesks) {
+							foundDesks = goalDesks;
+							break rerolls;
+						}
+					}
+				}
+				prevDesks = foundDesks;
+				if (foundDesks < goalDesks) continue out;
+			}
 		for (let i = 0; i < cardDays.length; i++) {
 			const day = cardDays[i];
+
 			const newQueue: QueueType = [];
 			const checked: { [key: string]: number[] } = {};
-			const removeAfterComplete: number[] = [];
-			// console.log(queue.length);
 			while (queue.length) {
 				const conf = queue.pop()!;
 				cards.cards = conf?.cards ?? [];
-
 				const options = cards.getUnlockOptions(day);
 				for (const o of options) {
 					let r = day === 5 || day === 15 ? 0 : 1; // no reduction from theme and franchise cards
@@ -493,7 +704,8 @@ type QueueType = {
 						1 + (newConf.starter ? 0.25 : 0) + (newConf.dessert ? 0.25 : 0);
 					const D = Math.min(30, cardDays[i + 1] ?? 0);
 					// if (day > 18 - 1) {
-					if (true) {
+					if (day >= 9) {
+						// don't care as much about early reductions, since I'll be cooking and it depends a lot on difficult of the dishes-- after day 9-ish I should be using flower pots much more and the number of groups is directly related to how long I spend rerolling
 						for (let d = day; d < D; d++) {
 							if (newConf.req === REQUIRED_CARDS.length && d === 29) continue; // don't need to do OT15 if completed all achievements already
 							const groups = Math.ceil(
@@ -501,7 +713,7 @@ type QueueType = {
 									courseReduction
 							);
 							newConf.excessGroups +=
-								Math.max(0, groups - minGroupsByDay[d]) ** 2;
+								Math.max(0, groups - minGroupsByDay[d]) ** 3;
 						}
 					}
 					if (day < 12) {
@@ -512,7 +724,7 @@ type QueueType = {
 					if (bestN === REQUIRED_CARDS.length) {
 						if (
 							// } &&
-							newConf.excessGroups > Math.max(0, bestMetric + 1) // 8 is the best you can get without Stuffing and Turkey is really hard to get on Autumn so..... let's include those even though it's not technically optimal-- let it go to 10 for a possible soy sauce on day 3
+							newConf.excessGroups > Math.max(0, bestMetric + 2) // 8 is the best you can get without Stuffing and Turkey is really hard to get on Autumn so..... let's include those even though it's not technically optimal-- let it go to 10 for a possible soy sauce on day 3
 						)
 							continue; // even if I get double reductions for the rest of the run I wouldn't be able to catch up
 						if (false) {
@@ -596,7 +808,7 @@ type QueueType = {
 					candMetric,
 					bestMetric,
 				};
-				if (false && queue.length > 1 && queue.length < 5)
+				if (true && queue.length > 1 && queue.length < 5)
 					res.paths = queue.map((a) => a.cards.map((a) => a.Name).join(","));
 				postMessage(res);
 			}

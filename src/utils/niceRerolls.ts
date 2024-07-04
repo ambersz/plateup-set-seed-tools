@@ -63,6 +63,22 @@ const applianceCache: { [name: string]: Appliance } = {};
 function getAppliance(name: string) {
 	if (applianceCache[name] === undefined) {
 		applianceCache[name] = Appliances.filter((a) => a.Name === name)[0];
+		switch (name) {
+			case "Copying Desk":
+				// applianceCache[name].PurchaseCost += 120;
+				break;
+			case "Grabber - Rotating":
+				// applianceCache[name].PurchaseCost *= 3;
+				break;
+			case "Metal Table":
+				// applianceCache[name].PurchaseCost *= 2;
+				break;
+			case "Danger Hob":
+				// applianceCache[name].PurchaseCost *= 2;
+				break;
+			default:
+				break;
+		}
 	}
 	if (applianceCache[name] === undefined)
 		console.error(`Could not find ${name} appliance`);
@@ -102,7 +118,11 @@ function generateComparator(
 					b.goalsPurchased + b.substitutesPurchased >= max)
 			) {
 				// both have reached their goals, fewer over-purchases is better
-				return a.substitutesPurchased - b.substitutesPurchased;
+				return (
+					a.goalsPurchased +
+					a.substitutesPurchased -
+					(b.goalsPurchased + b.substitutesPurchased)
+				);
 			}
 			// if one of them has not reached the goal yet, prefer the one with more substitutes available
 			return b.substitutesPurchased - a.substitutesPurchased;
@@ -112,8 +132,9 @@ function generateComparator(
 }
 
 const SCUMCOST: { [goal: string]: number } = {
-	"Copying Desk": 4,
-	"Metal Table": 4,
+	"Copying Desk": 30,
+	"Metal Table": 30,
+	"Power Sink": 15,
 };
 export function niceRerolls(
 	seed: string,
@@ -128,7 +149,9 @@ export function niceRerolls(
 	report: (log: string) => void = () => {}
 ): number {
 	let currentTierGoalRig: Rig<RigPiece> = {};
-	let usedBlueprintCabs = 0;
+	let usedBlueprintCabs: number[] = [];
+	let savedMetal = false;
+	let savedGrabber = false;
 	const goalRigTiers: Rig<RigPiece>[] = [];
 	const remainingRigTiers: Rig<RigPiece>[] = new Array(rigTiers.length)
 		.fill(0)
@@ -228,7 +251,7 @@ export function niceRerolls(
 	const blueprintCount = turbo ? 7 : 5;
 	const rerollSettings: RerollConfig[] = [
 		{ spawnInside: true, blueprintCount },
-		// { spawnInside: false, playerInside: false, blueprintCount },
+		{ spawnInside: false, playerInside: false, blueprintCount },
 	];
 	if (!solo)
 		rerollSettings.push({
@@ -238,8 +261,8 @@ export function niceRerolls(
 		});
 	const spawnSettings: RerollConfig[] = [
 		{ spawnInside: true, blueprintCount },
-		// { spawnInside: false, playerInside: true, blueprintCount },
-		// { spawnInside: false, playerInside: false, blueprintCount },
+		{ spawnInside: false, playerInside: true, blueprintCount },
+		{ spawnInside: false, playerInside: false, blueprintCount },
 	];
 	function addPartialRigs(
 		beforeRig: Rig<AchievedRig>,
@@ -267,11 +290,14 @@ export function niceRerolls(
 		s: ParetoSet<RerollRoutes>,
 		cacheBPCosts: boolean = false
 	): number {
+		if (day === 5) {
+			if (add.actionHistory.length < 5) return outerMissing;
+		}
 		const excessBPsRequired = add.fodderUsed;
 		const researchRequired =
 			Object.values(add.achieved).some((a) => a.substitutesPurchased) &&
 			!add.achieved["Research Desk"]?.goalsPurchased;
-		for (const before of b) {
+		befores: for (const before of b) {
 			if (researchRequired) {
 				// need to upgrade.
 				if (
@@ -283,10 +309,9 @@ export function niceRerolls(
 				}
 			}
 			let copy = 1 + (before.achieved["Copying Desk"].goalsPurchased ? 1 : 0);
-			const beforeBPCabs =
-				1 + before.achieved["Blueprint Cabinet"].goalsPurchased;
+			const beforeBPCabs = before.achieved["Blueprint Cabinet"].goalsPurchased;
 			let excessBPsReachable = beforeBPCabs;
-			excessBPsReachable -= usedBlueprintCabs; // technically I could copy these and still save the base blueprints
+			excessBPsReachable -= usedBlueprintCabs.length; // technically I could copy these and still save the base blueprints
 			excessBPsReachable -= before.upgradesInProgress; // need to use blueprint cabinet space to upgrade substitutes
 			excessBPsReachable *= copy;
 			if (excessBPsReachable < 0) {
@@ -294,7 +319,9 @@ export function niceRerolls(
 				continue;
 			}
 			// impossible to make this reroll given the resources from the previous day
-			if (excessBPsReachable < excessBPsRequired) continue;
+			if (excessBPsReachable < excessBPsRequired) {
+				continue;
+			}
 
 			let totalRerolls = before.cumulativeRerolls + add.cumulativeRerolls;
 			let totalSpent =
@@ -305,6 +332,14 @@ export function niceRerolls(
 			const achieved = add.actionHistory.length
 				? addPartialRigs(before.achieved, add.achieved, true)
 				: before.achieved;
+			if (day === 3) {
+				if (!achieved["Copying Desk"].goalsPurchased) continue;
+				if (
+					!achieved["Metal Table"].goalsPurchased &&
+					!achieved["Metal Table"].substitutesPurchased
+				)
+					continue;
+			}
 			const missing = calculateMissingRig(
 				currentTierGoalRig,
 				achievedImmediately
@@ -317,15 +352,28 @@ export function niceRerolls(
 			// if (day === 4)
 			let save = 0;
 			let spacesNeededToCopy = 0;
+			let copyAppliances: string[] = [];
 			let deskUses = 0;
 			const excessBlueprintCabs =
-				achieved["Blueprint Cabinet"].goalsPurchased + 1 - usedBlueprintCabs;
+				achieved["Blueprint Cabinet"].goalsPurchased - usedBlueprintCabs.length;
 			const discount =
 				before.achieved["Discount Desk"]?.goalsPurchased ??
 				0 + before.achieved["Discount Desk"]?.substitutesPurchased ??
 				0
 					? 0.5
 					: 1;
+			if (
+				before.achieved["Metal Table"].goalsPurchased +
+				before.achieved["Metal Table"].substitutesPurchased
+			) {
+				if (day < 6) save++;
+			}
+			// if (
+			// 	before.achieved["Grabber - Rotating"].goalsPurchased +
+			// 	before.achieved["Grabber - Rotating"].substitutesPurchased
+			// ) {
+			// 	if (day < 7) save++;
+			// }
 
 			{
 				let spareMoney = money - totalSpent;
@@ -340,6 +388,12 @@ export function niceRerolls(
 						discount;
 					let saveThis = false;
 					if (spareMoney < 0 || addRigConf.substitutesPurchased) {
+						if (addRigConf.goal === "Copying Desk") {
+							if (spacesNeededToCopy) {
+								spacesNeededToCopy = 0;
+								deskUses--;
+							}
+						}
 						saveThis = true;
 						if (spareMoney < 0) {
 							save += addRigConf.goalsPurchased;
@@ -352,32 +406,96 @@ export function niceRerolls(
 							(SCUMCOST[addRigConf.goal] ?? 1);
 					}
 					if (
-						addRigConf.goal === "Metal Table" &&
+						(addRigConf.goal === "Metal Table" ||
+							addRigConf.goal === "Grabber - Rotating" ||
+							addRigConf.goal === "Grabber") &&
 						addRigConf.goalsPurchased + addRigConf.substitutesPurchased &&
-						(achieved["Copying Desk"].goalsPurchased ||
-							before.achieved["Copying Desk"].substitutesPurchased)
+						((achieved["Copying Desk"].goalsPurchased && spareMoney > 60) ||
+							before.achieved["Copying Desk"].goalsPurchased)
 					) {
 						// try to copy
 						if (!saveThis) spacesNeededToCopy++;
 						spacesNeededToCopy++;
+						copyAppliances.push(addRigConf.goal);
 						deskUses++;
 					}
 				}
 				if (save > excessBlueprintCabs) {
 					// need enough bp cabs to store everything I can't afford
-					continue;
+					continue befores;
 				}
 			}
 			totalSpent += add.applianceCosts * discount;
+			let cookingTime = 100;
+			let eatingTime = 80;
+			let washingTime = 30;
+			switch (achieved?.Portioner?.goalsPurchased ?? 0) {
+				case 0:
+					break;
+				case 1:
+					cookingTime /= 2;
+					break;
+				case 2:
+				default:
+					cookingTime /= 4;
+					switch (
+						achieved["Grabber - Rotating"].goalsPurchased +
+						achieved["Grabber"].goalsPurchased +
+						before.achieved["Grabber - Rotating"].substitutesPurchased +
+						before.achieved["Grabber"].substitutesPurchased
+					) {
+						case 0:
+							break;
+						default:
+							cookingTime /= 2;
+					}
+					break;
+			}
+			if (achieved["Danger Hob"]) cookingTime *= 0.75;
+			switch (achieved["Scrubbing Brush"]?.goalsPurchased ?? 0) {
+				case 0:
+					break;
+				case 1:
+				default:
+					washingTime /= 3;
+			}
+			switch (
+				Math.max(
+					(before.achieved["Power Sink"]?.goalsPurchased ?? 0) +
+						(before.achieved["Power Sink"]?.substitutesPurchased ?? 0),
+					achieved["Power Sink"]?.goalsPurchased ?? 0
+				)
+			) {
+				case 0:
+					break;
+				case 1:
+				default:
+					washingTime /= 2;
+			}
+			{
+				let tables = Math.max(
+					(before.achieved["Metal Table"]?.goalsPurchased ?? 0) +
+						(before.achieved["Metal Table"]?.substitutesPurchased ?? 0),
+					achieved["Metal Table"]?.goalsPurchased ?? 0,
+					day === 4 ? 1 : day === 5 ? 2 : day >= 6 ? 4 : 0
+				);
+
+				eatingTime /= Math.min(4, Math.max(day > 5 ? 0.01 : 2, tables));
+			}
+
+			if (day >= 5) {
+				eatingTime /= 2;
+			}
 			const deskTime =
 				before.deskTime +
 				// copies required for this path, copy time depends on previous day's clipboard stand
 				Math.max(0, excessBPsRequired - beforeBPCabs) *
 					5 *
-					(before.achieved["Clipboard Stand"].goalsPurchased ? 0.5 : 1) +
+					(before.achieved["Clipboard Stand"]?.goalsPurchased ? 0.5 : 1) +
 				// researches needed today, can use clipboard I bought today
 				(deskUses * 5 + expectedBookingDesksByDay[add.day]) *
-					(achieved["Clipboard Stand"].goalsPurchased ? 0.5 : 1);
+					(achieved["Clipboard Stand"]?.goalsPurchased ? 0.5 : 1) +
+				Math.max(cookingTime + washingTime, eatingTime);
 			const newRoute: RerollRoutes = {
 				...add,
 				rerollConfigs: [...before.rerollConfigs, add.rerollConfigs],
@@ -389,21 +507,30 @@ export function niceRerolls(
 				applianceCosts: before.applianceCosts + add.applianceCosts,
 				deskTime,
 			};
+
 			if (save > excessBlueprintCabs) continue;
-			if (false && spacesNeededToCopy) {
+			if (true && spacesNeededToCopy) {
 				if (
 					spacesNeededToCopy === 1 ||
 					save + 1 <= excessBlueprintCabs // if it's not already saved, I need to make sure there is one more cabinet available to copy in
 				) {
-					newRoute.upgradesInProgress += spacesNeededToCopy;
-					achieved["Metal Table"].goalsPurchased++;
-					newRoute.actionHistory.push("Copy Metal Table");
-					newRoute.applianceCosts += 30;
+					for (const app of copyAppliances) {
+						newRoute.upgradesInProgress += spacesNeededToCopy;
+						achieved[app].goalsPurchased++;
+						newRoute.actionHistory.push(`copy ${app}`);
+						newRoute.applianceCosts += 30;
+					}
 				}
 			}
 			// it looks like a  full build
 			// if we don't have enough money to buy everything yet it doesn't count-- only if the next day is a deco day
 			if (newRoute.money >= 0 && !newRoute.upgradesInProgress) {
+				if (missing < outerMissing) {
+					outerMissing = missing;
+					console.log(
+						`best so far missing ${missing} pieces ` + summary(newRoute, money)
+					);
+				}
 				if (missing <= 0 && !newRoute.upgradesInProgress) {
 					if (finalRoutes.add(newRoute)) {
 						reportTier();
@@ -413,12 +540,6 @@ export function niceRerolls(
 					// 	`full build on ${seed} by day ${add.day}: ` + summary(newRoute)
 					// );
 				} else if (outerMissing <= 0) continue;
-				if (missing < outerMissing) {
-					outerMissing = missing;
-					console.log(
-						`best so far missing ${missing} pieces ` + summary(newRoute, money)
-					);
-				}
 			}
 			if (excessBPsReachable > trackMaxExcessBPs) {
 				trackMaxExcessBPs = excessBPsReachable;
@@ -440,11 +561,16 @@ export function niceRerolls(
 		}
 		return outerMissing;
 	}
+	const initialMissingRig = { ...missingRig };
+	initialMissingRig["Blueprint Cabinet"] = {
+		...initialMissingRig["Blueprint Cabinet"],
+		goalsPurchased: 1,
+	};
 	const cumulativeParetoRoutes: ParetoSet<RerollRoutes> =
 		new ParetoSet<RerollRoutes>(
 			[
 				{
-					achieved: { ...missingRig },
+					achieved: initialMissingRig,
 					actionHistory: [],
 					applianceCosts: 0,
 					cumulativeRerolls: 0,
@@ -466,10 +592,10 @@ export function niceRerolls(
 
 	let outerMissing = Infinity;
 	let day = 0;
-	let money = turbo ? 30 : 0;
+	let money = 0;
 	const shop = new Shop(seed);
 	const buyOnSight: string[] = [
-		"Research Desk",
+		// "Research Desk",
 		"Plates",
 		// '"Specials" Menu',
 	];
@@ -486,9 +612,12 @@ export function niceRerolls(
 	}
 	function attemptPurchases(
 		beforePurchaseState: RerollRoute,
-		spawns: Appliance[]
+		spawns: Appliance[],
+		processResult: (r: RerollRoute) => void
 	): RerollRoute[] {
-		let res: RerollRoute[] = [{ ...beforePurchaseState }];
+		let noFodderPurchased: RerollRoute[] = [{ ...beforePurchaseState }];
+		let hasFodderButNoMore: RerollRoute[] = [];
+		let canPurchaseFodder: RerollRoute[] = [];
 		const cumulativePurchaseState: Rig<AchievedRig> = JSON.parse(
 			JSON.stringify(beforePurchaseState.achieved)
 		);
@@ -509,25 +638,34 @@ export function niceRerolls(
 			}
 
 			if (
-				potentialPurchaseState.goalsPurchased >=
-				remainingRigTiers[0][goalName].number
-			)
-				continue;
-			if (goalName === "Table - Fancy Cloth") isSubstitute = false;
-			if (
 				isSubstitute &&
 				potentialPurchaseState.goalsPurchased +
 					potentialPurchaseState.substitutesPurchased >=
 					remainingRigTiers[0][goalName].number
-			)
+			) {
+				// already have enough, would only want to purchase this as fodder
+				// potentialPurchaseState = cumulativePurchaseState["Starter Bin"];
+				// goalName = "Starter Bin";
 				continue;
+			}
+			if (
+				potentialPurchaseState.goalsPurchased >=
+				remainingRigTiers[0][goalName].number
+			) {
+				// already have enough, would only want to purchase this as fodder
+				// potentialPurchaseState = cumulativePurchaseState["Starter Bin"];
+				// goalName = "Starter Bin";
+				// isSubstitute = true;
+				continue;
+			}
+			if (goalName === "Table - Fancy Cloth") isSubstitute = false;
 			if (isSubstitute) {
 				potentialPurchaseState.substitutesPurchased++;
 			} else {
 				potentialPurchaseState.goalsPurchased++;
 			}
 			{
-				const afterPurchase = res.map((r) => {
+				const purchaseHandler = (r: RerollRoute) => {
 					const copy = { ...r };
 					copy.achieved = { ...copy.achieved };
 					copy.numFloor--;
@@ -542,7 +680,11 @@ export function niceRerolls(
 					const PurchaseCost =
 						goalName === "Starter Bin" || goalName === "Table - Fancy Cloth"
 							? getAppliance(cand.Name).PurchaseCost
-							: getAppliance(goalName).PurchaseCost;
+							: Math.max(
+									// sometimes the substitute isn't actually an upgrade, just something I can use for the same purpose, so I can't just use the cheaper price
+									getAppliance(cand.Name).PurchaseCost,
+									getAppliance(goalName).PurchaseCost
+							  );
 					copy.applianceCosts += PurchaseCost * (turbo ? 0.5 : 1);
 					if (isSubstitute) {
 					}
@@ -556,24 +698,37 @@ export function niceRerolls(
 						copy.achieved[goalName].substitutesPurchased--;
 					}
 					return copy;
-				});
-				if (
-					true ||
-					Math.random() <
-						(goalName === "Starter Bin" ? 1 : 1 / Math.sqrt(res.length))
-				) {
-					res = res.concat(afterPurchase);
+				};
+				if (goalName !== "Starter Bin") {
+					const afterPurchase = noFodderPurchased.map(purchaseHandler);
+					const morePurchasesAfterRerolls =
+						hasFodderButNoMore.map(purchaseHandler);
+					const morePurchasesOrMoreFodderAllowed =
+						canPurchaseFodder.map(purchaseHandler);
+
+					noFodderPurchased = afterPurchase.concat(noFodderPurchased);
+					hasFodderButNoMore =
+						morePurchasesAfterRerolls.concat(hasFodderButNoMore);
+					canPurchaseFodder =
+						morePurchasesOrMoreFodderAllowed.concat(canPurchaseFodder);
+					afterPurchase.forEach(processResult);
 				} else {
-					res = afterPurchase;
+					// purchasing fodder
+					hasFodderButNoMore = hasFodderButNoMore.concat(canPurchaseFodder);
+					canPurchaseFodder = (
+						!canPurchaseFodder.length ? noFodderPurchased : canPurchaseFodder
+					).map(purchaseHandler);
 				}
 			}
 		}
-		return res;
+		return noFodderPurchased
+			.concat(hasFodderButNoMore)
+			.concat(canPurchaseFodder);
 	}
 	// Inside: will track all the reasonable paths I could take for that day only
 	// Outside: wouldn't bother trying to extend previous days' states if it's not even better than previous days' individual rerolls
 	while (outerMissing) {
-		const prevDayCumulativeRoutes = cumulativeParetoRoutes.array;
+		let prevDayCumulativeRoutes = cumulativeParetoRoutes.array;
 		cumulativeParetoRoutes.clear();
 		const pareto = new ParetoSet<RerollRoute>(
 			[],
@@ -586,13 +741,62 @@ export function niceRerolls(
 		// money = expectedMoneyByDay[day];
 		money += expectedMoneyByDay[day];
 		day++;
+		// if (
+		// 	!savedMetal &&
+		// 	prevDayCumulativeRoutes.every(
+		// 		(a) =>
+		// 			a.achieved["Metal Table"].goalsPurchased +
+		// 			a.achieved["Metal Table"].substitutesPurchased
+		// 	)
+		// ) {
+		// 	savedMetal = true;
+		// 	usedBlueprintCabs.push(3);
+		// }
+
+		// if (day === 4) usedBlueprintCabs.push(3);
+		// if (day === 5) usedBlueprintCabs.push(3);
 		if (day > 14) break;
 		if (day > 1 && prevDayCumulativeRoutes.length === 0) {
 			debugger;
 			break;
 		}
+		if (prevDayCumulativeRoutes.length > 100) {
+			// cut to the fastest half routes every day?
+			prevDayCumulativeRoutes.sort((a, b) => a.deskTime - b.deskTime);
+			const n = Math.ceil((prevDayCumulativeRoutes.length - 100) / 2 + 100);
+			// const n = 50;
+			if (n < prevDayCumulativeRoutes.length) {
+				console.log(
+					`Reducing from ${prevDayCumulativeRoutes.length} to top ${n} routes on day ${day}`
+				);
+			}
+			prevDayCumulativeRoutes = prevDayCumulativeRoutes.slice(0, n + 1);
+		}
+		if (
+			prevDayCumulativeRoutes.every(
+				(r) => r.achieved["Copying Desk"].goalsPurchased
+			)
+		) {
+			usedBlueprintCabs = usedBlueprintCabs.map((a) => {
+				money -= 60 / 2;
+				return a - 1;
+			});
+			usedBlueprintCabs = usedBlueprintCabs.filter((a) => a > 0);
+		}
+		// if (
+		// 	!savedGrabber &&
+		// 	prevDayCumulativeRoutes.every(
+		// 		(a) =>
+		// 			a.achieved["Grabber"].goalsPurchased +
+		// 			a.achieved["Grabber"].substitutesPurchased
+		// 	)
+		// ) {
+		// 	savedGrabber = true;
+		// 	usedBlueprintCabs.push(3);
+		// }
 		let maxRerolls = 5;
 		// day < 7 ? 2 : Math.max(3, 1 + Math.sqrt(Math.max(0, money - 470)));
+		// let maxTimePerReroll = Infinity;
 		let maxTimePerReroll = 0.5 * 60 * 1000; // 30 seconds
 		const justKeepRollingAfter = Math.min(maxRerolls - 1, Infinity);
 		if (money >= gearMoney) {
@@ -609,7 +813,10 @@ export function niceRerolls(
 		// let queue: RerollRoute[] = [
 
 		// ];
-		const nextCard = cardPath.shift();
+		let nextCard = undefined;
+		if (turbo || day === 5 || !(day % 3)) {
+			nextCard = cardPath.shift();
+		}
 		const c = Unlocks.filter((a) => a.Name === nextCard)[0];
 		shop.handleNewCardSpawnEffects(c);
 		const spawns = shop.getAppliances(
@@ -625,7 +832,18 @@ export function niceRerolls(
 					const app = spawns[j];
 					if (app.Name === buyOnSight[i]) {
 						console.log(`buying ${app.Name} on day ${day}`);
-						if (money < app.PurchaseCost * (turbo ? 0.5 : 1)) {
+						const spare =
+							money -
+							prevDayCumulativeRoutes.reduce(
+								(sp, r) =>
+									Math.min(
+										sp,
+										r.applianceCosts +
+											(10 / 2) * (r.cumulativeRerolls + 1) * r.cumulativeRerolls
+									),
+								Infinity
+							);
+						if (spare < app.PurchaseCost * (turbo ? 0.5 : 1)) {
 							console.log(`not enough money-- skip for now`);
 							continue;
 						}
@@ -680,6 +898,17 @@ export function niceRerolls(
 			true
 		);
 		let breakAfter: number = Infinity;
+		const minSpentMoneyByExtraBlueprints: number[] = extraBPCosts.map((p) => {
+			return p.array.reduce(
+				(min, [rerolls, spentMoney]) =>
+					Math.min(
+						min,
+						spentMoney +
+							paretoQueue.array[0].rerollConfigs.length * (rerolls + 1) * 10
+					),
+				Infinity
+			);
+		});
 		rerollLoop: while (maxRerolls--) {
 			if (
 				delayBuy.length &&
@@ -701,17 +930,6 @@ export function niceRerolls(
 			if (paretoQueue.array[0] === undefined) {
 				break;
 			}
-			const minSpentMoneyByExtraBlueprints: number[] = extraBPCosts.map((p) => {
-				return p.array.reduce(
-					(min, [rerolls, spentMoney]) =>
-						Math.min(
-							min,
-							spentMoney +
-								paretoQueue.array[0].rerollConfigs.length * (rerolls + 1) * 10
-						),
-					Infinity
-				);
-			});
 			console.log(
 				`Seed ${seed} Day ${day} Reroll ${paretoQueue.array[0].rerollConfigs.length} expanding ${paretoQueue.array.length} states`
 			);
@@ -732,7 +950,7 @@ export function niceRerolls(
 				}
 			}
 			paretoQueue.clear();
-			ShuffleInPlace(oldParetoQueue);
+			// ShuffleInPlace(oldParetoQueue);
 			// oldParetoQueue.sort(
 			// 	(a, b) =>
 			// 		-(
@@ -752,11 +970,18 @@ export function niceRerolls(
 					// 		b.applianceCosts - a.applianceCosts ||
 					// 		Math.random() - 0.5
 					// );
-					ShuffleInPlace(paretoQueue.array);
+					// ShuffleInPlace(paretoQueue.array);
+					const order = -1; // 1 for fewest buys first, -1 for most purchases first
+					const comp = (c: number, a: AchievedRig): number =>
+						(a.goal === "Blueprint Cabinet" || a.goal === "Copying Desk"
+							? 0
+							: a.goalsPurchased) + c;
 					paretoQueue.array.sort(
-						(a, b) =>
-							-a.achieved["Research Desk"].goalsPurchased +
-							b.achieved["Research Desk"].goalsPurchased
+						(a, b) => order * (a.applianceCosts - b.applianceCosts)
+						// order * (a.achieved["Blueprint Cabinet"].goalsPurchased - b.achieved["Blueprint Cabinet"].goalsPurchased)
+						// order *
+						// (Object.values(a.achieved).reduce(comp, 0) -
+						// Object.values(b.achieved).reduce(comp, 0))
 					);
 					continue rerollLoop;
 				}
@@ -817,6 +1042,7 @@ export function niceRerolls(
 					],
 					route.day
 				); // get appliances with max number to force cache with max bp count
+				let spawnBaseProcessed = false;
 				for (const conf of confs) {
 					// let res: RerollRoute[] = [];
 					const processResult = (r: RerollRoute) => {
@@ -828,6 +1054,7 @@ export function niceRerolls(
 							combineRoutes(prevDayCumulativeRoutes, r, cumulativeParetoRoutes);
 						}
 					};
+
 					// default just keep rerolling, but if I take anything out, prefer to start from most extreme, and work my way down only if I have the time
 					const counts = [minBPCount];
 					for (let count = maxBPCount; count > minBPCount; count--) {
@@ -842,50 +1069,57 @@ export function niceRerolls(
 							},
 						];
 
-						const apps =
+						const origApps =
 							rerollConfigs.length === 1
 								? spawns // has the buyOnSight stuff removed so I don't buy it twice
 								: shop.getAppliances(rerollConfigs, route.day);
+						const apps = [...origApps].sort(
+							(a, b) => a.PurchaseCost - b.PurchaseCost
+						);
 
 						const fodderExtracted = count - route.numFloor;
 						if (fodderExtracted > route.fodderAvailable) {
 							debugger;
 						}
-						const purchaseResults = attemptPurchases(
-							{
-								...route,
-								fodderPurchases: [route.fodderPurchases[1], 0],
-								money: route.money - route.rerollConfigs.length * 10,
-								rerollConfigs,
-								numFloor:
-									rerollConfigs.length === 1 ? count - delayBuy.length : count,
-								fodderAvailable: route.fodderAvailable - fodderExtracted,
-								fodderUsed: route.fodderUsed + fodderExtracted,
-								cumulativeRerolls: route.rerollConfigs.length
-									? route.cumulativeRerolls + 1
-									: 0,
-								actionHistory: !route.rerollConfigs.length
-									? [
-											`day ${route.day} spawn`,
-											`spawn ${
-												conf.spawnInside ? "I" : conf.playerInside ? "OI" : "OO"
-											}`,
-											...globalBoughtMessage,
-									  ]
-									: [
-											...route.actionHistory,
-											`${
-												fodderExtracted ? `take ${fodderExtracted} out, ` : ""
-											}reroll ${
-												conf.spawnInside ? "I" : conf.playerInside ? "OI" : "OO"
-											}`,
-									  ],
-							},
-							apps
-						);
-						for (const r of purchaseResults) {
-							processResult(r);
+						const beforePurchaseState: RerollRoute = {
+							...route,
+							fodderPurchases: [route.fodderPurchases[1], 0],
+							money: route.money - route.rerollConfigs.length * 10,
+							rerollConfigs,
+							numFloor:
+								rerollConfigs.length === 1 ? count - delayBuy.length : count,
+							fodderAvailable: route.fodderAvailable - fodderExtracted,
+							fodderUsed: route.fodderUsed + fodderExtracted,
+							cumulativeRerolls: route.rerollConfigs.length
+								? route.cumulativeRerolls + 1
+								: 0,
+							actionHistory: !route.rerollConfigs.length
+								? [
+										`day ${route.day} spawn`,
+										`spawn ${
+											conf.spawnInside ? "I" : conf.playerInside ? "OI" : "OO"
+										}`,
+										...globalBoughtMessage,
+								  ]
+								: [
+										...route.actionHistory,
+										`${
+											fodderExtracted ? `take ${fodderExtracted} out, ` : ""
+										}reroll ${
+											conf.spawnInside ? "I" : conf.playerInside ? "OI" : "OO"
+										}`,
+								  ],
+						};
+						if (
+							beforePurchaseState.actionHistory.join(", ") ===
+							"day 4 spawn, spawn OI, buy Hob for Danger Hob, buy Blueprint Cabinet, take 2 out, reroll I"
+						) {
+							console.log(origApps.map((a) => a.Name).join(", "));
+							debugger;
 						}
+						processResult(beforePurchaseState);
+						attemptPurchases(beforePurchaseState, apps, processResult);
+
 						if (Date.now() > breakAfter) {
 							break;
 						}
@@ -898,13 +1132,29 @@ export function niceRerolls(
 		// console.log(pareto.array.map((r) => summary(r)).join("\n"));
 		if (outerMissing <= 0) {
 			if (!goalRigTiers.length) {
+				finalRoutes.array.sort((a, b) => a.deskTime - b.deskTime);
 				report(
 					(outerMissing <= 0 ? `full build on ${seed} by day ${day}: \n` : "") +
 						finalRoutes.array.map((r) => summary(r, money)).join("\n")
 				);
 				break;
 			}
-			usedBlueprintCabs = currentTierGoalRig["Blueprint Cabinet"]?.number ?? 0;
+			// console.log({
+			// 	remain: goalRigTiers.length,
+			// 	usedBlueprintCabs,
+			// 	next: goalRigTiers.map((a) => a["Blueprint Cabinet"]),
+			// });
+			// debugger;
+			{
+				const reserveBlueprintCabs =
+					(goalRigTiers[0]["Blueprint Cabinet"]?.number ?? 0) -
+					(currentTierGoalRig["Blueprint Cabinet"]?.number ?? 0);
+				if (reserveBlueprintCabs + usedBlueprintCabs.length > 2) debugger;
+				for (let i = 0; i < reserveBlueprintCabs; i++) {
+					usedBlueprintCabs.push(1);
+				}
+			}
+
 			for (const app of Object.values(currentTierGoalRig)) {
 				if (app.number) shop.OwnedAppliances.push(getAppliance(app.goal));
 			}
@@ -934,7 +1184,10 @@ export function niceRerolls(
 			`tier ${
 				rigTiers.length - goalRigTiers.length - (!final ? 0 : 1)
 			} build on ${seed} by day ${day}${!final ? " (Partial)" : ""}: \n` +
-				finalRoutes.array.map((r) => summary(r, money)).join("\n")
+				finalRoutes.array
+					.slice(0, 100)
+					.map((r) => summary(r, money))
+					.join("\n")
 		);
 	}
 	// return { cumulativeParetoRoutes };

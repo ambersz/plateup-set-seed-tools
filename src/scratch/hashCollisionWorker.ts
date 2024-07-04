@@ -1,5 +1,5 @@
 import { hash } from "../workers/reverse-engineered/prng";
-let prevChars = "qwertyuiopasdfghjklxcvbnm123456789"; //qeryuiopasdfghjklxcvbnm123456789 has collision rate of 0.126953125; qeryuiopadfghjklxcvbnm123456789 has collision rate of 0.09989594172736732
+let prevChars = "abcdefghijklmnopqrstuvwxyz123456789"; //qeryuiopasdfghjklxcvbnm123456789 has collision rate of 0.126953125; qeryuiopadfghjklxcvbnm123456789 has collision rate of 0.09989594172736732
 // let prevChars = "QWERTYUIOPASDFGHJKLZXCVBNMqwertyuiopasdfghjklxcvbnm123456789"; // 168BDFHKNPSVZabdfhjkmnpruvy; QUPASDFHJKZXVBNMryupasdfhjkxvbnm125689 has collision rate of 0.1149584487534626
 // let prevChars = "bdghjmqrtvwxy346789";
 // let prevChars = "bdghjmqrtwx34789";
@@ -7,7 +7,51 @@ let prevChars = "qwertyuiopasdfghjklxcvbnm123456789"; //qeryuiopasdfghjklxcvbnm1
 // let prevChars = "abcdefghijklmnopqruvyz12569";
 // let prevChars = "12569abcdefghijklmnopqruvyz";
 let collisionRate = Infinity;
-while (true) {
+
+// check which specific combination of char building blocks conflict
+console.log("hi");
+let dupes: string[] = [];
+let check = new Set<string>();
+for (let length = 2; length <= 5; length++) {
+	const hashed = new Set<number>();
+	const innerDupes = [];
+	let queue = new Array(length).fill(0);
+	queue[length - 1]--;
+	seedLoop: while (true) {
+		queue[length - 1]++;
+		let i = length;
+		while (i--) {
+			if (queue[i] >= prevChars.length) {
+				if (i === 0) break seedLoop;
+				queue[i] = 0;
+				queue[i - 1]++;
+			} else {
+				break;
+			}
+		}
+		const seed = queue.map((i) => prevChars[i]).join("");
+		for (let i = 0; i < seed.length - 1; i++) {
+			for (let j = i + 2; j <= seed.length; j++) {
+				const truncate = seed.slice(i, j);
+				if (check.has(truncate)) {
+					continue seedLoop;
+				}
+			}
+		}
+		const seedHash = hash(seed);
+		if (hashed.has(seedHash)) {
+			innerDupes.push(seed);
+			check.add(seed);
+		} else {
+			hashed.add(seedHash);
+		}
+	}
+	dupes = dupes.concat(innerDupes);
+	console.log({ innerDupes, dupes });
+}
+console.log(JSON.stringify(dupes));
+// remove chars until no collisions
+while (false) {
 	// while (collisionRate > 0.15) {
 	let minCollisionRate = collisionRate;
 	let bestChars = prevChars;

@@ -38,7 +38,10 @@ const defaultFinalTier: RigPiece[] = [
 ];
 worker.onmessage = (e: MessageEvent<AutoRigWorkerInput>) => {
 	let { config, tiers, playerCount } = e.data;
-	tiers = tiers.filter((a) => a.length);
+	// tiers = tiers.filter((a) => a.length);
+	while (!tiers.at(-1)!.length) {
+		tiers.pop();
+	}
 	const copyDefaultFinalTier = [...defaultFinalTier];
 	const nonTrash = tiers.flatMap((tier) =>
 		tier.flatMap((goal) => [goal.goal, ...goal.substitutes])
@@ -61,6 +64,10 @@ worker.onmessage = (e: MessageEvent<AutoRigWorkerInput>) => {
 		expectedBookingDesksByDay,
 	}: { expectedMoneyByDay: number[]; expectedBookingDesksByDay: number[] } =
 		getRunMoneyInfo(config, numStarting, startingCards, playerCount);
+	// expectedMoneyByDay[5] -= 30 * 2;
+	// expectedMoneyByDay[6] -= 30;
+	// expectedMoneyByDay[7] -= 30 * 2;
+	// expectedMoneyByDay[8] -= 30;
 
 	niceRerolls(
 		config.seed,

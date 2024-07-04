@@ -3,7 +3,7 @@ import { useMultipleSelection, useCombobox } from "downshift/preact"; // if this
 import Appliances, { Appliance } from "./workers/db/appliances";
 type Appliances = Appliance[];
 const Options = [...Appliances].filter(
-	(a) => a.IsPurchasable || a.IsPurchasableAsUpgrade
+	(a) => a.IsPurchasable || a.IsPurchasableAsUpgrade || a.Name === "Teleporter"
 );
 console.log({
 	options: Options.length,

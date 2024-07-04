@@ -237,6 +237,18 @@ const SeedSearcher = () => {
 				Day N, and Ice Cream is before Herd Mentality in the card list for Day
 				N, the searcher will <i>always</i> choose Ice Cream.)
 			</div>
+			{import.meta.env.DEV && (
+				<div style={{ maxWidth: "50vw" }}>
+					Exhaustive search will go through seeds one-by-one instead of
+					randomly. I do not recommend this mode. It is slower and will give you
+					duplicate seeds (i.e. seeds with different characters but that have
+					the same internal seed number). If you have such restrictive card
+					requirements that it's a question if a seed that fits those
+					requirements even exists across the entire seed space, you won't have
+					much wiggle room to deal with other aspects of the seed (layout, group
+					sizes, blueprints, etc.)
+				</div>
+			)}
 			<div class="search-container">
 				<div class="search-config">
 					<div style="min-width:fit-content;">

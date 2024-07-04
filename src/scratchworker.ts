@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { getCardPaths } from "./getCardPaths";
+import { getCardPaths } from "./utils/getCardPaths";
 import { DishType } from "./kitchenEnums";
 import { Unlock } from "./kitchenTypes";
 import Appliances from "./workers/db/appliances";

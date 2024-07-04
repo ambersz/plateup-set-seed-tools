@@ -1,35 +1,58 @@
 // @ts-nocheck
-import { render, FunctionComponent, VNode } from "preact";
-import { useEffect, useState } from "preact/compat";
-import "./index.css";
-import { hash } from "./workers/reverse-engineered/prng";
+import { useEffect } from "preact/compat";
 import { usePersistentState } from "./hooks/usePersistentState";
 import { Run } from "./workers/reverse-engineered/run";
 import { randomAZSeed } from "./utils/utils";
-import { Shop } from "./workers/reverse-engineered/shop";
 import { FindNewUnlocks } from "./workers/reverse-engineered/cards";
 import { Unlocks } from "./workers/db/unlocks";
 import { sowpods } from "./sowpods";
+function indexOf(cards: string[], target: string) {
+	const i = cards.indexOf(target);
+	if (i === -1) return (cards.length + 1) * 2;
+	return i;
+}
 let w: Worker | undefined = undefined;
+let first = true;
 type FlowerInfo = number[][];
 let flowerCache: { [key: string]: [number, FlowerInfo] } = {};
 const defaultFlowerDays = [1, 2, 3, 4, 6, 7, 8, 9, 11, 12, 13, 14];
+function sortMetric(a: any) {
+	const cards = a.b.split(",");
+	return (
+		indexOf(cards, "Double Helpings") +
+		cards.indexOf("Ice Cream") * 3 +
+		cards.indexOf("Instant Service") * 2 -
+		cards.indexOf("Pumpkin Pies") -
+		indexOf(cards, "Leisurely Eating") * 2
+	);
+}
 const Scratch = () => {
 	const [result, setResult] = usePersistentState<any[]>([], "SCRATCH_RESULTS");
 	useEffect(() => {
 		if (true) {
-			return;
 			if (w === undefined) {
 				w = new Worker(
 					// new URL("./workers/seedSearchWorker.ts", import.meta.url),
-					new URL("./scratchworker2.ts", import.meta.url),
+					// new URL("./scratchworker2.ts", import.meta.url),
+					new URL("./scratch/scratchworker-turbo-turkey.ts", import.meta.url),
+					// new URL("./scratch/nice-worker.ts", import.meta.url),
+					// new URL("./scratch/hashCollisionWorker.ts", import.meta.url),
+
 					{
 						type: "module",
 					}
 				);
 			}
 			w.onmessage = (res: { data: any }) => {
-				setResult((a) => [...a, res.data]);
+				setResult((a) =>
+					[...a, res.data].sort((a, b) => sortMetric(a) - sortMetric(b))
+				);
+				if (first) {
+					first = false;
+					const mess = JSON.parse(localStorage.SCRATCH_RESULTS);
+					console.log({ m: "sending message", mess });
+					w.postMessage(mess);
+				}
 			};
 		} else {
 			setResult(
@@ -45,7 +68,6 @@ const Scratch = () => {
 	}, []);
 	return <>{JSON.stringify(result, null, 2)}</>;
 };
-render(<Scratch />, document.getElementById("app")!);
 function blackFlower(
 	researchForFreezer: boolean,
 	cookTimePerDish: number,
@@ -787,4 +809,6 @@ function wordNumberSeeds() {
 	}
 }
 
-wordNumberSeeds();
+// wordNumberSeeds();
+
+export default Scratch;

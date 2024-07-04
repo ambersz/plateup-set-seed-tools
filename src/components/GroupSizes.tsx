@@ -89,7 +89,7 @@ const GroupSizes = () => {
 					setPlayerCount(Number(target.value));
 				}}
 			/>
-			<SeedConfigForm onConfigChange={setConfig} config={config} />
+			<SeedConfigForm onConfigChange={setConfig} config={config} mode="cards" />
 			<div>Total Customers: {totalCustomerCount}</div>
 			<table>
 				<thead>

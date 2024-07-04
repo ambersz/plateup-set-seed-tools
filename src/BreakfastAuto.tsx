@@ -98,7 +98,11 @@ const BreakfastAuto = () => {
 				// ...info,
 				// totalBurnTime: info.cookTime + info.burnTime + info.conveyTime,
 				totalCookTime: info.cookTime + info.conveyTime,
-				timeTilBackup: (info.cookTime + info.conveyTime) * 6 + info.burnTime,
+				timeTilBackup:
+					Math.max(2, info.cookTime + info.conveyTime) * 5 +
+					info.cookTime +
+					info.conveyTime +
+					info.burnTime,
 				description: info.description,
 				// grabberTooSlow: info.cookTime + info.burnTime + info.conveyTime < 2,
 			};
@@ -116,7 +120,7 @@ const BreakfastAuto = () => {
 	while (i < sorted.length) {
 		if (bestCookTime <= sorted[i].totalCookTime) {
 			if (
-				sorted[i].description.join(",") !== "grabber auto,Danger Hob" &&
+				sorted[i].description.join(",") !== "grabber auto,Upgrade,Danger Hob" &&
 				sorted[i].description.length >= bestDescriptionLength
 			) {
 				sorted.splice(i, 1);

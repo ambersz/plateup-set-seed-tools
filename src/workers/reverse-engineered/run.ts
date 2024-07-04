@@ -110,7 +110,7 @@ export class Run {
 						.length)
 		);
 	}
-	getGroupCount(day: number): number {
+	getNonRushGroupCount(day: number): number {
 		const custs = this.getExpectedCustomers(day);
 		const closingTimeAdjust =
 			this.getCardsByDay(day).filter((a) => a.Name === "Closing Time?").length *
@@ -124,7 +124,7 @@ export class Run {
 	}
 	getGroupSizes(day: number): number[] {
 		const random = RestaurantSystemSeed(1997821, day, this.seed).random;
-		const gc = this.getGroupCount(day);
+		const gc = this.getNonRushGroupCount(day);
 		const herd = this.getCardsByDay(day).some(
 			(a) => a.Name === "Herd Mentality"
 		);

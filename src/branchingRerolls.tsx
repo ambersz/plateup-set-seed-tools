@@ -324,7 +324,11 @@ const BranchingRerollPage = () => {
 					(Rerolls are inaccurate if you bought a blueprint desk)
 				</span>
 			</div>
-			<SeedConfigForm onConfigChange={setConfig} config={config} />
+			<SeedConfigForm
+				onConfigChange={setConfig}
+				config={config}
+				mode="rerolls"
+			/>
 			<BranchingRerolls {...config} blueprintCabinets={1} />
 			{false && (
 				<div style={{ maxWidth: "50vw" }}>
