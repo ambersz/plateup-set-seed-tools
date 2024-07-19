@@ -3,8 +3,7 @@ import { LayoutProfileName, Run } from "./reverse-engineered/run";
 import { RerollConfig, Shop } from "./reverse-engineered/shop";
 import type { Unlock } from "../kitchenTypes";
 import Appliances, { Appliance } from "./db/appliances";
-import { hash } from "./reverse-engineered/prng";
-import { chars } from "../utils/utils";
+import { ShuffleInPlace, chars, hashCollisionPairMap } from "../utils/utils";
 import { DishType, UnlockGroup } from "../kitchenEnums";
 const CUSTOMER_INCREASING_CARDS = [
 	"Burgers",
@@ -19,31 +18,12 @@ let numSeeds = 0;
 
 // @ts-ignore
 var worker = self as Worker;
-let seedHashes: (number | undefined)[] = [];
-let size = 0;
-const checkHash = false;
-// 2771254 distinct seeds checked in 2 minutes over 2782919 tries.
-const minutes = 60;
-function checkAndSaveHash(h: number): boolean {
-	const uintHash = h >>> 0;
-	const bucket = Math.floor(uintHash / 32);
-	const shift = uintHash % 32;
-	const a = seedHashes[bucket];
-	let has = a && (a & (1 << shift)) !== 0;
-	if (!has) size++;
-	const save = (a ?? 0) | (1 << shift);
-	seedHashes[bucket] = save;
-	return !!has;
-}
-
 let searching: boolean = false;
 let nextProgressUpdate = new Date().valueOf();
 worker.onmessage = function (e: MessageEvent<MessageFormat>) {
 	console.log("Worker: Message received from main script");
 	if (e.data.type === "start") {
 		searching = true;
-		seedHashes = [];
-		size = 0;
 		search(e.data.data as SearchParams);
 		// setTimeout(() => (searching = false), 1000 * 60 * minutes);
 	} else {
@@ -63,7 +43,7 @@ export type ResultFormat =
 	  }
 	| {
 			type: "progress";
-			data: number;
+			data: number | string;
 	  };
 export interface ResultData {
 	seed: string;
@@ -85,7 +65,6 @@ export interface GoalCardConfig {
 	cards: Unlock[];
 }
 let bestTarget = -1;
-const RETEST_SEEDS: string[] = [];
 async function search({
 	goalCards,
 	goalAppliances = [],
@@ -112,26 +91,53 @@ async function search({
 
 	let metric: [number, string[]] = [-Infinity, []];
 	let n = maxSeeds;
-	while (searching && n) {
+	const shuffledChars = new Array(6)
+		.fill(chars)
+		.map((a) => ShuffleInPlace(Array.from(a)).join(""));
+	let seedID = new Array(6).fill(0);
+	seedID[0]--;
+	seedLoop: while (searching && n) {
 		sendProgress(numSeeds);
-		numSeeds++;
 		const promise = new Promise((resolve) => {
 			promiseResolver = resolve as () => void;
 		});
 		channel.port1.postMessage(null);
 		await promise;
+		seedID[0]++;
+		for (let i = 0; i < seedID.length; i++) {
+			if (seedID[i] === shuffledChars[i].length) {
+				if (i === seedID.length - 1) {
+					// done with all unique seeds
+					break seedLoop;
+				}
+				// carry
+				seedID[i] = 0;
+				shuffledChars[i] = ShuffleInPlace(Array.from(shuffledChars[i])).join(
+					""
+				);
+				seedID[i + 1]++;
+			}
+		}
 		seed = "az";
 
 		while (seed.length < 8) {
-			seed += chars[Math.floor(Math.random() * chars.length)];
+			const i = seed.length - 2;
+			const char = shuffledChars[i][seedID[i]];
+			if (!char) {
+				debugger;
+			}
+			seed += char;
+			if (seed.length > 8) {
+				debugger;
+			}
 		}
-		if (checkHash) {
-			const hashed = hash(seed);
-			if (checkAndSaveHash(hashed)) continue;
+		for (let i = 0; i < seed.length - 1; i++) {
+			if (hashCollisionPairMap[seed[i] + seed[i + 1]]) {
+				// this has a dupe seed, skip this one.
+				continue seedLoop;
+			}
 		}
-		if (import.meta.env.DEV && RETEST_SEEDS.length) {
-			seed = RETEST_SEEDS.shift()!;
-		}
+		numSeeds++; // only increment seeds tested if it's not a dupe
 		const run = new Run(seed);
 		const ms = run.mapSize;
 		if (!mapSizes.includes(ms)) continue;
@@ -162,22 +168,14 @@ async function search({
 			}
 		}
 	}
-	// 3911700 distinct seeds checked in 2 minutes over 3935153 tries.
-	//       0 distinct seeds checked in 2 minutes over 4121851 tries.
-	// 9240889 distinct seeds checked in 5 minutes over 9372250 tries.
-	import.meta.env.DEV &&
-		console.log(
-			`${size} distinct seeds checked in ${minutes} minutes over ${numSeeds} tries.`
-		);
-	// 3676793 distinct seeds checked in 2 minutes over 3697388 tries.
-	//       0 distinct seeds checked in 2 minutes over 3936888 tries.
+	sendProgress(`Complete`, true);
 }
 function reportResult(data: ResultData) {
 	const res: ResultFormat = { type: "result", data };
 	nextProgressUpdate = Date.now() + 60; // If they're seeing new seeds that's proof the searcher is running. Keep the data pipe free by delaying the next progress update
 	postMessage(res);
 }
-function sendProgress(n: number, force: boolean = false) {
+function sendProgress(n: number | string, force: boolean = false) {
 	if (!force && Date.now() < nextProgressUpdate) return;
 	nextProgressUpdate = Date.now() + 120;
 	const res: ResultFormat = { type: "progress", data: n };
