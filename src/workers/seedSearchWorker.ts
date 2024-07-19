@@ -168,7 +168,7 @@ async function search({
 			}
 		}
 	}
-	sendProgress(`Complete`, true);
+	sendProgress(`All`, true);
 }
 function reportResult(data: ResultData) {
 	const res: ResultFormat = { type: "result", data };
