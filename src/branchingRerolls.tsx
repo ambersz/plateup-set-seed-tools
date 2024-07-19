@@ -65,8 +65,6 @@ interface BaseBranchingRerollProps {
 	seed: string;
 	day: number;
 	startingConfig?: RerollConfig[];
-	baseUpgradeChance?: number;
-	blueprintCount?: number;
 	searchDepth?: number;
 	ghostBlueprints?: number;
 	blueprintCabinets: number;
@@ -120,11 +118,8 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 	seed,
 	day,
 	startingConfig = [],
-	baseUpgradeChance = 0,
-	// blueprintCount = 5,
 	searchDepth = 2,
 	ghostBlueprints = 2,
-	// ghostBlueprints = 6,
 	blueprintCabinets = 1,
 	solo,
 	cards = [],
@@ -138,13 +133,16 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 		blueprintCount: blueprintCount + ghostBlueprints,
 		spawnInside: true,
 	};
-	const shop = new Shop(seed, baseUpgradeChance);
+	const shop = new Shop(seed, 0);
 	let cardsForRerollsOnly: Unlock[] = [];
 	const days = turbo ? TurboCardDays : NormalCardDays;
 	{
 		let i = cards.filter((a) =>
 			RestaurantSettings.some((b) => b.ID === a.ID)
 		).length;
+		for (let j = 0; j < i; j++) {
+			shop.addCard(cards[j]);
+		}
 		for (const d of days) {
 			if (d > day) {
 				break;
@@ -290,25 +288,23 @@ const BranchingRerollPage = () => {
 
 	useEffect(() => {
 		if (params.has("cards")) {
+			const cards = params
+				.get("cards")!
+				.split(",")
+				.map((i) => {
+					const res =
+						Unlocks.filter((a) => a.Name === i)[0] ??
+						RestaurantSettings.filter((a) => a.Name === i)[0] ??
+						StartingDishes.filter((a) => a.Name === i)[0];
+					if (import.meta.env.DEV && !res) {
+						debugger;
+					}
+					return res;
+				});
 			setConfig((config) => ({
 				...config,
 				seed: params.get("seed") ?? config.seed,
-				cards: params
-					.get("cards")!
-					.split(",")
-					.map((i) => {
-						if (i === "Turbo") debugger;
-						const res =
-							Unlocks.filter((a) => a.Name === i)[0] ??
-							RestaurantSettings.filter((a) => a.Name === i)[0] ??
-							StartingDishes.filter((a) => a.Name === i)[0];
-						if (import.meta.env.DEV && !res) {
-							debugger;
-						}
-						return res;
-					}),
-				blueprintCount: !!params.get("turbo") ? 7 : 5,
-				baseUpgradeChance: !!params.get("turbo") ? 0.25 : 0,
+				cards,
 				solo: !!Number(params.get("solo")),
 			}));
 			setParams(new URLSearchParams(), { replace: true });
@@ -324,7 +320,11 @@ const BranchingRerollPage = () => {
 					(Rerolls are inaccurate if you bought a blueprint desk)
 				</span>
 			</div>
-			<SeedConfigForm onConfigChange={setConfig} config={config} />
+			<SeedConfigForm
+				onConfigChange={setConfig}
+				config={config}
+				mode="rerolls"
+			/>
 			<BranchingRerolls {...config} blueprintCabinets={1} />
 			{false && (
 				<div style={{ maxWidth: "50vw" }}>

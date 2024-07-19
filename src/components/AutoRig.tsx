@@ -102,7 +102,7 @@ const AutoRig: FunctionComponent<AutoRigProps> = ({}: AutoRigProps) => {
 					setPlayerCount(Number(target.value));
 				}}
 			/>
-			<SeedConfigForm onConfigChange={setConfig} config={config} />
+			<SeedConfigForm onConfigChange={setConfig} config={config} mode="cards" />
 			{tiers.map((appliances, i) => {
 				return (
 					<AppliancesComboBox
