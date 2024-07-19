@@ -102,7 +102,7 @@ function exportResults(d: ResultData) {
 	fetch(webhookURL);
 }
 const SeedSearcher = () => {
-	const [count, setCount] = useState(0);
+	const [count, setCount] = useState<string | number>(0);
 	const [results, setResults] = usePersistentState<ResultData[]>(
 		[],
 		"SEED_SEARCHER_RESULTS"
@@ -240,7 +240,7 @@ const SeedSearcher = () => {
 			<div class="search-container">
 				<div class="search-config">
 					<div style="min-width:fit-content;">
-						<label>Starting Tables: </label>
+						<label>Map Layout: </label>
 						{tables.map((n) => {
 							const key = n + "-table";
 							return (
@@ -297,7 +297,7 @@ const SeedSearcher = () => {
 							""
 						)}
 						<div>
-							<code>seed (starting tables): cards</code>
+							<code>seed | layout (tables): cards</code>
 						</div>
 						{results.map((r) => (
 							<SeedSearchResult turbo result={r} />

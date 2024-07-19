@@ -9,13 +9,13 @@ interface SeedSearchResultProps {
 const SeedSearchResult = ({
 	turbo = false,
 	result: r,
-	door = import.meta.env.DEV,
+	door = false,
 }: SeedSearchResultProps) => {
 	return (
 		<div>
 			{r.seed}
 			{r.mapSize &&
-				` (${r.mapSize}${door ? `, ${new Run(r.seed).frontDoor}` : ""})`}
+				` | ${r.mapSize}${door ? `, ${new Run(r.seed).frontDoor}` : ""}`}
 			:{" "}
 			<div>
 				{r.cards.join(", ")}

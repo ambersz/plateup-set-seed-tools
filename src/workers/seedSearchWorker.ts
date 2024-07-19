@@ -72,6 +72,7 @@ async function search({
 	maxSeeds = Infinity,
 	partial = false,
 }: SearchParams) {
+	let searchComplete = false;
 	numSeeds = 0;
 	const channel = new MessageChannel();
 	let promiseResolver: () => void;
@@ -108,6 +109,7 @@ async function search({
 			if (seedID[i] === shuffledChars[i].length) {
 				if (i === seedID.length - 1) {
 					// done with all unique seeds
+					searchComplete = true;
 					break seedLoop;
 				}
 				// carry
@@ -168,7 +170,7 @@ async function search({
 			}
 		}
 	}
-	sendProgress(`All`, true);
+	searchComplete && sendProgress(`All`, true);
 }
 function reportResult(data: ResultData) {
 	const res: ResultFormat = { type: "result", data };

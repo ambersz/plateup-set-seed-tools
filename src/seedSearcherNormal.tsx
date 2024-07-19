@@ -35,7 +35,7 @@ for (let i = 0; i < 12; i++) {
 }
 
 const SeedSearcher = () => {
-	const [count, setCount] = useState(0);
+	const [count, setCount] = useState<string | number>(0);
 	const [ot15, setOT15] = usePersistentState<boolean>(
 		false,
 		"SEED_SEARCHER_NORMAL_OT15"
@@ -172,7 +172,7 @@ const SeedSearcher = () => {
 					/>
 				</div>
 				<div style="min-width:fit-content;">
-					<label>Starting Tables: </label>
+					<label>Map Layout: </label>
 					{tables.map((n) => {
 						const key = n + "-table";
 						return (
@@ -237,7 +237,7 @@ const SeedSearcher = () => {
 						""
 					)}
 					<div>
-						<code>seed (starting tables): cards</code>
+						<code>seed | map (tables): cards</code>
 					</div>
 					{results.map((r, i) => (
 						<SeedSearchResult key={i} result={r} />
