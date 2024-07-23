@@ -59,14 +59,17 @@ export class Run {
 				0.25;
 		const custs = this.getCustomerCount(day) * repeat;
 		let cost = this.startingCards.reduce((a, b) => a + b.DishValue, 0);
-		if (
-			!this.startingCards.some((a) => (a.DishType = DishType.Dessert)) &&
-			currentCards.some((a) => a.Name === "Ice Cream")
-		) {
-			cost = (cost + 2) / 2;
+		if (currentCards.some((a) => a.Name === "Ice Cream")) {
+			if (!this.startingCards.some((a) => (a.DishType = DishType.Dessert))) {
+				cost = (cost + 2) / 2;
+			} else {
+				// TODO: handle chance of dessert orders
+			}
 		}
 		if (currentCards.some((a) => a.Name === "Doughnut")) cost = 5;
-		if (currentCards.some((a) => a.Name === "Double Helpings")) cost += 3;
+		if (currentCards.some((a) => a.Name === "Double Helpings") && cost)
+			//
+			cost += 3;
 		if (Number.isNaN(custs)) debugger;
 		if (Number.isNaN(cost)) debugger;
 
@@ -96,21 +99,45 @@ export class Run {
 		}
 		return this._cardsByDay[day];
 	}
-	getBookingDeskCount(day: number): number {
+	getBookingDeskCount(day: number, bookingDeskDuration: number = 1): number {
 		const normalGroups = Math.ceil(
 			this.getExpectedCustomers(day) / this.getExpectedGroupSize(day)
 		);
 		if (this.getCardsByDay(day).some((a) => a.Name === "Herd Mentality"))
 			return Math.min(normalGroups, 3) + 1;
-		return (
-			normalGroups +
-			(this.turbo
-				? 3
-				: this.getCardsByDay(day).filter((a) => a.Name.includes(" Rush"))
-						.length)
-		);
+		const rushTimes: number[] = [];
+		const cards = this.getCardsByDay(day);
+		let calls = 1; // end of day call
+		if (this.turbo || cards.some((a) => a.Name === "Morning Rush")) {
+			rushTimes.push(0.2);
+			calls++;
+		}
+		if (this.turbo || cards.some((a) => a.Name === "Lunch Rush")) {
+			rushTimes.push(0.5);
+			calls++;
+		}
+		if (this.turbo || cards.some((a) => a.Name === "Dinner Rush")) {
+			rushTimes.push(0.8);
+			calls++;
+		}
+		const callWiggle = bookingDeskDuration / this.getDayLength(day);
+		const scheduleWiggle = 0.1 / normalGroups;
+		for (let i = 1; i < normalGroups; i++) {
+			const mid = i / normalGroups;
+			const min = mid - scheduleWiggle - callWiggle;
+			const max = mid + scheduleWiggle + callWiggle;
+			let possibleConflict = false;
+			for (const r of rushTimes) {
+				if (min <= r && max >= r) {
+					possibleConflict = true;
+					break;
+				}
+			}
+			if (!possibleConflict) calls++;
+		}
+		return calls;
 	}
-	getGroupCount(day: number): number {
+	getNonRushGroupCount(day: number): number {
 		const custs = this.getExpectedCustomers(day);
 		const closingTimeAdjust =
 			this.getCardsByDay(day).filter((a) => a.Name === "Closing Time?").length *
@@ -124,7 +151,7 @@ export class Run {
 	}
 	getGroupSizes(day: number): number[] {
 		const random = RestaurantSystemSeed(1997821, day, this.seed).random;
-		const gc = this.getGroupCount(day);
+		const gc = this.getNonRushGroupCount(day);
 		const herd = this.getCardsByDay(day).some(
 			(a) => a.Name === "Herd Mentality"
 		);
@@ -234,7 +261,10 @@ export class Run {
 		const cards = this.getCardsByDay(day);
 		if (
 			cards.some(
-				(a) => a.DishType === DishType.Dessert || a.Name === "Black Coffee"
+				(a) =>
+					a.DishType === DishType.Dessert ||
+					a.Name === "Black Coffee" ||
+					a.Name === "Cakes"
 			)
 		)
 			modifier += 0.25;
@@ -395,4 +425,3 @@ export const tables: LayoutProfileName[] = [
 	"Large (3)",
 	"Huge (4)",
 ];
-
