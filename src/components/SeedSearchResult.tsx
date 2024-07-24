@@ -25,6 +25,7 @@ const SeedSearchResult = ({
 					}&cards=${r.cards.map((a) => encodeURIComponent(a)).join(",")}&solo=${
 						r.mapSize === "Diner (1)" ? 1 : 0
 					}`}
+					target="_blank"
 				>
 					{/* {r.blueprints.map((bp) => bp.Name).join(", ")} */} (Blueprints)
 				</Link>
