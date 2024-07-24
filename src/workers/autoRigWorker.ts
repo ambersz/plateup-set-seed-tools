@@ -38,7 +38,10 @@ const defaultFinalTier: RigPiece[] = [
 ];
 worker.onmessage = (e: MessageEvent<AutoRigWorkerInput>) => {
 	let { config, tiers, playerCount } = e.data;
-	tiers = tiers.filter((a) => a.length);
+	// tiers = tiers.filter((a) => a.length);
+	while (!tiers.at(-1)!.length) {
+		tiers.pop();
+	}
 	const copyDefaultFinalTier = [...defaultFinalTier];
 	const nonTrash = tiers.flatMap((tier) =>
 		tier.flatMap((goal) => [goal.goal, ...goal.substitutes])
