@@ -112,7 +112,7 @@ function cellClassFromConfig(
 	if (f?.playerInside) return "OI";
 	return "OO";
 }
-const NormalCardDays = [0, 3, 5, 6, 9, 12];
+const NormalCardDays = [0, 3, 5, 6, 9, 12, 15, 18, 21, 24, 27, 30];
 const TurboCardDays = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
 const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 	seed,
