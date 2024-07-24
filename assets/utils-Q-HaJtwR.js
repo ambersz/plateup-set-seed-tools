@@ -1,1 +1,0 @@
-function l(e,t){return Math.floor(Math.random()*(t-e))+e}function h(e,t){let n=e.length;for(;n-- >1;){let o=t===void 0?l(0,n+1):t.range(0,n+1);[e[n],e[o]]=[e[o],e[n]]}return e}const f="bdghjmqrtvwxy346789";export{f as I,h as S};
