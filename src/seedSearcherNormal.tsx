@@ -90,8 +90,12 @@ const SeedSearcher = () => {
 		} else {
 			// sanity check inputs
 			if (cardsByDay[0].cards.length < 1) {
-				alert("No starting dish selected.");
-				return;
+				if (
+					!confirm(
+						"No starting dish selected. Run search anyway? (If you're doing that ridiculous no food run 🤣)"
+					)
+				)
+					return;
 			} else if (cardsByDay[0].cards.length > 2) {
 				// alert("Too many starting dishes selected");
 				// return;
