@@ -5,6 +5,7 @@ import type { Unlock } from "../kitchenTypes";
 import Appliances, { Appliance } from "./db/appliances";
 import { ShuffleInPlace, chars, hashCollisionPairMap } from "../utils/utils";
 import { DishType, UnlockGroup } from "../kitchenEnums";
+import { niceRerolls } from "../utils/niceRerolls";
 const CUSTOMER_INCREASING_CARDS = [
 	"Burgers",
 	"Hot Dogs",
@@ -79,19 +80,23 @@ async function search({
 	channel.port2.onmessage = (_event) => {
 		promiseResolver();
 	};
-	let seed = "az2mpjp3";
+	let constructSeed: string[];
+	let seed: string;
 	const restaurantSettings = goalCards[0].cards.filter(
 		(a) => a.UnlockGroup === UnlockGroup.Special
 	);
-	const startingDishes = goalCards[0].cards.filter(
+	const startingDishes: (Unlock | undefined)[] = goalCards[0].cards.filter(
 		(a) => a.DishType !== DishType.Null
 	);
+	// @ts-ignore
+	if (!startingDishes.length) startingDishes.push(undefined);
 	const cardDays = goalCards[0].cards.some((a) => a.Name === "Turbo")
 		? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
 		: [3, 5, 6, 9, 12, 15, 18, 21, 24, 27].slice(0, goalCards.length - 1);
 
 	let metric: [number, string[]] = [-Infinity, []];
 	let n = maxSeeds;
+	const seedFillorder = ShuffleInPlace([0, 1, 2, 3, 4, 5]).map((a) => a + 2);
 	const shuffledChars = new Array(6)
 		.fill(chars)
 		.map((a) => ShuffleInPlace(Array.from(a)).join(""));
@@ -120,33 +125,30 @@ async function search({
 				seedID[i + 1]++;
 			}
 		}
-		seed = "az";
+		constructSeed = ["a", "z"];
 
-		while (seed.length < 8) {
-			const i = seed.length - 2;
+		for (let i = 0; i < 6; i++) {
 			const char = shuffledChars[i][seedID[i]];
 			if (!char) {
 				debugger;
 			}
-			seed += char;
-			if (seed.length > 8) {
-				debugger;
-			}
+			constructSeed[seedFillorder[i]] = char;
 		}
-		for (let i = 0; i < seed.length - 1; i++) {
-			if (hashCollisionPairMap[seed[i] + seed[i + 1]]) {
+		for (let i = 0; i < constructSeed.length - 1; i++) {
+			if (hashCollisionPairMap[constructSeed[i] + constructSeed[i + 1]]) {
 				// this has a dupe seed, skip this one.
 				continue seedLoop;
 			}
 		}
 		numSeeds++; // only increment seeds tested if it's not a dupe
+		seed = constructSeed.join("");
 		const run = new Run(seed);
 		const ms = run.mapSize;
 		if (!mapSizes.includes(ms)) continue;
 		for (const dish of startingDishes) {
 			const candMetric: [number, string[]] = test(
 				seed,
-				[...restaurantSettings, dish],
+				dish ? [...restaurantSettings, dish] : [...restaurantSettings],
 				goalCards,
 				goalAppliances,
 				partial,
@@ -200,6 +202,15 @@ function test(
 	const game = new FindNewUnlocks(seed);
 	for (const c of cards) {
 		game.addCard(c);
+	}
+	if (false) {
+		const shop = new Shop(seed, 0);
+		for (const c of cards) {
+			shop.addCard(c);
+		}
+		let spawns: Appliance[];
+		spawns = shop.getAppliances([{ spawnInside: true, blueprintCount: 5 }], 6);
+		if (spawns.every((a) => a.Name !== "Freezer")) return [-Infinity, []];
 	}
 	let partialMisses = 0;
 	let day = 1;
@@ -284,8 +295,18 @@ function test(
 	let spawnedTargets: Appliance[] = [];
 	let bestRerolledTargets: Appliance[] = [];
 	let allRerolledTargets: Appliance[] = [];
-
 	if (INSPECT_BLUEPRINTS) {
+		niceRerolls(
+			seed,
+			cards,
+			game.cards.slice(cards.length).map((a) => a.Name),
+			[[]],
+			true
+			// expectedMoneyByDay,
+			// expectedBookingDesksByDay,
+			// report
+		);
+	} else if (INSPECT_BLUEPRINTS) {
 		const shop = new Shop(
 			seed,
 			0
@@ -296,14 +317,19 @@ function test(
 			shop.addCard(card);
 		}
 
-		const goalAppliances = [
+		const goalAppliances: string[] = [
+			"Portioner",
+			// "Portioner",
+			"Conveyor",
+			// "Grabber",
+			// "Freezer",
 			// "Rolling Pin",
 			// "Sharp Knife",
 			// "Workstation",
 			// "Dish Washer",
-			"Conveyor Mixer",
-			"Power Sink",
-			"Grabber",
+			// "Conveyor Mixer",
+			// "Power Sink",
+			// "Grabber",
 			// "Danger Hob",
 			// "Flower Pot",
 			// "Conveyor",
@@ -324,7 +350,7 @@ function test(
 			// "Blueprint Cabinet",
 			// "Coffee Machine",
 		];
-		const NEED_EARLY_COFFEE = true;
+		const NEED_EARLY_COFFEE = false;
 		if (NEED_EARLY_COFFEE) {
 			let earlyCoffee = false;
 			if (
@@ -349,14 +375,15 @@ function test(
 				return [-Infinity, []];
 			}
 		}
-		for (let day = 6; day <= 12; day++) {
+		for (let day = 1; day <= 4; day++) {
 			// spawns better, but in rerolls is good too
 			spawnedTargets.push(
 				...shop
 					.getAppliances([{ spawnInside: true, blueprintCount: 5 }], day)
 					.filter((a) => goalAppliances.includes(a.Name))
 			);
-			if (true) {
+			if (false) {
+				// Consider rerolls
 				const configs: RerollConfig[][] = [
 					[
 						{ spawnInside: true, blueprintCount: 5 },
@@ -418,8 +445,8 @@ function test(
 				}
 			}
 		}
-		targets += spawnedTargets.filter((a) => a.Name === "Display Stand").length;
-		targets += allRerolledTargets.length * 100;
+		// targets += spawnedTargets.filter((a) => a.Name === "Display Stand").length;
+		targets += allRerolledTargets.length * 1;
 		const unique = new Set();
 		for (const { Name } of spawnedTargets) {
 			unique.add(Name);
@@ -429,7 +456,7 @@ function test(
 			unique.add(Name);
 		}
 		targets += unique.size;
-		if (targets <= bestTarget - 1) return [-Infinity, []];
+		if (targets <= bestTarget - 10) return [-Infinity, []];
 		if (false) {
 			const firstSpawns = shop
 				.getAppliances([{ spawnInside: true, blueprintCount: 5 }], 6)
