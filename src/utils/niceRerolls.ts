@@ -3,8 +3,7 @@ import { ObjectiveComparison, ParetoSet } from "./paretoSet";
 import { RerollConfig, Shop } from "../workers/reverse-engineered/shop";
 import { Unlocks } from "../workers/db/unlocks";
 import Appliances, { Appliance } from "../workers/db/appliances";
-import { ShuffleInPlace } from "./utils";
-// import { ShuffleInPlace } from "./utils";
+
 export interface RigPiece {
 	goal: string; // appliance name
 	substitutes: string[]; // things that upgrade into this or fill a similar purpose
@@ -920,7 +919,7 @@ export function niceRerolls(
 		// let queue: RerollRoute[] = [
 
 		// ];
-		let nextCard = undefined;
+		let nextCard: string | undefined = undefined;
 		if (turbo || day === 5 || !(day % 3)) {
 			nextCard = cardPath.shift();
 		}
@@ -1077,10 +1076,10 @@ export function niceRerolls(
 					// );
 					// ShuffleInPlace(paretoQueue.array);
 					const order = -1; // 1 for fewest buys first, -1 for most purchases first
-					const comp = (c: number, a: AchievedRig): number =>
-						(a.goal === "Blueprint Cabinet" || a.goal === "Copying Desk"
-							? 0
-							: a.goalsPurchased) + c;
+					// const comp = (c: number, a: AchievedRig): number =>
+					// 	(a.goal === "Blueprint Cabinet" || a.goal === "Copying Desk"
+					// 		? 0
+					// 		: a.goalsPurchased) + c;
 					paretoQueue.array.sort(
 						(a, b) => order * (a.applianceCosts - b.applianceCosts)
 						// order * (a.achieved["Blueprint Cabinet"].goalsPurchased - b.achieved["Blueprint Cabinet"].goalsPurchased)
