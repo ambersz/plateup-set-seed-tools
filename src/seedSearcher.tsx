@@ -112,7 +112,24 @@ const SeedSearcher = () => {
 		LayoutProfileName[]
 	>(
 		["Diner (1)", "Small (2)", "Medium (2)", "Large (3)", "Huge (4)"],
-		"SEED_SEARCHER_ALLOWED_TABLES"
+		"SEED_SEARCHER_ALLOWED_TABLES",
+		(oldState) => {
+			return oldState.flatMap((state) => {
+				if (typeof state === "number") {
+					switch (state) {
+						case 1:
+							return "Diner (1)";
+						case 2:
+							return ["Medium (2)", "Small (2)"];
+						case 3:
+							return "Large (3)";
+						case 4:
+							return "Huge (4)";
+					}
+				}
+				return state;
+			});
+		}
 	);
 	useEffect(() => {
 		console.log("useEffect registering message done");
