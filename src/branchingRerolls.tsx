@@ -273,14 +273,16 @@ const BranchingRerollPage = () => {
 		defaultBranchingRerollConfig,
 		"BRANCH_CONFIG",
 		(config: SeedConfig) => {
-			if (typeof config.simpleBPSettings === "boolean") {
+			let newConfig = { ...config };
+			if (typeof newConfig.simpleBPSettings === "boolean") {
 				debugger;
-				return {
-					...config,
+				newConfig = {
+					...newConfig,
 					simpleBPSettings: config.simpleBPSettings ? "insideOnly" : "full",
 				};
 			}
-			return config;
+			newConfig = { ...newConfig, searchDepth: 2 };
+			return newConfig;
 		}
 	);
 
