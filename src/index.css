@@ -16,6 +16,14 @@
 	-moz-osx-font-smoothing: grayscale;
 }
 
+input {
+	margin: 0 10px 0 0px;
+}
+
+label {
+	margin-right: 5px;
+}
+
 .ghost {
 	opacity: 0.5;
 }
