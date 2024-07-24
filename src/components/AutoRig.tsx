@@ -15,8 +15,9 @@ function postMessage(worker: Worker, message: AutoRigWorkerInput) {
 }
 interface AutoRigProps {}
 const UPGRADE_MAP: { [appName: string]: string[] } = {
-	"Grabber - Rotating": ["Grabber", "Smart Grabber"],
-	Grabber: ["Conveyor", "Grabber - Rotating", "Smart Grabber"],
+	"Grabber - Rotating": ["Smart Grabber", "Grabber"],
+	Grabber: ["Conveyor"],
+	// Grabber: ["Conveyor", "Grabber - Rotating", "Smart Grabber"],
 	Freezer: ["Counter"],
 	Workstation: ["Counter"],
 	"Prep Station": ["Frozen Prep Station"],
@@ -31,10 +32,10 @@ const UPGRADE_MAP: { [appName: string]: string[] } = {
 	"Compactor Bin": ["Expanded Bin", "Bin"],
 	"Composter Bin": ["Compactor Bin", "Bin"],
 	"Expanded Bin": ["Composter Bin", "Bin"],
-	"Metal Table": ["Dining Table"],
+	// "Metal Table": ["Dining Table"],
 	"Table - Simple Cloth": ["Dining Table"],
 	"Table - Fancy Cloth": import.meta.env.DEV
-		? ["Table - Simple Cloth", "Dining Table", "Metal Table", "Bar Table"]
+		? ["Table - Simple Cloth", "Dining Table", "Bar Table", "Metal Table"]
 		: ["Dining Table"],
 	// "Bar Table": ["Dining Table"],
 	"Power Sink": ["Soaking Sink", "Sink"],
