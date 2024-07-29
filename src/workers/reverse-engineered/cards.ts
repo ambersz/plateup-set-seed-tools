@@ -9,6 +9,7 @@ interface IUnlockPack {
 		fsc: FixedSeedContext
 	) => [Unlock, Unlock];
 	getPad: (cards: Unlock[], day: number) => number;
+	getCandidates: (currentCards: Unlock[], day: number) => Unlock[];
 	sortCandidates: (cards: Unlock[], day: number, random: Random) => Unlock[];
 	getUnlockGroups: (day: number) => [UnlockGroup, UnlockGroup];
 }
@@ -69,8 +70,11 @@ class UnlockPack implements IUnlockPack {
 		if (day === 5) pad *= 2;
 		return pad;
 	}
+	getCandidates(currentCards: Unlock[], _day: number): Unlock[] {
+		return getUnblockedCards(currentCards);
+	}
 	sortCandidates(cards: Unlock[], _day: number, random: Random): Unlock[] {
-		let candidates = getUnblockedCards(cards);
+		let candidates = this.getCandidates(cards, _day);
 		let sortedCards = sort(candidates, random);
 		const preferPriority = random.valueFloat < 0.5;
 		if (preferPriority) {
@@ -96,12 +100,13 @@ class TurboUnlockPack extends UnlockPack {
 		if (day !== 5) pad *= 2;
 		return pad;
 	}
+
 	override sortCandidates(
 		cards: Unlock[],
 		_day: number,
 		random: Random
 	): Unlock[] {
-		let candidates = getUnblockedCards(cards);
+		let candidates = this.getCandidates(cards, _day);
 		let sortedCards = sort(candidates, random);
 		const priorityRng = random.valueFloat;
 		const preferPriority = priorityRng < 0.1;
@@ -130,16 +135,17 @@ class AutumnUnlockPack extends UnlockPack {
 		return pad;
 	}
 	private readonly ThanksgivingCards = ["Turkey", "Nut Roast"];
-
+	override getCandidates(cards: Unlock[], day: number): Unlock[] {
+		return day === 5 || day === 15
+			? getUnblockedCards(cards, false)
+			: getUnblockedCards(cards);
+	}
 	override sortCandidates(
 		cards: Unlock[],
 		day: number,
 		random: Random
 	): Unlock[] {
-		let candidates =
-			day === 5 || day === 15
-				? getUnblockedCards(cards, false)
-				: getUnblockedCards(cards);
+		let candidates = this.getCandidates(cards, day);
 		let sortedCards = sort(candidates, random);
 		// console.log(sortedCards.map((a) => a.Name).join(","));
 

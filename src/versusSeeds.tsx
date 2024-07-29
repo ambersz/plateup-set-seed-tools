@@ -22,7 +22,6 @@ const defaultTables: LayoutProfileName[] = ["Diner (1)"];
 const VersusSeeds = () => {
 	const [startingCards, setStartingCards] =
 		useState<GoalCardConfig>(defaultConfig);
-	const [strict, setStrict] = useState(true);
 	const [autumn, setAutumn] = useState(false);
 	const [allowedTables, setAllowedTables] =
 		useState<LayoutProfileName[]>(defaultTables);
@@ -43,16 +42,17 @@ const VersusSeeds = () => {
 				RestaurantSettings.filter((a) => a.Name === "Community")[0]
 			);
 		sendMessage({
-			type: strict ? "strict" : "flex",
+			type: "priorityModel",
 			data: { mapSettings: settings, startingDishes, allowedTables },
 		});
 	};
 	return (
 		<>
-			Strict Mode: The same 2 cards are offered each day, no matter which card
-			path you took on previous days (Side effect: you will never get offered a
-			card that you passed up earlier in the run) <br />
-			Flex Mode: Across all card paths, there are at most 10 unique cards.
+			Requires all card paths of a seed to follow a ordered priority model.
+			(Essentially, you see the same two cards on a day regardless of the card
+			path you took to get there, with exceptions to allow cards to be
+			re-offered and cards which have additional requirements to show up on only
+			the card paths that unlock them)
 			<br />
 			<label for="autumn">Autumn:</label>
 			<input
@@ -62,14 +62,6 @@ const VersusSeeds = () => {
 				onClick={() => setAutumn((a) => !a)}
 			/>
 			<br />
-			<label for="modeToggle">Mode Toggle:</label>
-			<input
-				type="checkbox"
-				id="modeToggle"
-				checked={strict}
-				onClick={() => setStrict((a) => !a)}
-			/>
-			Currently on {strict ? "Strict" : "Flex"} Mode
 			<br />
 			<LayoutSize
 				setAllowedTables={setAllowedTables}
