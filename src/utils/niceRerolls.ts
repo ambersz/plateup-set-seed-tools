@@ -593,7 +593,10 @@ export function niceRerolls(
 					5 *
 					(before.achieved["Clipboard Stand"]?.goalsPurchased ? 0.5 : 1) +
 				// researches needed today, can use clipboard I bought today
-				(deskUses * scumTimes * 5 + expectedBookingDesksByDay[add.day]) *
+				(deskUses * scumTimes * 5 +
+					(expectedBookingDesksByDay[add.day] ??
+						expectedBookingDesksByDay.at(-1) ??
+						0)) *
 					(achieved["Clipboard Stand"]?.goalsPurchased ? 0.5 : 1) +
 				Math.max(cookingTime + washingTime, eatingTime) +
 				cookingTime +
@@ -846,14 +849,18 @@ export function niceRerolls(
 			]
 		); // TODO: do I want this to be inside the loop or outside the daily loop?
 		// money = expectedMoneyByDay[day];
-		money += expectedMoneyByDay[day];
+		money += expectedMoneyByDay[day] ?? expectedMoneyByDay.at(-1) ?? 0;
+
 		day++;
-		if (day > 14) break;
+		if (day > 14 && (turbo || !cardPath.length)) {
+			debugger;
+			break;
+		}
 		if (day > 1 && prevDayCumulativeRoutes.length === 0) {
 			debugger;
 			break;
 		}
-		const allowableRoutes = 0;
+		const allowableRoutes = 10;
 		// const allowableRoutes = 100 * day ** 2;
 		prevDayCumulativeRoutes.sort((a, b) => getRouteTime(a) - getRouteTime(b));
 		console.log(
@@ -900,7 +907,8 @@ export function niceRerolls(
 		// 	usedBlueprintCabs.push(3);
 		// }
 		// let maxRerolls = 7 - prevDayCumulativeRoutes[0].cumulativeRerolls;
-		let maxRerolls = 3;
+		// let maxRerolls = day < 21 ? 2 : 4;
+		let maxRerolls = 5;
 		// day < 7 ? 2 : Math.max(3, 1 + Math.sqrt(Math.max(0, money - 470)));
 		// let maxTimePerReroll = Infinity;
 		let maxTimePerReroll = 0.5 * 60 * 1000; // 30 seconds
@@ -930,6 +938,7 @@ export function niceRerolls(
 			day
 		);
 		shop.handleNewCardRerollEffects(c);
+		// shop.addCard(c); // TEMP OPEN PRACTICE MODE BEFORE REROLLING
 		let globalBoughtMessage: string[] = [];
 		if (buyOnSight.length) {
 			for (let i = buyOnSight.length - 1; i >= 0; i--) {
