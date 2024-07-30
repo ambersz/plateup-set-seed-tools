@@ -3,7 +3,6 @@ import { Unlock } from "../kitchenTypes";
 import { randomInGameSeed } from "../utils/utils";
 import { LayoutProfileName, Run } from "./reverse-engineered/run";
 const DAYS = [3, 5, 6, 9, 12];
-let c = 0;
 const worker = self as unknown as Worker;
 export interface RequestFormat {
 	type: "strict" | "flex" | "priorityModel";
@@ -24,6 +23,11 @@ export type ResponseFormat = {
 };
 worker.onmessage = (e: MessageEvent<RequestFormat>) => {
 	let searcher: (setup: FindNewUnlocks) => boolean;
+
+	const { allowedTables, startingDishes, mapSettings } = e.data.data;
+	const dishes = [...startingDishes];
+	const unlocks = new FindNewUnlocks("");
+	for (const s of mapSettings) unlocks.addCard(s);
 	switch (e.data.type) {
 		case "strict":
 			searcher = strictTest;
@@ -32,16 +36,22 @@ worker.onmessage = (e: MessageEvent<RequestFormat>) => {
 			searcher = flexTest;
 			break;
 		case "priorityModel":
-			searcher = dependencyAllowed;
+			// let autumn = true;
+			let autumn = false;
+			// unlocks.unlockPack instanceof AutumnUnlockPack
+			if (mapSettings.some((a) => a.Name === "Community")) {
+				autumn = true;
+			}
+			if (autumn) {
+				searcher = autumnDependencyAllowed;
+			} else {
+				searcher = dependencyAllowed;
+			}
 			break;
 		default:
 			throw new Error();
 			break;
 	}
-	const { allowedTables, startingDishes, mapSettings } = e.data.data;
-	const dishes = [...startingDishes];
-	const unlocks = new FindNewUnlocks("");
-	for (const s of mapSettings) unlocks.addCard(s);
 	while (dishes.length) {
 		const s = randomInGameSeed();
 		// const s = "h984833g";
@@ -129,18 +139,20 @@ function dependencyAllowed(setup: FindNewUnlocks): boolean {
 					lrSeenCards[0].add(options[ind].ID);
 					newQueue.push([...p, options[ind]]);
 				}
-				if (lrSeenCards[0].size > 2) return false;
+				if (lrSeenCards[0].size > 2) {
+					return false;
+				}
 				continue;
 			}
 			for (let lrIndex = 0; lrIndex <= 1; lrIndex++) {
 				const opt = options[lrIndex];
 				newQueue.push([...p, opt]);
 				// if this card has already been seen, we don't need to add or recheck priorities
+				lrPathToOpt[lrIndex].set(p, opt);
 				if (lrSeenCards[lrIndex].has(opt.ID)) {
 					continue;
 				}
 				lrSeenCards[lrIndex].add(opt.ID);
-				lrPathToOpt[lrIndex].set(p, opt);
 				// 1. augment the possibilities for left and right priorities by inserting it in every possible position
 				lrPriorities[lrIndex] = lrPriorities[lrIndex].flatMap((priority) => {
 					let res: Unlock[][] = [];
@@ -183,7 +195,83 @@ function dependencyAllowed(setup: FindNewUnlocks): boolean {
 		}
 		queue = newQueue;
 	}
-	setup.cards = originalSetupCards;
+	return true;
+}
+
+function autumnDependencyAllowed(setup: FindNewUnlocks): boolean {
+	const originalSetupCards = setup.cards;
+	// Similar to dependencyAllowed with the priority model, but because autumn offers two dishes, only uses one priority list
+	let queue = [originalSetupCards];
+	for (let i = 0; i < 5; i++) {
+		let priorities: Unlock[][] = [[]];
+		let seenCardIDs = new Set<number>();
+		let pathToOptionsMap = new Map<Unlock[], [Unlock, Unlock]>();
+
+		let newQueue: Unlock[][] = [];
+		for (let j = 0; j < queue.length; j++) {
+			const p = queue[j];
+			setup.cards = p;
+			const day = DAYS[i];
+			const options = setup.getUnlockOptions(day);
+			pathToOptionsMap.set(p, options);
+			for (let lrIndex = 0; lrIndex <= 1; lrIndex++) {
+				const opt = options[lrIndex];
+				newQueue.push([...p, opt]);
+				// if this card has already been seen, we don't need to add or recheck priorities
+				if (seenCardIDs.has(opt.ID)) {
+					continue;
+				}
+				seenCardIDs.add(opt.ID);
+				// 1. augment the possibilities for left and right priorities by inserting it in every possible position
+				priorities = priorities.flatMap((priority) => {
+					let res: Unlock[][] = [];
+					for (let i = 0; i <= priority.length; i++) {
+						const copy = [...priority];
+						copy.splice(i, 0, opt);
+						res.push(copy);
+					}
+					return res;
+				});
+			}
+			// 2. filter the priority orders by whether it's compatible with every card path checked so far
+			for (
+				let priorityIndex = 0;
+				priorityIndex < priorities.length;
+				priorityIndex++
+			) {
+				// for every possible priority order,
+				const order = priorities[priorityIndex];
+				let pass = true;
+				for (let pathIndex = 0; pathIndex <= j; pathIndex++) {
+					// for every previously checked path
+					const checkPath = queue[pathIndex];
+					const expectedOpt = getAutumnExpectedOpt(
+						setup,
+						day,
+						checkPath,
+						order
+					);
+					const actual = pathToOptionsMap.get(checkPath)!;
+					if (
+						!expectedOpt.some((a) => a.ID === actual[0].ID) ||
+						!expectedOpt.some((a) => a.ID === actual[1].ID)
+					) {
+						pass = false;
+						break;
+					}
+				}
+				if (!pass) {
+					priorities.splice(priorityIndex, 1);
+					priorityIndex--;
+				}
+			}
+			// 3. if there are no valid priority orders, this seed is not compatible with the desired model
+			if (!priorities.length) {
+				return false;
+			}
+		}
+		queue = newQueue;
+	}
 	return true;
 }
 
@@ -200,4 +288,23 @@ function getExpectedOpt(
 	}
 	// none of the candidates are valid (should be impossible because I literally added the actual option into the pool)
 	throw new Error("no valid options");
+}
+
+function getAutumnExpectedOpt(
+	pack: FindNewUnlocks,
+	day: number,
+	checkPath: Unlock[],
+	order: Unlock[]
+) {
+	const validCandidates = pack.unlockPack.getCandidates(checkPath, day);
+	const res: Unlock[] = [];
+	for (const card of order) {
+		// if card is allowed to be shown based on the cards in checkPath, return card
+		if (validCandidates.some((a) => a.ID === card.ID)) {
+			res.push(card);
+			if (res.length === 2) return res;
+		}
+	}
+	// none of the candidates are valid (should be impossible because I literally added the actual option into the pool)
+	throw new Error("not enough valid options");
 }
