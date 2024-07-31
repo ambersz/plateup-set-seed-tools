@@ -129,6 +129,10 @@ td {
 	/* float: right; */
 }
 
+.error-background {
+	background-color: rgba(255, 0, 0, 0.5);
+}
+
 .selected-items {
 	margin: 0 10px 0 0;
 	padding: 0 5px;
@@ -199,7 +203,7 @@ button {
 }
 
 td.I {
-	background-color: hsla(0, 100%, 61.4%, 0.10);
+	background-color: hsla(0, 100%, 61.4%, 0.1);
 }
 td.OI {
 	background-color: hsla(200, 100%, 50%, 0.07);

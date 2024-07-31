@@ -14,6 +14,7 @@ import {
 import { SeedConfigForm } from "./SeedConfigForm";
 import { defaultAppliances } from "./SeedConfigForm";
 import { SeedConfig } from "./SeedConfigForm";
+import { UnlockGroup } from "./kitchenEnums";
 
 function explainRerollConfig(c: RerollConfig[]) {
 	let res = "";
@@ -136,6 +137,12 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 	const shop = new Shop(seed, 0);
 	let cardsForRerollsOnly: Unlock[] = [];
 	const days = turbo ? TurboCardDays : NormalCardDays;
+	const missingCardDays: number[] = [];
+	let startingDishError: false | Unlock = false;
+	let themeDayCardWrong: false | Unlock = false;
+	let unexpectedThemeCard: false | Unlock = false;
+	let unexpectedStartingDish: false | Unlock = false;
+	let anyError: boolean = false;
 	{
 		let i = cards.filter((a) =>
 			RestaurantSettings.some((b) => b.ID === a.ID)
@@ -147,12 +154,36 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 			if (d > day) {
 				break;
 			}
+			const addCard = cards[i];
+			if (addCard === undefined) {
+				missingCardDays.push(d);
+				anyError = true;
+			} else if (d === 0) {
+				if (!StartingDishes.some((a) => a.ID === addCard.ID)) {
+					startingDishError = addCard;
+					anyError = true;
+				}
+			} else if (d === 5) {
+				if (addCard.UnlockGroup !== UnlockGroup.PrimaryTheme) {
+					themeDayCardWrong = addCard;
+					anyError = true;
+				}
+			} else {
+				if (addCard.UnlockGroup === UnlockGroup.PrimaryTheme) {
+					unexpectedThemeCard = addCard;
+				}
+				if (StartingDishes.some((a) => a.ID === addCard.ID)) {
+					if (shop.Cards.every((a) => a.Name !== "Community")) {
+						unexpectedStartingDish = addCard;
+					}
+				}
+			}
 			if (d === day) {
 				// ingredients don't apply until people open boxes, and processes don't get updated until practice mode or next day (not sure about courses, but they don't appear to apply at spawn, and you wouldn't be able to get plates in rerolls anyway so... we just pretend it's the same as the processes?)
-				cardsForRerollsOnly.push(cards[i]);
-				shop.handleNewCardSpawnEffects(cards[i]);
+				cardsForRerollsOnly.push(addCard);
+				shop.handleNewCardSpawnEffects(addCard);
 			} else {
-				shop.addCard(cards[i]);
+				shop.addCard(addCard);
 			}
 			i++;
 		}
@@ -197,6 +228,7 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 	for (let depth = 0; depth <= searchDepth; depth++) {
 		if (depth) {
 			for (const c of cardsForRerollsOnly) {
+				// shop.addCard(c); // temp for practice mode before reroll
 				shop.handleNewCardRerollEffects(c);
 			}
 		}
@@ -256,7 +288,51 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 		);
 		cumulativeConfigs = newConfigs;
 	}
-	return <table> {renders} </table>;
+	return (
+		<>
+			{anyError && (
+				<div class="error-background">
+					Card Path Configuration Errors:
+					{startingDishError && (
+						<div>
+							Starting card ({startingDishError.Name}) is not a valid starting
+							dish. Please enter your starting dish (and map setting if running
+							Turbo) as the first card(s)
+						</div>
+					)}
+					{missingCardDays.length && (
+						<div>
+							Missing card{missingCardDays.length > 1 && "s"} for day
+							{missingCardDays.length > 1 && "s"} {missingCardDays.join(", ")}.
+							Please enter your full card path
+						</div>
+					)}
+					{themeDayCardWrong && (
+						<div>
+							Card added for day 5 ({themeDayCardWrong.Name}) is not a theme
+							card. You may have entered your card path in the wrong order, or
+							forgotten to add the Turbo map setting card
+						</div>
+					)}
+					{unexpectedStartingDish && (
+						<div>
+							Added starting dish {unexpectedStartingDish.Name} in the middle of
+							a non-Autumn run. You may have entered your card path in the wrong
+							order or forgotten to include the Community card
+						</div>
+					)}
+					{unexpectedThemeCard && (
+						<div>
+							Added {unexpectedThemeCard.Name}, but not on day 5. You may have
+							entered your card path in the wrong order, or have the wrong map
+							setting card entered.
+						</div>
+					)}
+				</div>
+			)}
+			<table> {renders} </table>
+		</>
+	);
 };
 export const defaultBranchingRerollConfig: SeedConfig = {
 	seed: "az",
@@ -266,7 +342,7 @@ export const defaultBranchingRerollConfig: SeedConfig = {
 	solo: false,
 	appliances: defaultAppliances,
 	searchDepth: 2,
-	simpleBPSettings: false,
+	simpleBPSettings: "full",
 };
 const BranchingRerollPage = () => {
 	const [config, setConfig] = usePersistentState<SeedConfig>(
