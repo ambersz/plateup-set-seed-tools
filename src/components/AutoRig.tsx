@@ -56,7 +56,6 @@ const AutoRig: FunctionComponent<AutoRigProps> = ({}: AutoRigProps) => {
 		"BRANCH_CONFIG",
 		(config: SeedConfig) => {
 			if (typeof config.simpleBPSettings === "boolean") {
-				debugger;
 				return {
 					...config,
 					simpleBPSettings: config.simpleBPSettings ? "insideOnly" : "full",
