@@ -300,7 +300,7 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 							Turbo) as the first card(s)
 						</div>
 					)}
-					{missingCardDays.length && (
+					{!!missingCardDays.length && (
 						<div>
 							Missing card{missingCardDays.length > 1 && "s"} for day
 							{missingCardDays.length > 1 && "s"} {missingCardDays.join(", ")}.
