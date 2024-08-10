@@ -14,6 +14,19 @@ import { FixedSeedContext, RestaurantSystemSeed } from "./prng";
 import { UnlockGroup } from "../../kitchenEnums";
 
 export let fixPRNG = { value: 0 };
+const PLATE_APPLIANCES = [
+	"Sink",
+	"Plates",
+	"Dish Rack",
+	"Dish Washer",
+	"Power Sink",
+	"Soaking Sink",
+	"Auto Plater",
+];
+const PLATE_APPLIANCE_MAP: { [appliance: string]: boolean } = {};
+for (const n of PLATE_APPLIANCES) {
+	PLATE_APPLIANCE_MAP[n] = true;
+}
 
 export type RerollConfig =
 	| {
@@ -205,12 +218,7 @@ export class Shop {
 					if (OwnedAppliances.some((a) => a.ID === app.ID))
 						option.IsRemoved = true;
 				}
-				if (
-					option.Appliance.Name === "Sink" ||
-					option.Appliance.Name === "Plates" ||
-					option.Appliance.Name === "Auto Plater" ||
-					option.Appliance.Name === "Dish Rack"
-				) {
+				if (PLATE_APPLIANCE_MAP[option.Appliance.Name]) {
 					// TODO: if in future updates there are more mains that don't require plates, need to actually export the Dish.IsMainThatDoesNotNeedPlates info. For now just manually handle Tacos as an exception
 					if (cards.every((a) => !a.isMain || a.Name === "Tacos"))
 						option.IsRemoved = true;
