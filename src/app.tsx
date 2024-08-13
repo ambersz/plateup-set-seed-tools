@@ -5,6 +5,9 @@ import { Link, Outlet, Route, Routes } from "react-router-dom";
 import { Navigation } from "./Navigation";
 import Version from "./components/Version";
 import { FunctionalComponent } from "preact";
+import NkroTester from "./explainers/nkroTester";
+import BoardSplit from "./explainers/boardSplit";
+import VerifierTime from "./explainers/verifierTime";
 
 const Empty = Promise.resolve(() => <></>);
 const Table = lazy(() =>
@@ -68,8 +71,11 @@ export function App() {
 			<Route element={<SuspenseWrapper />}>
 				<Route path={import.meta.env.BASE_URL}>
 					<Route index element={<Navigation />} />
+					<Route path="boardSplitNotes.html" element={<BoardSplit />} />
 					{import.meta.env.DEV && (
 						<>
+							<Route path="nkro" element={<NkroTester />} />
+							<Route path="v" element={<VerifierTime />} />
 							<Route path="scratch" element={<Scratch />} />
 							<Route path="test.html" element={<Tests />} />
 							<Route path="shh" element={<Table />} />

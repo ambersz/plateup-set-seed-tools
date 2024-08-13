@@ -27,6 +27,7 @@ export default defineConfig({
 				autoRig: resolve(__dirname, "build-a-rig.html"),
 				seedInfo: resolve(__dirname, "seed-info.html"),
 				randomSeedRerollManip: resolve(__dirname, "randomRerollManip.html"),
+				boardSplit: resolve(__dirname, "boardSplitNotes.html"),
 			},
 		},
 	},
