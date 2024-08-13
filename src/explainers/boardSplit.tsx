@@ -14,14 +14,14 @@ const BoardSplit = () => {
 	return (
 		<>
 			<div>
-				My notes from reading the discussion about the board split, with links
-				to some relevant messages (Please don't use number of links as a proxy
-				for support-- there were many messages saying similar things, I just
-				took a selection). Mostly summary, but keep in mind it also includes
-				some of my own thoughts and may be colored by my interpretations,
-				mis-interpretations, and/or opinions. (Also may be biased in different
-				ways in different sections because reading the discussion changed my
-				opinion halfway through writing this 😅)
+				My notes from reading the discussion about the board split (up to ~8/8),
+				with links to some relevant messages (Please don't use number of links
+				as a proxy for support-- there were many messages saying similar things,
+				I just took a selection). Mostly summary, but keep in mind it also
+				includes some of my own thoughts and may be colored by my
+				interpretations, mis-interpretations, and/or opinions. (Also may be
+				biased in different ways in different sections because reading the
+				discussion changed my opinion halfway through writing this 😅)
 			</div>
 			<br />
 			<table>
@@ -102,6 +102,9 @@ const BoardSplit = () => {
 							{Cite(
 								"https://discord.com/channels/839124832171851786/981256908801454152/1271186528193871895"
 							)}
+							<br />
+							New runs get their own high placements, without detracting from
+							old runs' placements.
 						</td>
 						<td>
 							Visibility of records: (Lean no split) Because old records are not
@@ -112,21 +115,31 @@ const BoardSplit = () => {
 							{Cite(
 								"https://discord.com/channels/839124832171851786/981256908801454152/1270972841621196861"
 							)}
+							<br />
+							New runs feel "forced" to regain spots on the default, high
+							visibility leaderboards.
 						</td>
 						<td>
 							Competition: (Lean no split) A submitted time feels valuable
-							because of the context of runs you are faster/slower than; or
-							because people can <i>try</i> to beat your time, but they haven't
-							succeeded (yet). Splitting the board means no one can even try to
-							beat your pre-split times; the loss of that competition makes
-							existing pre-split records and new submissions feel less valuable
-							because they're on separate leaderboards and cannot be compared
-							against each other (vs. no split, where you have the ability to
-							view only runs on a specific version range using SRC filter
-							controls)
+							because of the context of runs you are faster/slower than (because
+							people can <i>try</i> to beat your time, but they haven't
+							succeeded yet?) Splitting the board means pre-split runs are no
+							longer compared against post-split runs-- loss of that competition
+							potential devalues the pre-split, stale leaderboards.
 							{Cite(
 								"https://discord.com/channels/839124832171851786/981256908801454152/1270908721232478232"
 							)}
+							<br />
+							New runs feel "forced" to re-establish competition(?). New runs
+							feel less valuable because there's less historical context ("I
+							beat X run", "I came X close to beating Y run", etc.)
+						</td>
+						<td>
+							Slight asymmetry here: If no split, can use SRC to view a modified
+							leaderboard for a specific version range, although requires
+							additional viewer knowledge or admin configuration to add helper
+							variables. If split, SRC does not support the ability to view a
+							merged leaderboard.
 						</td>
 					</tr>
 					{/* <tr>
@@ -201,10 +214,13 @@ const BoardSplit = () => {
 							)}
 						</td>
 						<td>
-							Board should only be split when game changes make runs slower, and
-							therefore discouragingly difficult to beat times on versions which
-							are no longer playable. Claw, portioning, etc. changes all make
-							runs faster, so lean no split.
+							Board should only be split when game changes make runs slower:
+							(Lean no split) If it becomes discouragingly difficult to beat
+							times from versions which are no longer playable, then could lose
+							active speedrunning community. Costs and negative side-effects of
+							a board split are only worth to avoid such an outcome. Claw,
+							portioning, etc. changes all expected to make runs faster, so lean
+							no split.
 							{Cite(
 								"https://discord.com/channels/839124832171851786/981256908801454152/1270908721232478232",
 								"https://discord.com/channels/839124832171851786/981256908801454152/1270953726210740274",
@@ -251,6 +267,31 @@ const BoardSplit = () => {
 					</tr>
 				</tbody>
 			</table>
+			<p>
+				My personal takeaways:
+				<ol>
+					<li>
+						SRC sucks. It doesn't fit our needs, and forces us as a community to
+						make hard decisions because SRC's lacks the ability to categorize
+						and display things the way we'd like, and SRC isn't about to take
+						urgent feature requests from us as one random community on their
+						site. But we're stuck with it because (?) <br />
+						The game developer chose it? <br />
+						It's just that common across other games' speedrunning communities?
+						<br /> It'd be very difficult to migrate to and/or build an
+						alternative?
+					</li>
+					<li>
+						Wish I could just vote for "delay decision". Haven't had a chance to
+						play the new version yet. If we vote board split now, the
+						consequences are hard to reverse, but we could always wait for a few
+						weeks/months to allow people (incl. me) with not as much free time
+						to actually play, discover strategies, and still decide to split the
+						board later. It would not be difficult to script a retroactive board
+						split update based on submitted runs' Patch variables...
+					</li>
+				</ol>
+			</p>
 		</>
 	);
 };
