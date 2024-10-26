@@ -63,7 +63,6 @@ var v=Object.defineProperty;var E=(e,s,a)=>s in e?v(e,s,{enumerable:!0,configura
 79859072,Trick - Cowardly Customers,6,,,,,False,False,6,1,0\r
 -2123879305,Trick - Full of Friends,6,,,,,False,False,6,1,0\r
 -1895806374,Trick - Grand Gesture,6,,,,,False,False,6,1,0\r
--1839415999,Trick - Spatial Scares,6,,,,,False,False,6,1,0\r
 -269971294,Trick - Frightful Fluff,6,,,,,False,False,6,1,0\r
 1892828942,Trick - Immortal Impatience,6,,,,,False,False,6,2,0\r
 524188336,Trick - Foggy Food,6,,,,,False,False,6,1,0\r
