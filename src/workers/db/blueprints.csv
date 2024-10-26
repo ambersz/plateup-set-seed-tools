@@ -360,8 +360,14 @@
 -215543585,True,False,Butter,True,False,-215543585,,32,0,0,False,False,20
 -182748008,True,False,Spaghetti,True,False,-182748008,,32,0,0,False,False,20
 509800268,False,False,Dish Source Cabinet,False,False,,,0,0,0,False,False,60
--364231730,False,False,Appliance,False,False,,,0,0,0,False,False,60
--121110359,False,False,Appliance,False,False,,,0,0,0,False,False,60
+1436010410,False,False,,False,False,,,0,0,0,False,False,20
+-400359294,False,False,,False,False,,,0,0,0,False,False,20
+-1082709460,False,False,,False,False,,,0,0,0,False,False,20
+-307800946,False,False,,False,False,,,0,0,0,False,False,20
+2095304286,False,False,,False,False,,,0,0,0,False,False,20
+585649337,False,False,,False,False,,,0,0,0,False,False,20
+-364231730,False,False,,False,False,,,0,0,0,False,False,60
+-121110359,False,False,,False,False,,,0,0,0,False,False,60
 -940358190,True,False,Leftover Bags,False,False,,,8,0,0,False,True,60
 -2070005162,True,False,Clipboard Stand,False,False,,,256,0,0,False,False,60
 745886540,True,False,Taco Trays,True,False,,,32,0,0,False,False,60

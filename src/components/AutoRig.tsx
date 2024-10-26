@@ -32,18 +32,20 @@ const UPGRADE_MAP: { [appName: string]: string[] } = {
 	"Compactor Bin": ["Expanded Bin", "Bin"],
 	"Composter Bin": ["Compactor Bin", "Bin"],
 	"Expanded Bin": ["Composter Bin", "Bin"],
-	// "Metal Table": ["Dining Table"],
-	"Table - Simple Cloth": ["Dining Table"],
-	"Table - Fancy Cloth": import.meta.env.DEV
-		? ["Table - Simple Cloth", "Dining Table", "Bar Table", "Metal Table"]
-		: ["Dining Table"],
-	// "Bar Table": ["Dining Table"],
+	"Metal Table": ["Table - Simple Cloth", "Dining Table"],
+	"Table - Simple Cloth": ["Dining Table", "Bar Table"],
+	"Table - Fancy Cloth":
+		import.meta.env.DEV && false
+			? ["Table - Simple Cloth", "Dining Table", "Bar Table", "Metal Table"]
+			: ["Dining Table"],
+	"Bar Table": ["Dining Table", "Table - Fancy Cloth"],
 	"Power Sink": ["Soaking Sink", "Sink"],
 	"Soaking Sink": ["Sink", "Dish Washer"],
 	"Dish Washer": ["Sink", "Wash Basin"],
 	"Danger Hob": ["Safety Hob", "Hob"],
 	"Safety Hob": ["Hob", "Danger Hob"],
 	Microwave: ["Oven"],
+	// Oven: ["Safety Hob", "Hob", "Danger Hob"],
 	"Robot Mop": ["Fast Mop"],
 	"Robot Buffer": ["Floor Buffer"],
 	"Copying Desk": ["Research Desk", "Discount Desk"],

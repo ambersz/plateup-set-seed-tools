@@ -19,9 +19,7 @@ const BoardSplit = () => {
 				as a proxy for support-- there were many messages saying similar things,
 				I just took a selection). Mostly summary, but keep in mind it also
 				includes some of my own thoughts and may be colored by my
-				interpretations, mis-interpretations, and/or opinions. (Also may be
-				biased in different ways in different sections because reading the
-				discussion changed my opinion halfway through writing this 😅)
+				interpretations, mis-interpretations, and/or opinions.
 			</div>
 			<br />
 			<table>
