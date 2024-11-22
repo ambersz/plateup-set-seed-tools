@@ -57,6 +57,12 @@ const WeeklyRerollsExport = () => {
 	return (
 		<>
 			<div>
+				Designed for use with{" "}
+				<a href="https://docs.google.com/spreadsheets/d/1hlkwDRavJPK4CkXLycuM5_lDkiRbS0H-8Ftf0tSv3lk/edit?gid=0#gid=0&range=B22:I23">
+					Lock's spreadsheet tools
+				</a>
+			</div>
+			<div>
 				<button
 					onClick={() => {
 						let tsv = [
