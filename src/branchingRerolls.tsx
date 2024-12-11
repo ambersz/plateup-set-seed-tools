@@ -42,22 +42,24 @@ function explainRerollConfig(c: RerollConfig[]) {
 	}
 	const lines = res.split("\n");
 	return (
-		<div
-			class="reroll-instructions"
-			onClick={(e) => {
-				if (e.detail < 2) {
-					return;
-				}
-				const range = document.createRange();
-				range.selectNodeContents(e.currentTarget);
-				const sel = document.getSelection();
-				sel?.removeAllRanges();
-				sel?.addRange(range);
-			}}
-		>
-			{lines.map((a) => (
-				<div>{a}</div>
-			))}
+		<div class="tooltip-container">
+			<div
+				class="reroll-instructions"
+				onClick={(e) => {
+					if (e.detail < 2) {
+						return;
+					}
+					const range = document.createRange();
+					range.selectNodeContents(e.currentTarget);
+					const sel = document.getSelection();
+					sel?.removeAllRanges();
+					sel?.addRange(range);
+				}}
+			>
+				{lines.map((a) => (
+					<div>{a}</div>
+				))}
+			</div>
 		</div>
 	);
 }
@@ -257,12 +259,12 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 					}
 					colspan={expansionFactor ** (searchDepth - depth)}
 				>
+					{explainRerollConfig(cumulativeConfigs[i])}
 					<GhostBlueprints
 						bps={roll}
 						// normalCount={blueprintCount}
 						ghostCount={depth === 0 ? 0 : ghostBlueprints}
 					/>
-					{explainRerollConfig(cumulativeConfigs[i])}
 				</td>
 			);
 			const options: RerollConfig[] =

@@ -6,7 +6,7 @@ export function GhostBlueprints({
 	bps: string[];
 }) {
 	return (
-		<>
+		<span class="sticky-reroll-content">
 			{bps.map((bp, i) => {
 				return (
 					<span class={i + ghostCount < bps.length ? "" : "ghost"}>
@@ -14,6 +14,6 @@ export function GhostBlueprints({
 					</span>
 				);
 			})}
-		</>
+		</span>
 	);
 }
