@@ -45,7 +45,7 @@ const Scratch = () => {
 	}, []);
 	return <>{JSON.stringify(result, null, 2)}</>;
 };
-render(<Scratch />, document.getElementById("app")!);
+// render(<Scratch />, document.getElementById("app")!);
 function blackFlower(
 	researchForFreezer: boolean,
 	cookTimePerDish: number,
@@ -788,3 +788,5 @@ function wordNumberSeeds() {
 }
 
 wordNumberSeeds();
+
+export default Scratch;
