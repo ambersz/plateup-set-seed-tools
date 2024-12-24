@@ -43,9 +43,9 @@
 -441525746,True,False,Fireplace,False,False,,,2,4,0,False,False,100
 591400026,True,False,Rug,False,False,,,2,4,0,False,False,40
 -1628995120,True,False,Wall Light,False,False,,,2,4,0,False,False,30
--1380985631,False,False,Banner,False,False,,,8192,0,0,False,False,0
-1797739089,False,False,Christmas Tree,False,False,,,8192,0,0,False,False,0
--4737636,False,False,Fairy Lights,False,False,,,8192,0,0,False,False,0
+-1380985631,True,False,Banner,False,False,,,8192,0,0,False,False,0
+1797739089,True,False,Christmas Tree,False,False,,,8192,0,0,False,False,0
+-4737636,True,False,Fairy Lights,False,False,,,8192,0,0,False,False,0
 -13481890,True,False,Candelabra,False,False,,,2,1,0,False,False,40
 1233091186,True,False,Chandelier,False,False,,,2,1,0,False,False,40
 -1180623135,True,False,Precious Flower,False,False,,,2,1,0,False,False,60
