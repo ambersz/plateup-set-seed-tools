@@ -8,6 +8,8 @@ import { FunctionalComponent } from "preact";
 import NkroTester from "./explainers/nkroTester";
 import BoardSplit from "./explainers/boardSplit";
 import VerifierTime from "./explainers/verifierTime";
+import BagSeedPlanning from "./explainers/bagSeedPlanning";
+import Test from "./branchingSignalTest";
 
 const Empty = Promise.resolve(() => <></>);
 const Table = lazy(() =>
@@ -37,6 +39,7 @@ const TODO = lazy(() => import("./todo"));
 const Tests = lazy(() =>
 	import.meta.env.DEV ? import("./Tests") : Promise.resolve(() => <></>)
 );
+const Dig = lazy(() => import("./components/Dig"));
 const IceCreamActions = lazy(() => import("./explainers/IceCreamActions"));
 const SaveScumCabinetLayouts = lazy(
 	() => import("./explainers/SaveScumCabinetLayouts")
@@ -74,6 +77,8 @@ export function App() {
 					<Route path="boardSplitNotes.html" element={<BoardSplit />} />
 					{import.meta.env.DEV && (
 						<>
+							<Route path="signalTest" element={<Test />} />
+							<Route path="bagSeedPlanning" element={<BagSeedPlanning />} />
 							<Route path="nkro" element={<NkroTester />} />
 							<Route path="v" element={<VerifierTime />} />
 							<Route path="scratch" element={<Scratch />} />
@@ -89,6 +94,7 @@ export function App() {
 						/>
 						<Route path="TODO.html" element={<TODO />} />
 						<Route element={<GameLayout />}>
+							<Route path="dig.html" element={<Dig />} />
 							<Route
 								path="researchProbabilities.html"
 								element={<ResearchProbabilities />}
