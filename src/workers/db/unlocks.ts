@@ -150,12 +150,12 @@ export const SpeedrunRestaurantSettings: Unlock[] = [
 	},
 	Unlocks.filter((a) => a.Name === "Community")[0], // the Autumn Setting gets this card
 	// {
-	// 	ID: -405456638,
-	// 	Name: "Autumn",
-	// 	UnlockGroup: UnlockGroup.Special,
-	// 	Requires: [],
-	// 	BlockedBy: [],
-	// 	RequiredProcesses: [],
+		// 	ID: -405456638,
+		// 	Name: "Autumn",
+		// 	UnlockGroup: UnlockGroup.Special,
+		// 	Requires: [],
+		// 	BlockedBy: [],
+		// 	RequiredProcesses: [],
 	// 	IngredientProviders: [],
 	// 	isMain: false,
 	// 	isStarterOrSide: false,
@@ -189,6 +189,7 @@ export const SpeedrunRestaurantSettings: Unlock[] = [
 		CustomerMultiplier: 0,
 		DishValue: 0,
 	},
+	Unlocks.filter((a) => a.Name === "Christmas Rush")[0],
 ];
 export const RestaurantSettings = [...SpeedrunRestaurantSettings].sort((a, b) =>
 	a.Name < b.Name ? -1 : 1
