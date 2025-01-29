@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-
 export const Navigation = () => {
 	return (
 		<>
@@ -38,6 +37,10 @@ export const Navigation = () => {
 					</li>
 					<li>
 						<Link to="seed-info.html">Group Sizes</Link>
+					</li>
+					<li>
+						<Link to="dig.html">Dig</Link> - Given a day, reroll count, and
+						other restrictions, find specific blueprints of interest
 					</li>
 				</ul>
 			</ul>
