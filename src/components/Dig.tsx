@@ -127,6 +127,11 @@ const Dig = () => {
 		// the maximal blueprints seen on the final roll
 
 		// how many rerolls I can *choose* the settings on (not locked in by restrictions)
+		const turbo = shop.value.Cards.some((a) => a.Name === "Turbo");
+		const spawnNumber = shop.value.getAppliances(
+			[{ spawnInside: true, blueprintCount: turbo ? 7 : 5 }],
+			1
+		).length;
 		const choiceSettings =
 			rerollDepth.value -
 			minInside.value -
@@ -148,7 +153,7 @@ const Dig = () => {
 				0,
 				shop.value
 					.getAppliances(
-						[{ spawnInside: true, blueprintCount: 7 }],
+						[{ spawnInside: true, blueprintCount: turbo ? 7 : 5 }],
 						day.current
 					)
 					.map((a) => a.Name),
@@ -175,8 +180,8 @@ const Dig = () => {
 			currentConfigs.push({
 				spawnInside: true,
 				blueprintCount:
-					7 +
-					(day.current > 1 ? availableFodder.value : 0) -
+					(turbo ? 7 : 5) +
+					availableFodder.value -
 					(rerollDepth.value - 2) * numberOfTargetAppliances.value * 0, // assume you get one useful blueprint per reroll
 			});
 
@@ -184,7 +189,7 @@ const Dig = () => {
 			const maxRerolled = Math.min(
 				maxBlueprints.value || Infinity,
 				linearSum(
-					7 + availableFodder.value,
+					spawnNumber + availableFodder.value,
 					rerollDepth.value - 2,
 					-numberOfTargetAppliances.value * 0
 				) // assume you get one useful blueprint per reroll
@@ -197,7 +202,7 @@ const Dig = () => {
 				rerolledBlueprints >= minRerolled;
 				rerolledBlueprints--
 			) {
-				currentConfigs[0].blueprintCount = rerolledBlueprints + 7;
+				currentConfigs[0].blueprintCount = rerolledBlueprints + spawnNumber;
 				// test target presence
 				const shopBlueprints = shop.value?.getAppliances(
 					currentConfigs,
