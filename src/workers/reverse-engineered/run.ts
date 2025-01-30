@@ -1,6 +1,8 @@
 import { SeedConfig } from "../../SeedConfigForm";
 import { DishType } from "../../kitchenEnums";
 import { Unlock } from "../../kitchenTypes";
+import { InfoByCourse, SimulateCourses } from "../../utils/averageCourses";
+import { average } from "../../utils/utils";
 import { FixedSeedContext, Random, RestaurantSystemSeed } from "./prng";
 // TODO roll Shop and FindNewUnlocks into Run
 export type LayoutProfileName =
@@ -51,32 +53,140 @@ export class Run {
 			return 0;
 		}
 		const currentCards = this.getCardsByDay(day);
-		const repeat =
-			1 +
-			currentCards.filter(
-				(a) => a.Name === "All You Can Eat" || a.Name === "Double Helpings"
-			).length *
-				0.25;
-		const custs = this.getCustomerCount(day) * repeat;
-		let cost = this.startingCards.reduce((a, b) => a + b.DishValue, 0);
-		if (currentCards.some((a) => a.Name === "Ice Cream")) {
-			if (!this.startingCards.some((a) => (a.DishType = DishType.Dessert))) {
-				cost = (cost + 2) / 2;
-			} else {
-				// TODO: handle chance of dessert orders
+		const groups = this.getGroupSizes(day);
+		let AYCE = false;
+		let DH = false;
+		let starterCount = 0;
+		let starterCosts = [];
+		let mainCosts = [];
+		let dessertCount = 0;
+		let dessertCosts = [];
+		let sideCount = 0;
+		let sideCosts = [];
+		for (const c of currentCards) {
+			if (c.Name === "All You Can Eat") AYCE = true;
+			if (c.Name === "Double Helpings") {
+				DH = true;
+			}
+			switch (c.DishType) {
+				case DishType.Dessert:
+					dessertCount++;
+					c.DishValue && dessertCosts.push(c.DishValue);
+					break;
+				case DishType.Starter:
+					c.DishValue && starterCosts.push(c.DishValue);
+					starterCount++;
+					break;
+				case DishType.Side:
+					c.DishValue && sideCosts.push(c.DishValue);
+					sideCount++;
+					break;
+				case DishType.Main:
+				case DishType.Base:
+					if (c.Name === "Tacos") {
+						mainCosts.push(2);
+						mainCosts.push(3);
+					} else {
+						c.DishValue && mainCosts.push(c.DishValue);
+					}
 			}
 		}
-		if (currentCards.some((a) => a.Name === "Doughnut")) cost = 5;
-		if (currentCards.some((a) => a.Name === "Double Helpings") && cost)
-			//
-			cost += 3;
-		if (Number.isNaN(custs)) debugger;
-		if (Number.isNaN(cost)) debugger;
+		let doubleOrderChance = DH ? 0.5 : AYCE ? 0.25 : 0;
+		let costs = [0, 0, 0, 0]; // starter, main, dessert, side
+		costs[0] = average(starterCosts);
+		costs[1] = average(mainCosts);
+		costs[2] = average(dessertCosts);
+		costs[3] = average(sideCosts);
+		if (DH) {
+			// secret double helpings bonus money, doesn't apply to sides
+			for (let i = 0; i < 3; i++) {
+				if (costs[i]) {
+					costs[i] += 3;
+				}
+			}
+		}
+		const [_, orders] = InfoByCourse({
+			starters: starterCount,
+			main: !!costs[1],
+			doubleOrderChance,
+			desserts: dessertCount,
+			sides: sideCount,
+			groupSizes: groups,
+		});
+		let foodMoney = 0;
+		for (let i = 0; i < orders.length; i++) {
+			foodMoney += orders[i] * costs[i];
+		}
 
 		const bonusMoney = getPlayerCountMoneyBonus(this.playerCount);
 		const bookingDeskTimes = this.getBookingDeskCount(day);
 		const bookingDeskMoney = this.getBookingDeskMoney(day);
-		return bonusMoney * (custs * cost + bookingDeskTimes * bookingDeskMoney);
+		return bonusMoney * (foodMoney + bookingDeskTimes * bookingDeskMoney);
+	}
+
+	simulateMoney(day: number): number {
+		if (day === 0) {
+			if (this.turbo) return 30;
+			return 0;
+		}
+		const currentCards = this.getCardsByDay(day);
+		const groups = this.getGroupSizes(day);
+		let AYCE = false;
+		let DH = false;
+		let costs: [number[], number[], number[], number[]] = [[], [], [], []];
+		for (const c of currentCards) {
+			if (c.Name === "All You Can Eat") AYCE = true;
+			if (c.Name === "Double Helpings") {
+				DH = true;
+			}
+			switch (c.DishType) {
+				case DishType.Dessert:
+					c.DishValue && costs[2].push(c.DishValue);
+					break;
+				case DishType.Starter:
+					c.DishValue && costs[0].push(c.DishValue);
+					break;
+				case DishType.Side:
+					c.DishValue && costs[3].push(c.DishValue);
+					break;
+				case DishType.Main:
+				case DishType.Base:
+					if (c.Name === "Tacos") {
+						// TODO AZ: not technically correct if you get more mains since the sim will order this twice as much as expected
+						costs[1].push(2);
+						costs[1].push(3);
+					} else {
+						c.DishValue && costs[1].push(c.DishValue);
+					}
+			}
+		}
+		let doubleOrderChance = DH ? 0.5 : AYCE ? 0.25 : 0;
+		let dishBonusMoney = 0;
+		if (DH) dishBonusMoney += 3;
+		const [_, orders] = SimulateCourses({
+			starters: costs[0].length,
+			main: !!costs[1].length,
+			doubleOrderChance,
+			desserts: costs[2].length,
+			sides: costs[3].length,
+			groupSizes: groups,
+		});
+		let foodMoney = 0;
+		for (let i = 0; i < orders.length; i++) {
+			let count = orders[i];
+			while (count--) {
+				if (i < 3) {
+					// starters, mains, desserts get bonus dish money from double helpings
+					foodMoney += dishBonusMoney;
+				}
+				foodMoney += costs[i][Math.floor(Math.random() * costs[i].length)];
+			}
+		}
+
+		const bonusMoney = getPlayerCountMoneyBonus(this.playerCount);
+		const bookingDeskTimes = this.getBookingDeskCount(day);
+		const bookingDeskMoney = this.getBookingDeskMoney(day);
+		return bonusMoney * (foodMoney + bookingDeskTimes * bookingDeskMoney);
 	}
 	getBookingDeskMoney(day: number) {
 		return Math.ceil((day + 1) / 2) + 2;
