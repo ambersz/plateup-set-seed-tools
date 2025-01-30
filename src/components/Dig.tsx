@@ -206,6 +206,16 @@ const Dig = () => {
 				if (shopBlueprints === undefined) {
 					debugger;
 				}
+				// reduce to blueprints I can actually see
+				const maxOnFinalRoll =
+					Math.floor(
+						rerolledBlueprints / (rerollDepth.value - 2) // maximize blueprints on penultimate roll without using any stocked fodder
+					) +
+					availableFodder.value +
+					blueprintCabs.value;
+				while (shopBlueprints.length > maxOnFinalRoll) {
+					shopBlueprints.pop();
+				}
 				// Is this actually reachable?
 				// previous reroll must have been at least index of first target - number of fodder I can keep in the cabinets
 				let targetIndex = -1;
@@ -277,12 +287,15 @@ const Dig = () => {
 			<div class="search-config">
 				<label>Blueprint Cabs:</label>
 				<input
+					style={{ width: 40 }}
 					value={blueprintCabs}
 					type="number"
 					// @ts-ignore
 					onChange={(e) => (blueprintCabs.value = e.target?.valueAsNumber || 0)}
 				/>
+				<label>Fodder available:</label>
 				<input
+					style={{ width: 40 }}
 					value={availableFodder}
 					type="number"
 					onChange={(e) =>
@@ -321,7 +334,7 @@ const Dig = () => {
 					/>
 				</div>
 				<div>
-					<label>Blueprint bounds</label>
+					<label>Rerolled blueprint bounds</label>
 					<input
 						style={{ width: 40 }}
 						value={minBlueprints}
