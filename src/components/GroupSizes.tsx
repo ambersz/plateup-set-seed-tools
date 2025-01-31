@@ -4,6 +4,41 @@ import { RestaurantSettings } from "../workers/db/unlocks";
 import { Run } from "../workers/reverse-engineered/run";
 import { SeedConfigForm, SeedConfig } from "../SeedConfigForm";
 import { useSignal, useSignalEffect } from "@preact/signals";
+
+const foggySim = (groupSize: number, apples: number) => {
+	let sideChance = 0.25;
+	const MAIN = 0;
+	const SIDE = 1;
+	let orders = [];
+	for (let i = 0; i < groupSize; i++) {
+		orders.push(MAIN);
+		if (Math.random() < sideChance) orders.push(SIDE);
+	}
+	while (orders.includes(SIDE)) {
+		const i = Math.floor(Math.random() * orders.length);
+		orders.splice(i, 1);
+	}
+	if (orders.length === groupSize || orders.length > apples) {
+		// still requesting mains
+		return 1;
+	}
+	return 0;
+};
+const manageFoggySim = () => {
+	let times = 10000;
+	const t = times;
+	let fails: number[] = [0, 0, 0, 0, 0, 0, 0];
+	while (times--) {
+		for (let i = 0; i < fails.length; i++) {
+			fails[i] += foggySim(i + 1, 1);
+		}
+	}
+	fails = fails.map((a) => a / t);
+	fails = fails.map((p) => 1 / (1 - p));
+	console.log({ fails });
+};
+import.meta.env.DEV && manageFoggySim();
+
 const manageSimulation = (run: Run, spentMoney: number[]) => {
 	let times = 10000;
 	const t = times;
@@ -25,8 +60,8 @@ const manageSimulation = (run: Run, spentMoney: number[]) => {
 };
 const simulateBudget = (run: Run, spentMoney: number[]): [number, number] => {
 	let cumulativeMoney = 0;
-	let lowPoint = Infinity;
-	let lowDay = 16;
+	// let lowPoint = Infinity;
+	// let lowDay = 16;
 	for (let i = 0; i <= 15; i++) {
 		// if (i === 7) debugger;
 		const todayMoney = run.simulateMoney(i);
@@ -37,10 +72,10 @@ const simulateBudget = (run: Run, spentMoney: number[]): [number, number] => {
 		cumulativeMoney -= spentMoney[i] ?? 0;
 		if (cumulativeMoney < 0) return [i, cumulativeMoney];
 		// if (i === 4) return [i, cumulativeMoney];
-		if (i > 1 && cumulativeMoney < lowPoint) {
-			lowPoint = cumulativeMoney;
-			lowDay = i;
-		}
+		// if (i > 1 && cumulativeMoney < lowPoint) {
+		// 	lowPoint = cumulativeMoney;
+		// 	lowDay = i;
+		// }
 	}
 	if (Number.isNaN(cumulativeMoney)) {
 		debugger;

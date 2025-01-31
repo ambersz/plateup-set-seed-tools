@@ -4,6 +4,7 @@ import { StateUpdater } from "preact/hooks";
 import Appliances, { Appliance } from "./workers/db/appliances";
 import { Unlock } from "./kitchenTypes";
 import { RerollConfig } from "./workers/reverse-engineered/shop";
+import { Signal } from "@preact/signals";
 
 export const SeedConfigForm = ({
 	onConfigChange,
@@ -18,7 +19,8 @@ export const SeedConfigForm = ({
 		cards,
 		searchDepth,
 		simpleBPSettings = false,
-	} = config;
+		// @ts-ignore
+	} = config.value ?? config;
 
 	const setConfig = <T extends keyof SeedConfig>(
 		key: T,
@@ -77,10 +79,9 @@ export const SeedConfigForm = ({
 								type="number"
 								value={searchDepth}
 								onChange={(e) => {
-									setConfig(
-										"searchDepth",
-										Number((e.target as HTMLInputElement).value)
-									);
+									const target = e.target as HTMLInputElement;
+									const val = target.valueAsNumber;
+									setConfig("searchDepth", Number.isFinite(val) ? val : 1);
 								}}
 							/>
 						</div>
@@ -155,7 +156,7 @@ export const SeedConfigForm = ({
 type SeedConfigFormModes = "rerolls" | "cards";
 export interface SeedConfigFormProps {
 	onConfigChange: StateUpdater<SeedConfig>;
-	config: SeedConfig;
+	config: SeedConfig | Signal<SeedConfig>;
 	mode: SeedConfigFormModes;
 }
 export const defaultAppliances = Appliances.filter(

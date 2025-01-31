@@ -96,7 +96,14 @@ export function InfoByCourse(p: CourseInfoParams): CourseInfoResults {
 }
 
 export function SimulateCourses(p: CourseInfoParams): CourseInfoResults {
-	const { starters, main, doubleOrderChance, desserts, sides, groupSizes } = p;
+	const {
+		starters,
+		main: _, // TODO AZ: handle dessert base dish
+		doubleOrderChance,
+		desserts,
+		sides,
+		groupSizes,
+	} = p;
 
 	// if (InfoByCourseCache[key]) return InfoByCourseCache[key];
 	let courses: [number, number, number] = [0, 0, 0];

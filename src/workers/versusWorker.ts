@@ -2,10 +2,11 @@ import { FindNewUnlocks } from "./reverse-engineered/cards";
 import { Unlock } from "../kitchenTypes";
 import { randomInGameSeed } from "../utils/utils";
 import { LayoutProfileName, Run } from "./reverse-engineered/run";
-const DAYS = [3, 5, 6, 9, 12];
+import { turboDays, days } from "../utils/getCardPaths";
+
 const worker = self as unknown as Worker;
 export interface RequestFormat {
-	type: "strict" | "flex" | "priorityModel";
+	type: "strict" | "flex" | "priorityModel" | "globalDeck";
 	data: {
 		mapSettings: Unlock[];
 		startingDishes: Unlock[];
@@ -22,11 +23,13 @@ export type ResponseFormat = {
 	data: ResponseDataFormat;
 };
 worker.onmessage = (e: MessageEvent<RequestFormat>) => {
-	let searcher: (setup: FindNewUnlocks) => boolean;
+	let searcher: (setup: FindNewUnlocks, DAYS: number[]) => boolean;
 
 	const { allowedTables, startingDishes, mapSettings } = e.data.data;
 	const dishes = [...startingDishes];
 	const unlocks = new FindNewUnlocks("");
+	const turbo = mapSettings.some((a) => a.Name === "Turbo");
+	if (turbo) debugger;
 	for (const s of mapSettings) unlocks.addCard(s);
 	switch (e.data.type) {
 		case "strict":
@@ -60,7 +63,7 @@ worker.onmessage = (e: MessageEvent<RequestFormat>) => {
 		unlocks.seed = s;
 		const i = Math.floor(Math.random() * dishes.length);
 		unlocks.cards = [...mapSettings, dishes[i]];
-		if (searcher(unlocks)) {
+		if (searcher(unlocks, turbo ? turboDays : days)) {
 			sendResult({ seed: s, mapSize, startingDish: dishes[i].Name });
 			dishes.splice(i, 1);
 		}
@@ -75,9 +78,9 @@ function sendMessage(message: ResponseFormat) {
 	postMessage(message);
 }
 
-function strictTest(setup: FindNewUnlocks): boolean {
+function strictTest(setup: FindNewUnlocks, DAYS: number[]): boolean {
 	let queue = [setup.cards];
-	for (let i = 0; i < 5; i++) {
+	for (let i = 0; i < DAYS.length; i++) {
 		const options = new Set();
 		let nextQueue = [];
 		for (const v of queue) {
@@ -93,10 +96,10 @@ function strictTest(setup: FindNewUnlocks): boolean {
 	}
 	return true;
 }
-function flexTest(setup: FindNewUnlocks): boolean {
+function flexTest(setup: FindNewUnlocks, DAYS: number[]): boolean {
 	let queue = [setup.cards];
 	const options = new Set();
-	for (let i = 0; i < 5; i++) {
+	for (let i = 0; i < DAYS.length; i++) {
 		let nextQueue = [];
 		for (const v of queue) {
 			setup.cards = v;
@@ -112,7 +115,7 @@ function flexTest(setup: FindNewUnlocks): boolean {
 	return true;
 }
 
-function dependencyAllowed(setup: FindNewUnlocks): boolean {
+function dependencyAllowed(setup: FindNewUnlocks, DAYS: number[]): boolean {
 	const originalSetupCards = setup.cards;
 	// Given the previous card path, what unlock option combinations are permitted for the next card?
 	// The options shown must be the same across all unlock paths
@@ -120,7 +123,8 @@ function dependencyAllowed(setup: FindNewUnlocks): boolean {
 	// essentially, the given card path should be compatible with a model where (for each day,) all possible cards are ranked globally, then for each partial card path, the first valid option is shown
 
 	let queue = [originalSetupCards];
-	for (let i = 0; i < 5; i++) {
+	let dedupeTotalCards: { [key: string]: boolean } = {};
+	for (let i = 0; i < DAYS.length; i++) {
 		let lrPriorities: [Unlock[][], Unlock[][]] = [[[]], [[]]];
 		let lrSeenCards = [new Set<number>(), new Set<number>()];
 		let lrPathToOpt = [
@@ -137,7 +141,16 @@ function dependencyAllowed(setup: FindNewUnlocks): boolean {
 				// order doesn't matter for the deco themes
 				for (const ind of [0, 1]) {
 					lrSeenCards[0].add(options[ind].ID);
-					newQueue.push([...p, options[ind]]);
+					const cardPath = [...p, options[ind]];
+					const key = cardPath
+						.map((a) => a.ID)
+						.sort((a, b) => a - b)
+						.join(",");
+					if (!dedupeTotalCards[key]) {
+						// might encounter the same cards in a different order, don't want to exponentially explode my work by keeping them all
+						dedupeTotalCards[key] = true;
+						newQueue.push(cardPath);
+					}
 				}
 				if (lrSeenCards[0].size > 2) {
 					return false;
@@ -146,7 +159,17 @@ function dependencyAllowed(setup: FindNewUnlocks): boolean {
 			}
 			for (let lrIndex = 0; lrIndex <= 1; lrIndex++) {
 				const opt = options[lrIndex];
-				newQueue.push([...p, opt]);
+				const cardPath = [...p, opt];
+				const key = cardPath
+					.map((a) => a.ID)
+					.sort((a, b) => a - b)
+					.join(",");
+				if (!dedupeTotalCards[key]) {
+					dedupeTotalCards[key] = true;
+					newQueue.push(cardPath);
+				} else {
+					console.log("prevented dupe path");
+				}
 				// if this card has already been seen, we don't need to add or recheck priorities
 				lrPathToOpt[lrIndex].set(p, opt);
 				if (lrSeenCards[lrIndex].has(opt.ID)) {
@@ -198,11 +221,24 @@ function dependencyAllowed(setup: FindNewUnlocks): boolean {
 	return true;
 }
 
-function autumnDependencyAllowed(setup: FindNewUnlocks): boolean {
+// @ts-ignore
+function singleDeck(setup: FindNewUnlocks): boolean {
+	// instead of constructing acceptable priorities per day, construct a single global deck
+	// the model is:
+	// each day, pick the top two valid cards in the deck. Invalid cards remain in their relative positions
+	// the displayed card which was not chosen by the player is discarded
+	// multiple cards with the same in-game unlock can be in the deck
+	return false;
+}
+
+function autumnDependencyAllowed(
+	setup: FindNewUnlocks,
+	DAYS: number[]
+): boolean {
 	const originalSetupCards = setup.cards;
 	// Similar to dependencyAllowed with the priority model, but because autumn offers two dishes, only uses one priority list
 	let queue = [originalSetupCards];
-	for (let i = 0; i < 5; i++) {
+	for (let i = 0; i < DAYS.length; i++) {
 		let priorities: Unlock[][] = [[]];
 		let seenCardIDs = new Set<number>();
 		let pathToOptionsMap = new Map<Unlock[], [Unlock, Unlock]>();
