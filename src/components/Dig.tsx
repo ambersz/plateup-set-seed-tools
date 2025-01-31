@@ -11,7 +11,7 @@ import { choose } from "../utils/utils";
 import { Unlock } from "../kitchenTypes";
 import { useEffect, useRef } from "preact/hooks";
 import { RestaurantSettings } from "../workers/db/unlocks";
-import { turboDays } from "../utils/getCardPaths";
+import { days, turboDays } from "../utils/getCardPaths";
 import { RerollConfig, Shop } from "../workers/reverse-engineered/shop";
 type Hit = [[number, number, number], number, string[]];
 const emptyInside: RerollConfig = {
@@ -92,7 +92,9 @@ const Dig = () => {
 		for (let j = 0; j < i; j++) {
 			newCards.push(config.cards[j]);
 		}
-		for (const d of turboDays) {
+		const turbo = newCards.some((a) => a.Name === "Turbo"); // newCards currently contains only restaurant settings
+		const dayArray = turbo ? turboDays : days;
+		for (const d of dayArray) {
 			if (d > config.day) {
 				break;
 			}
@@ -113,7 +115,6 @@ const Dig = () => {
 				if (day.current === config.day) return;
 			}
 		}
-		const turbo = newCards.some((a) => a.Name === "Turbo");
 		const newShop = new Shop(config.seed, turbo ? 0.25 : 0);
 		newShop.OwnedAppliances = [...config.appliances];
 		for (let i = 0; i < newCards.length; i++) {

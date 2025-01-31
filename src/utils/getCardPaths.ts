@@ -32,4 +32,4 @@ export function getCardPaths(
 	return queue;
 }
 export const days = [3, 5, 6, 9, 12];
-const turboDays = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 14];
+export const turboDays = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
