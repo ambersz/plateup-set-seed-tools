@@ -15,6 +15,7 @@ import { SeedConfigForm } from "./SeedConfigForm";
 import { defaultAppliances } from "./SeedConfigForm";
 import { SeedConfig } from "./SeedConfigForm";
 import { UnlockGroup } from "./kitchenEnums";
+import { useSignal } from "@preact/signals";
 
 function explainRerollConfig(c: RerollConfig[]) {
 	let res = "";
@@ -131,12 +132,14 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 }: BranchingRerollProps) => {
 	const turbo = cards.some((a) => a.Name === "Turbo");
 	const blueprintCount = turbo ? 7 : 5;
+	const numTiles = useSignal(0);
 	seed = seed.toLocaleLowerCase().trim();
 	const finalRollConfig: RerollConfig = {
 		blueprintCount: blueprintCount + ghostBlueprints,
 		spawnInside: true,
 	};
 	const shop = new Shop(seed, 0);
+	if (numTiles.value) shop.numTiles = numTiles.value;
 	let cardsForRerollsOnly: Unlock[] = [];
 	const days = turbo ? TurboCardDays : NormalCardDays;
 	const missingCardDays: number[] = [];
@@ -292,6 +295,15 @@ const BranchingRerolls: FunctionComponent<BranchingRerollProps> = ({
 	}
 	return (
 		<>
+			<label>Number of indoor tiles (0 to default to normal layout):</label>
+			<input
+				value={numTiles}
+				type="number"
+				onChange={(e) => {
+					// @ts-ignore
+					numTiles.value = e.target.valueAsNumber;
+				}}
+			/>
 			{anyError && (
 				<div class="error-background">
 					Card Path Configuration Errors:

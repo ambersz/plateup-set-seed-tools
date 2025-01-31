@@ -1,4 +1,4 @@
-import { useComputed, useSignal } from "@preact/signals";
+import { useComputed, useSignal, useSignalEffect } from "@preact/signals";
 import { AppliancesComboBox } from "../ApplianceSelect";
 import { Appliance } from "../workers/db/appliances";
 import {
@@ -67,8 +67,17 @@ const Dig = () => {
 		}
 	);
 	const shop = useSignal<Shop>();
+	const numTiles = useSignal(0);
 	const day = useRef<number>(config.day);
 	const rerollDepth = useSignal<number>(config.searchDepth);
+	useSignalEffect(() => {
+		if (!shop.value) return;
+		if (numTiles.value) {
+			shop.value.numTiles = numTiles.value;
+		} else {
+			shop.value.numTiles = shop.value.getLayoutInfo()[1];
+		}
+	});
 	useEffect(() => {
 		rerollDepth.value = config.searchDepth;
 	}, [config]);
@@ -121,6 +130,7 @@ const Dig = () => {
 
 	const hits = useComputed(() => {
 		if (!shop.value) return [];
+		numTiles.value;
 		// output:
 		// if contains the target appliance,
 		// how many of which reroll setting, and how many blueprints needed to be rolled
@@ -366,6 +376,15 @@ const Dig = () => {
 					onConfigChange={setConfig}
 					config={config}
 					mode="rerolls"
+				/>
+				<label>Number of indoor tiles (0 to default to normal layout):</label>
+				<input
+					value={numTiles}
+					type="number"
+					onChange={(e) => {
+						// @ts-ignore
+						numTiles.value = e.target.valueAsNumber;
+					}}
 				/>
 			</div>
 			<div class="search-results">
