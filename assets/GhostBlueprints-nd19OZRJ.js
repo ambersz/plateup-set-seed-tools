@@ -1,1 +1,0 @@
-import{u as r}from"./main-B1BEstpK.js";function o({ghostCount:e=2,bps:n}){return r("span",{class:"sticky-reroll-content",children:n.map((l,t)=>r("span",{class:t+e<n.length?"":"ghost",children:l+(t<n.length-1?", ":"")}))})}export{o as G};
