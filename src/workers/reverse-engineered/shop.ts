@@ -151,8 +151,7 @@ export class Shop {
 		PrimaryTheme: DecorationType,
 		cards: Unlock[]
 	): CShopBuilderOption[] {
-		// BuildShopOptions(bool ownResearchDesk)
-		// {
+		const romanticSetting = cards.some((a) => a.Name === "Couples");
 		let ShopOptions: CShopBuilderOption[] = [];
 		for (const appliance of Appliances) {
 			const flag =
@@ -160,27 +159,24 @@ export class Shop {
 
 			if (!flag) {
 				var option = new CShopBuilderOption(appliance);
+				const name = option.Appliance.Name;
 				if (
 					option.Staple == ShopStapleType.NonStaple ||
 					option.Staple == ShopStapleType.WhenMissing
 				) {
 					// tag staples and staple when missing
-					// TODO AZ: BonusStaples - I think these are only relevant for franchise runs
-					// TODO AZ: Romantic runs now have flower pots as a staple!
+					// TODO AZ: BonusStaples - I think these are only relevant for franchise runs, will manually handle Romantic Flower Pots for now
 					if ((option.Tags & ShoppingTags.Basic) > ShoppingTags.None) {
 						// basic appliances are always staples
 						option.Staple = ShopStapleType.FixedStaple;
 					} else if (option.StapleWhenMissing) {
-						const name = option.Appliance.Name;
 						// staple when missing
 						if (
 							name != "Research Desk" &&
 							name != "Blueprint Cabinet" &&
 							name != "Plates"
 						) {
-							console.log(
-								`Unexpected ${option.Appliance.Name} StapleWhenMissing Appliance`
-							);
+							console.log(`Unexpected ${name} StapleWhenMissing Appliance`);
 						}
 						// if (name == "Research Desk" || name == "Plates") {
 						// 	if (ownResearchDesk) {
@@ -195,6 +191,8 @@ export class Shop {
 							option.Staple = ShopStapleType.WhenMissing;
 						}
 						// }
+					} else if (romanticSetting && name === "Flower Pot") {
+						option.Staple = ShopStapleType.BonusStaple;
 					}
 				}
 				const app = option.Appliance;
@@ -218,7 +216,7 @@ export class Shop {
 					if (OwnedAppliances.some((a) => a.ID === app.ID))
 						option.IsRemoved = true;
 				}
-				if (PLATE_APPLIANCE_MAP[option.Appliance.Name]) {
+				if (PLATE_APPLIANCE_MAP[name]) {
 					// TODO: if in future updates there are more mains that don't require plates, need to actually export the Dish.IsMainThatDoesNotNeedPlates info. For now just manually handle Tacos as an exception
 					if (cards.every((a) => !a.isMain || a.Name === "Tacos"))
 						option.IsRemoved = true;
