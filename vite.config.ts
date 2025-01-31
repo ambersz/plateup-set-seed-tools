@@ -20,6 +20,7 @@ export default defineConfig({
 				todo: resolve(__dirname, "todo.html"),
 				versus: resolve(__dirname, "versus-seeds.html"),
 				cardPaths: resolve(__dirname, "card-paths.html"),
+				dig: resolve(__dirname, "dig.html"),
 				// worker: resolve(__dirname, "workers/seedSearcher.ts"),
 				weeklyExport: resolve(__dirname, "weekly-export.html"),
 				scumming: resolve(__dirname, "scumming.html"),
