@@ -21,6 +21,9 @@ export const Navigation = () => {
 					</Link>{" "}
 					(Limit card choice butterfly effect)
 				</li>
+				<li>
+					<Link to="weekly-export.html">Weekly Speedrun Data Export</Link>
+				</li>
 				<li>Incomplete/very buggy:</li>
 				<ul>
 					<li>
@@ -29,9 +32,7 @@ export const Navigation = () => {
 					<li>
 						<Link to="weekly.html">Weekly Speedrun</Link>
 					</li>
-					<li>
-						<Link to="weekly-export.html">Weekly Speedrun Data Export</Link>
-					</li>
+
 					<li>
 						<Link to="build-a-rig.html">Build-A-Rig?</Link>
 					</li>
