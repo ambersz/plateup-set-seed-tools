@@ -1,1 +1,0 @@
-import{u as r}from"./main-DuVFAb8A.js";function u({ghostCount:s=2,bps:n,highlight:e=!1}){const o=e?e.blueprintCount:0;return r("span",{class:"sticky-reroll-content",children:n.map((l,t)=>r("span",{class:t+s<n.length?"":"ghost",children:[t<o?r("u",{children:l}):l,t<n.length-1?", ":""]}))})}export{u as G};
