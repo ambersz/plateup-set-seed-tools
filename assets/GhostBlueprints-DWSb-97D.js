@@ -1,1 +1,0 @@
-import{u as r}from"./main-CWEgBwrP.js";function h({ghostCount:l=2,bps:n}){return r("span",{class:"sticky-reroll-content",children:n.map((s,t)=>r("span",{class:t+l<n.length?"":"ghost",children:[r("span",{class:`highlight${t+1}`,children:s}),t<n.length-1?", ":""]}))})}export{h as G};
