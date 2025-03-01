@@ -1,0 +1,1 @@
+import{b as r}from"./main-CRiP0NLe.js";function h({ghostCount:s=2,bps:n}){return r("span",{class:"sticky-reroll-content",children:n.map((l,t)=>r("span",{class:t+s<n.length?"":"ghost",children:[r("span",{class:`highlight${t+1}`,children:l}),t<n.length-1?", ":""]}))})}export{h as G};
