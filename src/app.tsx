@@ -5,19 +5,9 @@ import { Link, Outlet, Route, Routes } from "react-router-dom";
 import { Navigation } from "./Navigation";
 import Version from "./components/Version";
 import { FunctionalComponent } from "preact";
-import NkroTester from "./explainers/nkroTester";
 import BoardSplit from "./explainers/boardSplit";
-import VerifierTime from "./explainers/verifierTime";
-import BagSeedPlanning from "./explainers/bagSeedPlanning";
-import Test from "./branchingSignalTest";
 
 const Empty = Promise.resolve(() => <></>);
-const Table = lazy(() =>
-	import.meta.env.DEV ? import("./shh") : Promise.resolve(() => <></>)
-);
-const ExtrasEatingTime = lazy(() =>
-	import.meta.env.DEV ? import("./explainers/extrasEatingTime") : Empty
-);
 const RandomSeedRerollManip = lazy(
 	() => import("./explainers/RandomSeedRerollManip")
 );
@@ -27,6 +17,7 @@ const ResearchProbabilities = lazy(() =>
 const TurboSeedSearcher = lazy(() => import("./seedSearcher"));
 const Versus = lazy(() => import("./versusSeeds"));
 const NormalSeedSearcher = lazy(() => import("./seedSearcherNormal"));
+const SeedSearcherBanquetHall = lazy(() => import("./seedSearcherBanquetHall"));
 const BranchingRerollPage = lazy(() => import("./branchingRerolls"));
 const CardPaths = lazy(() => import("./cardPaths"));
 const WeeklyRerollsExport = lazy(() => import("./weeklyExport"));
@@ -77,14 +68,8 @@ export function App() {
 					<Route path="boardSplitNotes.html" element={<BoardSplit />} />
 					{import.meta.env.DEV && (
 						<>
-							<Route path="signalTest" element={<Test />} />
-							<Route path="bagSeedPlanning" element={<BagSeedPlanning />} />
-							<Route path="nkro" element={<NkroTester />} />
-							<Route path="v" element={<VerifierTime />} />
 							<Route path="scratch" element={<Scratch />} />
 							<Route path="test.html" element={<Tests />} />
-							<Route path="shh" element={<Table />} />
-							<Route path="extras" element={<ExtrasEatingTime />} />
 						</>
 					)}
 					<Route element={<Layout />}>
@@ -109,6 +94,10 @@ export function App() {
 							<Route
 								path="normal-seed-searcher.html"
 								element={<NormalSeedSearcher />}
+							/>
+							<Route
+								path="search-banquet-hall.html"
+								element={<SeedSearcherBanquetHall />}
 							/>
 							<Route
 								path="branching-rerolls.html"

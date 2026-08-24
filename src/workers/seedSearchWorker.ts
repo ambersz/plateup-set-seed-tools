@@ -6,6 +6,7 @@ import Appliances, { Appliance } from "./db/appliances";
 import { ShuffleInPlace, chars, hashCollisionPairMap } from "../utils/utils";
 import { DishType, UnlockGroup } from "../kitchenEnums";
 import { niceRerolls } from "../utils/niceRerolls";
+import { HeatCards } from "./db/heatLevels";
 const CUSTOMER_INCREASING_CARDS = [
 	"Burgers",
 	"Hot Dogs",
@@ -90,9 +91,16 @@ async function search({
 	);
 	// @ts-ignore
 	if (!startingDishes.length) startingDishes.push(undefined);
-	const cardDays = goalCards[0].cards.some((a) => a.Name === "Turbo")
+	const isTurbo = goalCards[0].cards.some((a) => a.Name === "Turbo");
+	const hasHeat2 = goalCards[0].cards.some((a) => a.ID === HeatCards[1].ID);
+	const cardDays = isTurbo
 		? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
-		: [3, 5, 6, 9, 12, 15, 18, 21, 24, 27].slice(0, goalCards.length - 1);
+		: (hasHeat2 ? [2] : []).concat(
+				[3, 5, 6, 9, 12, 15, 18, 21, 24, 27].slice(
+					0,
+					goalCards.length - 1 - (hasHeat2 ? 1 : 0)
+				)
+		  );
 
 	let metric: [number, string[]] = [-Infinity, []];
 	let n = maxSeeds;

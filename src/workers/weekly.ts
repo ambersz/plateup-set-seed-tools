@@ -4,17 +4,10 @@ import { SpeedrunRestaurantSettings, SpeedrunDishes } from "./db/unlocks";
 import { FindNewUnlocks } from "./reverse-engineered/cards";
 import { FixedSeedContext, Random } from "./reverse-engineered/prng";
 
-function getDayOfYear(t: number = Date.now()) {
-	let daysSinceYear = Math.floor(
-		(t - Date.UTC(new Date(t).getUTCFullYear())) / (24 * 60 * 60 * 1000)
-	);
-	return daysSinceYear;
-}
-function getWeekOfYear(t: number | undefined = Date.now()) {
-	let n = getDayOfYear(t) - 1;
-	let n2 = (new Date(t).getUTCDay() - (n % 7) - 1 + 14) % 7;
-	const res = [new Date(t).getUTCFullYear(), Math.floor((n + n2) / 7) + 1];
-	return res;
+const WEEKLY_EPOCH = new Date("2025-01-06").valueOf(); // Monday anchor
+function getWeekOfYear(t: number = Date.now()) {
+	const weeksSinceEpoch = (t - WEEKLY_EPOCH) / 7 / 24 / 60 / 60 / 1000;
+	return [0, Math.floor(weeksSinceEpoch)];
 }
 export function getWeeklyConfig() {
 	const seed = getWeeklySeed();

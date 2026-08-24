@@ -12,6 +12,13 @@ import { usePersistentState } from "./hooks/usePersistentState";
 import SeedSearchResult from "./components/SeedSearchResult";
 import { LayoutProfileName } from "./workers/reverse-engineered/run";
 import { tables } from "./workers/reverse-engineered/run";
+import { getHeatCardsForRun } from "./workers/reverse-engineered/heat";
+import {
+	DefaultHeatLevels,
+	HeatCards,
+	ChillCards,
+	lookupHeatUnlock,
+} from "./workers/db/heatLevels";
 
 const cakes = Unlocks.filter((u) => u.Name === "Cakes")[0];
 
@@ -108,6 +115,10 @@ const SeedSearcher = () => {
 		"SEED_SEARCHER_RESULTS"
 	);
 	const [searching, setSearching] = useState<boolean>(false);
+	const [heatLevel, setHeatLevel] = usePersistentState<number>(
+		0,
+		"SEED_SEARCHER_HEAT_LEVEL"
+	);
 	const [allowedTables, setAllowedTables] = usePersistentState<
 		LayoutProfileName[]
 	>(
@@ -202,11 +213,21 @@ const SeedSearcher = () => {
 				);
 				return;
 			}
+			const heatCards = getHeatCardsForRun(
+				undefined,
+				DefaultHeatLevels,
+				heatLevel,
+				lookupHeatUnlock
+			).cards;
+			const startingCards: GoalCardConfig = {
+				...cardsByDay[0],
+				cards: [...cardsByDay[0].cards, ...heatCards],
+			};
 			sendMessage({
 				type: "start",
 				data: {
 					mapSizes: allowedTables,
-					goalCards: cardsByDay,
+					goalCards: [startingCards, ...cardsByDay.slice(1)],
 					goalAppliances: spawnGoals, // TODO: not supported yet
 				},
 			});
@@ -260,6 +281,26 @@ const SeedSearcher = () => {
 			</div>
 			<div class="search-container">
 				<div class="search-config">
+					<div>
+						<label for="heatLevel">Heat Level: </label>
+						<select
+							id="heatLevel"
+							value={heatLevel}
+							onChange={(e) => {
+								setHeatLevel(Number((e.target as HTMLSelectElement).value));
+							}}
+						>
+							{ChillCards.map((_, i) => (
+								<option value={-(ChillCards.length - i)}>
+									Chill {ChillCards.length - i}
+								</option>
+							))}
+							<option value={0}>None</option>
+							{HeatCards.map((_, i) => (
+								<option value={i + 1}>Heat {i + 1}</option>
+							))}
+						</select>
+					</div>
 					<div style="min-width:fit-content;">
 						<label>Map Layout: </label>
 						{tables.map((n) => {

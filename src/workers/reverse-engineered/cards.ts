@@ -221,7 +221,7 @@ export class FindNewUnlocks {
 	}
 
 	getUnlockOptions(day: number) {
-		const context = RestaurantSystemSeed(848292, day, this.seed);
+		const context = RestaurantSystemSeed(84902921, day, this.seed);
 		const forPack = context.useSubcontext(1);
 		const options = this.unlockPack.GetOptions(this.cards, day, forPack);
 		return options;

@@ -44,7 +44,7 @@
 591400026,True,False,Rug,False,False,,,2,4,0,False,False,40
 -1628995120,True,False,Wall Light,False,False,,,2,4,0,False,False,30
 -1380985631,True,False,Banner,False,False,,,8192,0,0,False,False,0
-1797739089,True,False,Christmas Tree,False,False,,,8192,0,0,False,False,0
+1797739089,False,False,Christmas Tree,False,False,,,8192,0,0,False,False,0
 -4737636,True,False,Fairy Lights,False,False,,,8192,0,0,False,False,0
 -13481890,True,False,Candelabra,False,False,,,2,1,0,False,False,40
 1233091186,True,False,Chandelier,False,False,,,2,1,0,False,False,40
@@ -321,9 +321,9 @@
 1470180731,False,False,Lemon Tree,False,False,,,0,0,0,False,False,60
 -217313684,True,False,Mixing Bowls,False,False,-217313684,,32,0,0,False,False,20
 782648278,False,False,Cauldron,False,False,,1972879238:-1706154991,32,0,0,False,False,60
--1552572658,False,False,Candles,False,False,,,8192,0,0,False,False,0
--119593913,False,False,Pumpkin Stack,False,False,,,8192,0,0,False,False,0
--379172217,False,False,Witch Shelf,False,False,,,8192,0,0,False,False,0
+-1552572658,True,False,Candles,False,False,,,8192,0,0,False,False,0
+-119593913,True,False,Pumpkin Stack,False,False,,,8192,0,0,False,False,0
+-379172217,True,False,Witch Shelf,False,False,,,8192,0,0,False,False,0
 -292467039,False,False,Enchanting Desk,False,False,,,1536,0,0,False,False,40
 -1946127856,False,False,Ghostly Clipboard,False,False,,,0,0,0,False,False,60
 1313278365,False,False,Ghostly Knife,False,False,,,0,0,0,False,False,60
@@ -375,3 +375,77 @@
 -872135723,False,False,,False,False,,,0,0,0,False,False,60
 -1879606524,False,False,,False,False,,,0,0,0,False,False,60
 -26827118,False,False,Upgrade Kit,False,False,,,0,0,0,False,False,60
+286909233,False,False,,False,False,,,0,0,0,False,False,20
+-679488834,False,False,,False,False,,,0,0,0,False,False,20
+1710403104,False,False,,False,False,,,0,0,0,False,False,20
+1710403103,False,False,,False,False,,,0,0,0,False,False,20
+199496276,False,False,,False,False,,,0,0,0,False,False,20
+1076426452,False,False,,False,False,,,0,0,0,False,False,20
+524986663,False,False,Buffet - Heated,False,False,,,8,0,0,False,False,120
+-1228506595,False,False,Buffet - Platter,False,False,,,8,0,0,False,False,120
+-773196462,True,False,Buffet,False,False,,,8,0,0,False,False,120
+638034870,False,False,Service Counter,False,False,,,8,0,0,False,False,60
+1521405905,False,False,Shoddy Counter,False,False,,,1,0,0,False,False,20
+-703157650,False,False,Starter Hob,False,False,,1972879238:-1706154991,32,0,0,False,False,5
+179021494,False,False,Shoddy Oven,False,False,,1972879238:-1706154991,32,0,0,False,False,60
+-951016989,False,False,Shoddy Starter Plates,False,False,,,256,0,0,False,False,20
+307023830,False,False,Starting Shower,False,False,,,17,0,0,False,False,20
+-995798081,False,False,Shoddy Table,False,False,,,1,0,0,False,False,20
+-896355051,False,False,,False,False,,,0,0,0,False,False,20
+295017434,False,False,,False,False,,,0,0,0,False,False,20
+-733956586,False,False,,False,False,,,0,0,0,False,False,20
+973562672,False,False,,False,False,,,0,0,0,False,False,20
+1314289638,False,False,,False,False,,,0,0,0,False,False,20
+-1094202280,False,False,,False,False,,,0,0,0,False,False,20
+1861256409,False,False,,False,False,,,0,0,0,False,False,20
+-1616825935,False,False,,False,False,,,0,0,0,False,False,20
+1127950131,False,False,,False,False,,,0,0,0,False,False,20
+-1304047988,False,False,,False,False,,,0,0,0,False,False,20
+458216451,False,False,,False,False,,,0,0,0,False,False,20
+494894462,False,False,Bay Leaves,False,False,,,0,0,0,False,False,20
+-1383080431,False,False,Mint,False,False,,,0,0,0,False,False,20
+1631244582,False,False,Sage,False,False,,,0,0,0,False,False,20
+239366585,False,False,Cherry Blossom,False,False,,,0,0,0,False,False,20
+-78023961,False,False,Lavender,False,False,,,0,0,0,False,False,20
+269955775,False,False,Rose,False,False,,,0,0,0,False,False,20
+-1677597382,False,False,Viola Flowers,False,False,,,0,0,0,False,False,20
+-2146458011,False,False,Spring Onion,False,False,,,0,0,0,False,False,20
+-1873457825,False,False,Thyme,False,False,,,0,0,0,False,False,20
+1071144288,False,False,Chili,False,False,,,0,0,0,False,False,20
+116617378,False,False,Seed,False,False,,,0,0,0,False,False,20
+444566625,False,False,Chives,False,False,,,0,0,0,False,False,20
+349483235,False,False,Fennel,False,False,,,0,0,0,False,False,20
+-552159415,False,False,Jasmine,False,False,,,0,0,0,False,False,20
+-1848709278,False,False,Oregano,False,False,,,0,0,0,False,False,20
+245231715,False,False,Rosemary,False,False,,,0,0,0,False,False,20
+-395285279,False,False,Tarragon,False,False,,,0,0,0,False,False,20
+1154874054,False,False,,False,False,,,0,0,0,False,False,60
+-1000906413,False,False,,False,False,,,0,0,0,False,False,60
+-1809492459,True,False,Avocado,True,False,,,288,0,0,False,False,60
+-1374072955,True,False,Bell Peppers,True,False,,,288,0,0,False,False,60
+-2137213147,True,False,Frying Pans,True,False,,,288,0,0,False,False,60
+-870467526,True,False,Limes,True,False,,,288,0,0,False,False,60
+825737084,True,False,Chocolate Syrup,True,False,,,288,0,0,False,False,60
+483880621,True,False,Strawberry Syrup,True,False,,,288,0,0,False,False,60
+602693523,True,False,Sundae Glasses,True,False,,,288,0,0,False,False,60
+1872560572,True,False,Strawberries,True,False,,,288,0,0,False,False,60
+-1673135814,True,False,Ham,True,False,,,288,0,0,False,False,60
+-74499940,True,False,Pickle,True,False,,,288,0,0,False,False,60
+1895329114,False,False,,False,False,,,0,0,0,False,False,60
+-1889835507,True,False,Present Stack,False,False,,,8192,0,0,False,False,0
+-380823608,True,False,Tinsel,False,False,,,8192,0,0,False,False,0
+-602487625,True,False,Christmas Tree,False,False,,,8192,0,0,False,False,0
+-302306254,True,False,Wreath,False,False,,,8192,0,0,False,False,0
+-1492497486,False,False,,False,False,,,0,0,0,False,False,60
+-771033261,False,False,,False,False,,,0,0,0,False,False,60
+-1082534766,False,False,,False,False,,,0,0,0,False,False,60
+416689423,False,False,,False,False,,,0,0,0,False,False,60
+1595436560,False,False,,False,False,,,0,0,0,False,False,60
+-1985766917,False,False,,False,False,,,0,0,0,False,False,60
+2029957333,False,False,,False,False,,,0,0,0,False,False,60
+1621490890,False,False,,False,False,,,0,0,0,False,False,60
+708507454,False,False,,False,False,,,0,0,0,False,False,60
+684514756,False,False,,False,False,,,0,0,0,False,False,60
+1178498897,False,False,,False,False,,,0,0,0,False,False,60
+1668340088,False,False,,False,False,,,0,0,0,False,False,60
+-450635801,False,False,,False,False,,,0,0,0,False,False,60

@@ -1,4 +1,5 @@
 import s from "./blueprints.csv?raw";
+import { APPLIANCE_ORDER_IDS } from "./applianceOrder";
 
 export interface Appliance {
 	ID: number;
@@ -54,7 +55,7 @@ const APPLIANCE_PROPERTY_TYPES = [
 // @ts-ignore
 const Appliances: Appliance[] = s
 	.trim()
-	.split("\r\n")
+	.split(/\r\n|\n/)
 	.map((line) => {
 		const l = line.split(",");
 		// @ts-ignore
@@ -84,6 +85,20 @@ const Appliances: Appliance[] = s
 		}
 		return appliance;
 	});
+
+// The shop RNG shuffles this array in place each offer slot (see reverse-engineered/shop.ts), so
+// its starting order matters - it must match the real game's GameData.Main.Get<Appliance>()
+// enumeration, which iterates a C# Dictionary and is therefore not derivable by sorting (ID
+// ascending was tried and made real-seed predictions worse, not better). Sorted here to match the
+// order captured directly from the game via GroundTruthLogger (see applianceOrder.ts).
+const APPLIANCE_ORDER_INDEX = new Map<number, number>(
+	APPLIANCE_ORDER_IDS.map((id, index) => [id, index])
+);
+Appliances.sort(
+	(a, b) =>
+		(APPLIANCE_ORDER_INDEX.get(a.ID) ?? Infinity) -
+		(APPLIANCE_ORDER_INDEX.get(b.ID) ?? Infinity)
+);
 
 export class CShopBuilderOption {
 	Staple: ShopStapleType;

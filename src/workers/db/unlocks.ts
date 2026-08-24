@@ -5,7 +5,7 @@ import startingDishExport from "./startingDishes.csv?raw";
 
 export const Unlocks: Unlock[] = cardExport
 	.trim()
-	.split("\r\n")
+	.split(/\r\n|\n/)
 	.filter((a) => a)
 	.map((line) => {
 		const [
@@ -21,6 +21,9 @@ export const Unlocks: Unlock[] = cardExport
 			DishTypeString,
 			CustomerMultiplierString,
 			DishValueString,
+			isUnlockableString,
+			minimumFranchiseTierString,
+			isSpecificFranchiseTierString,
 		] = line.split(",");
 		const ID = Number(idString);
 		const UnlockGroup = Number(unlockGroupString);
@@ -41,6 +44,9 @@ export const Unlocks: Unlock[] = cardExport
 		const DishType = Number(DishTypeString);
 		const CustomerMultiplier = Number(CustomerMultiplierString);
 		const DishValue = Number(DishValueString);
+		const IsUnlockable = isUnlockableString === "1";
+		const MinimumFranchiseTier = Number(minimumFranchiseTierString);
+		const IsSpecificFranchiseTier = isSpecificFranchiseTierString === "1";
 		return {
 			ID,
 			Name,
@@ -54,6 +60,9 @@ export const Unlocks: Unlock[] = cardExport
 			DishType,
 			CustomerMultiplier,
 			DishValue,
+			IsUnlockable,
+			MinimumFranchiseTier,
+			IsSpecificFranchiseTier,
 		};
 	});
 
@@ -69,6 +78,13 @@ export function getUnblockedCards(
 			return false;
 		if (u.Requires.some((r) => !currentCards.some((c) => c.ID === r)))
 			return false;
+		if (!u.IsUnlockable) return false;
+		// None of our search tools model franchise tier, so tier is always effectively 0.
+		if (u.IsSpecificFranchiseTier) {
+			if (u.MinimumFranchiseTier !== 0) return false;
+		} else if (u.MinimumFranchiseTier > 0) {
+			return false;
+		}
 
 		// If you don't have a main course, you don't get offered starters or sides (only currently relevant to coffee and cakes)
 		// this is enabled even on Autumn-- you only get offered mains until you take one, and only then will you get offered starters and sides
@@ -119,6 +135,9 @@ export const SpeedrunRestaurantSettings: Unlock[] = [
 		DishType: DishType.Null,
 		CustomerMultiplier: 0,
 		DishValue: 0,
+		IsUnlockable: true,
+		MinimumFranchiseTier: 0,
+		IsSpecificFranchiseTier: false,
 	},
 	{
 		ID: 2002876295,
@@ -133,6 +152,9 @@ export const SpeedrunRestaurantSettings: Unlock[] = [
 		DishType: DishType.Null,
 		CustomerMultiplier: 0,
 		DishValue: 0,
+		IsUnlockable: true,
+		MinimumFranchiseTier: 0,
+		IsSpecificFranchiseTier: false,
 	},
 	{
 		ID: -1864906012,
@@ -147,6 +169,9 @@ export const SpeedrunRestaurantSettings: Unlock[] = [
 		DishType: DishType.Null,
 		CustomerMultiplier: 0,
 		DishValue: 0,
+		IsUnlockable: true,
+		MinimumFranchiseTier: 0,
+		IsSpecificFranchiseTier: false,
 	},
 	Unlocks.filter((a) => a.Name === "Community")[0], // the Autumn Setting gets this card
 	// {
@@ -189,8 +214,32 @@ export const SpeedrunRestaurantSettings: Unlock[] = [
 		DishType: DishType.Null,
 		CustomerMultiplier: 0,
 		DishValue: 0,
+		IsUnlockable: true,
+		MinimumFranchiseTier: 0,
+		IsSpecificFranchiseTier: false,
 	},
 	Unlocks.filter((a) => a.Name === "Christmas Rush")[0],
+	{
+		ID: 507410699,
+		// NOTE: "January Setting.asset" doesn't have a plaintext Name field (it's inside
+		// the Odin-serialized blob, which we haven't decoded) - "January" is inferred from
+		// the asset filename convention other settings follow (e.g. "Country", not "Country
+		// Setting"), not read directly. Worth double-checking in-game if this ever misses.
+		Name: "January",
+		UnlockGroup: UnlockGroup.Special,
+		Requires: [],
+		BlockedBy: [],
+		RequiredProcesses: [],
+		IngredientProviders: [],
+		isMain: false,
+		isStarterOrSide: false,
+		DishType: DishType.Null,
+		CustomerMultiplier: 0,
+		DishValue: 0,
+		IsUnlockable: true,
+		MinimumFranchiseTier: 0,
+		IsSpecificFranchiseTier: false,
+	},
 ];
 export const RestaurantSettings = [...SpeedrunRestaurantSettings].sort((a, b) =>
 	a.Name < b.Name ? -1 : 1
@@ -206,11 +255,13 @@ export const SpeedrunDishes = [
 	"Stir Fry",
 	"Pizza",
 	"Turkey",
+	"Fajitas",
+	"Sundaes",
 ].map((name) => Unlocks.filter((a) => a.Name === name)[0]);
 
 export const StartingDishes: Unlock[] = startingDishExport
 	.trim()
-	.split("\r\n")
+	.split(/\r\n|\n/)
 	.filter((a) => a)
 	.map((line) => {
 		const [
@@ -251,6 +302,9 @@ export const StartingDishes: Unlock[] = startingDishExport
 			DishType,
 			CustomerMultiplier,
 			DishValue,
+			IsUnlockable: true,
+			MinimumFranchiseTier: 0,
+			IsSpecificFranchiseTier: false,
 		};
 	})
 	.sort((a, b) => (a.Name < b.Name ? -1 : 1));

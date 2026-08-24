@@ -12,6 +12,13 @@ import { Unlock } from "../../kitchenTypes";
 import { ShuffleInPlace } from "../../utils/utils";
 import { FixedSeedContext, RestaurantSystemSeed } from "./prng";
 import { UnlockGroup } from "../../kitchenEnums";
+import { Season, getRestrictedToSeason, getSeason } from "../db/seasons";
+
+const currentSeason = getSeason();
+function isInSeason(appliance: Appliance): boolean {
+	const restriction = getRestrictedToSeason(appliance.ID);
+	return restriction === Season.Normal || restriction === currentSeason;
+}
 
 export let fixPRNG = { value: 0 };
 const PLATE_APPLIANCES = [
@@ -43,22 +50,41 @@ let upgradesAllowed = 0;
 let upgradesDisallowed = 0;
 let expectedUpgrades = 0;
 const shopSize = Appliances.filter(
-	(appliance) => appliance.IsPurchasable || appliance.IsPurchasableAsUpgrade
+	(appliance) =>
+		(appliance.IsPurchasable || appliance.IsPurchasableAsUpgrade) &&
+		isInSeason(appliance)
 ).length;
 export class Shop {
 	seed: string | number;
 	mapSize: number;
 	numTiles: number;
 	baseUpgradeChance: number;
+	/**
+	 * "Heat" update (Aug 2026): the January setting's RestaurantStatus.JanuaryRedEnvelopes
+	 * status adds a flat +0.2 (compounded, matching HandleNewShop.cs: `num += (1f - num) * 0.2f`)
+	 * to the upgrade chance on top of everything else. This is intentionally a separate flag
+	 * rather than folded into baseUpgradeChance, since several existing callers already pass
+	 * baseUpgradeChance directly (e.g. `turbo ? 0.25 : 0`) and treating this as an additional
+	 * compounded source avoids any risk of double-counting with that existing mechanism.
+	 * NOTE: HandleNewShop.cs also applies a 0.75x shop-cost multiplier when this status is
+	 * active, but this app doesn't model shop prices anywhere currently, so that part is
+	 * left for whenever price modeling is added.
+	 */
+	januaryRedEnvelopes: boolean;
 	OwnedAppliances: Appliance[];
 	Cards: Unlock[];
 	Theme: DecorationType;
 	private cache: Map<number, Appliance[]> = new Map<number, Appliance[]>();
 	private cacheDay: number;
-	constructor(seed: string, baseUpgradeChance = 0) {
+	constructor(
+		seed: string,
+		baseUpgradeChance = 0,
+		januaryRedEnvelopes = false
+	) {
 		this.seed = seed;
 		[this.mapSize, this.numTiles] = this.getLayoutInfo();
 		this.baseUpgradeChance = baseUpgradeChance;
+		this.januaryRedEnvelopes = januaryRedEnvelopes;
 		this.OwnedAppliances = [];
 		// Appliances.filter((a) => a.Name === "Blueprint Cabinet");
 		this.Cards = [];
@@ -103,6 +129,12 @@ export class Shop {
 	handleNewCardSpawnEffects(card?: Unlock) {
 		if (card === undefined) return;
 		if (card.Name === "Turbo") this.baseUpgradeChance = 0.25;
+		// "Heat" update (Aug 2026): EnableStatusByMapType.cs sets RestaurantStatus.
+		// JanuaryRedEnvelopes whenever the active RestaurantSetting is January (ID
+		// 507410699, see unlocks.ts) - it's tied to the setting itself, not a granted
+		// card, so this mirrors that by keying off the same pseudo-card ID the January
+		// setting is represented by in this app's card-entry flow.
+		if (card.ID === 507410699) this.januaryRedEnvelopes = true;
 		if (card.UnlockGroup === UnlockGroup.PrimaryTheme) {
 			// @ts-expect-error
 			this.Theme = DecorationType[card.Name];
@@ -155,7 +187,8 @@ export class Shop {
 		let ShopOptions: CShopBuilderOption[] = [];
 		for (const appliance of Appliances) {
 			const flag =
-				!appliance.IsPurchasable && !appliance.IsPurchasableAsUpgrade;
+				(!appliance.IsPurchasable && !appliance.IsPurchasableAsUpgrade) ||
+				!isInSeason(appliance);
 
 			if (!flag) {
 				var option = new CShopBuilderOption(appliance);
@@ -394,7 +427,12 @@ export class Shop {
 	}
 
 	getUpgradeChance(day: number) {
-		return 1 - (1 - Math.floor(day / 5) * 0.1) * (1 - this.baseUpgradeChance);
+		let chance =
+			1 - (1 - Math.floor(day / 5) * 0.1) * (1 - this.baseUpgradeChance);
+		if (this.januaryRedEnvelopes) {
+			chance = chance + (1 - chance) * 0.2;
+		}
+		return chance;
 	}
 }
 

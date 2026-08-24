@@ -3,7 +3,7 @@ import { DishType, UnlockGroup } from "./kitchenEnums";
 export interface Unlock {
 	ID: number;
 	Name: string;
-	// isUnlockable: boolean;
+	IsUnlockable: boolean;
 	UnlockGroup: UnlockGroup;
 	// SelectionBias: number; // Not used anymore???
 	Requires: number[];
@@ -12,6 +12,8 @@ export interface Unlock {
 	IngredientProviders: number[]; // ID of Appliance
 	CustomerMultiplier: number;
 	DishValue: number;
+	MinimumFranchiseTier: number;
+	IsSpecificFranchiseTier: boolean;
 
 	// Derivative properties that I want to add for filtering convenience
 	isMain: boolean; // true if it's a dish that dish.ProvidesPhase(MenuPhase.Main)

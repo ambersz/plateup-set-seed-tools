@@ -16,6 +16,9 @@ export const Navigation = () => {
 					</Link>
 				</li>
 				<li>
+					<Link to="search-banquet-hall.html">Banquet Hall Seed Searcher</Link>
+				</li>
+				<li>
 					<Link to="versus-seeds.html">
 						Normal/Autumn Versus Seed Generator
 					</Link>{" "}

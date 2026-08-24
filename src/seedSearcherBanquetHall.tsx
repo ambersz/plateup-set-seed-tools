@@ -16,6 +16,12 @@ import {
 	ChillCards,
 	lookupHeatUnlock,
 } from "./workers/db/heatLevels";
+import { Unlocks } from "./workers/db/unlocks";
+
+// Every run on this page is assumed to have the Banquet Dining setting active - it's
+// force-added to the starting cards below rather than being user-selectable, since it
+// isn't in the curated RestaurantSettings list.
+const BanquetDiningCard = Unlocks.filter((a) => a.Name === "Banquet Dining")[0];
 
 const seedSearchWorkers: Worker[] = [];
 const multithreading = 1;
@@ -41,30 +47,30 @@ for (let i = 0; i < 12; i++) {
 	});
 }
 
-const SeedSearcher = () => {
+const SeedSearcherBanquetHall = () => {
 	const [count, setCount] = useState<string | number>(0);
 	const [ot15, setOT15] = usePersistentState<boolean>(
 		false,
-		"SEED_SEARCHER_NORMAL_OT15"
+		"SEED_SEARCHER_BANQUET_HALL_OT15"
 	);
 	const [heatLevel, setHeatLevel] = usePersistentState<number>(
 		0,
-		"SEED_SEARCHER_NORMAL_HEAT_LEVEL"
+		"SEED_SEARCHER_BANQUET_HALL_HEAT_LEVEL"
 	);
 	const [heat2Card, setHeat2Card] = usePersistentState<GoalCardConfig>(
 		{ include: true, cards: [] },
-		"SEED_SEARCHER_NORMAL_HEAT2_CARD"
+		"SEED_SEARCHER_BANQUET_HALL_HEAT2_CARD"
 	);
 	const [results, setResults] = usePersistentState<ResultData[]>(
 		[],
-		"SEED_SEARCHER_NORMAL_RESULTS"
+		"SEED_SEARCHER_BANQUET_HALL_RESULTS"
 	);
 	const [searching, setSearching] = useState<boolean>(false);
 	const [allowedTables, setAllowedTables] = usePersistentState<
 		LayoutProfileName[]
 	>(
 		["Diner (1)", "Small (2)", "Medium (2)", "Large (3)", "Huge (4)"],
-		"SEED_SEARCHER_NORMAL_ALLOWED_TABLES",
+		"SEED_SEARCHER_BANQUET_HALL_ALLOWED_TABLES",
 		(oldState) => {
 			return oldState.flatMap((state) => {
 				if (typeof state === "number") {
@@ -164,7 +170,7 @@ const SeedSearcher = () => {
 			).cards;
 			const startingCards: GoalCardConfig = {
 				...cardsByDay[0],
-				cards: [...cardsByDay[0].cards, ...heatCards],
+				cards: [...cardsByDay[0].cards, BanquetDiningCard, ...heatCards],
 			};
 			sendMessage({
 				type: "start",
@@ -183,7 +189,7 @@ const SeedSearcher = () => {
 	};
 	const [cardsByDay, setCardsByDay] = usePersistentState(
 		defaultCardsByDay,
-		"SEED_SEARCHER_NORMAL_CARDS_BY_DAY"
+		"SEED_SEARCHER_BANQUET_HALL_CARDS_BY_DAY"
 	);
 	const handleCardSelectionChange = (dayIndex: number) => {
 		return (newSelection: GoalCardConfig) => {
@@ -213,6 +219,7 @@ const SeedSearcher = () => {
 	return (
 		<div class="search-container">
 			<div class="search-config">
+				<div>Every run on this page assumes Banquet Dining is active.</div>
 				<div>
 					<label for="ot15">Search until OT15</label>
 					<input
@@ -341,4 +348,4 @@ const spawnGoals = import.meta.env.DEV
 	  ]
 	: [];
 
-export default SeedSearcher;
+export default SeedSearcherBanquetHall;

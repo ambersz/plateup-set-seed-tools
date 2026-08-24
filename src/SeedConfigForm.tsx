@@ -136,7 +136,7 @@ export const SeedConfigForm = ({
 					showSelectionMode={false}
 					cards={cards}
 					include={true}
-					modes={["themes", "settings", "dishes", "customerCards"]}
+					modes={["themes", "settings", "dishes", "customerCards", "heat"]}
 				/>
 				{mode === "rerolls" && (
 					<AppliancesComboBox

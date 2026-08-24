@@ -3,11 +3,15 @@ import {
 	StartingDishes,
 	Unlocks,
 } from "./workers/db/unlocks";
+import { HeatCards, ChillCards } from "./workers/db/heatLevels";
 import { useState, useMemo } from "preact/hooks";
 import { Unlock } from "./kitchenTypes";
 import { useMultipleSelection, useCombobox } from "downshift/preact"; // if this is giving typescript errors, copy the type file from `node_modules\downshift\typings\index.d.ts` to `node_modules\downshift\preact\index.d.ts`
 import { GoalCardConfig } from "./workers/seedSearchWorker";
 import { UnlockGroup } from "./kitchenEnums";
+// Kept in Heat 1 -> 15, Chill 1 -> 3 order rather than alphabetised - with only 18
+// entries it's more useful to browse by level than by name.
+const heatChillCards: Unlock[] = [...HeatCards, ...ChillCards];
 const dishes = Unlocks.filter((a) => a.UnlockGroup === UnlockGroup.Dish).sort(
 	(a, b) => (a.Name < b.Name ? -1 : 1)
 );
@@ -70,6 +74,9 @@ function getFilteredCards(
 			case "franchise":
 				options = [...options, ...franchiseCards];
 				break;
+			case "heat":
+				options = [...options, ...heatChillCards];
+				break;
 		}
 	}
 	let matchLevels: [Unlock, number][] = [];
@@ -119,7 +126,8 @@ type UnlocksComboBoxMode =
 	| "themes"
 	| "dishes"
 	| "franchise"
-	| "customerCards";
+	| "customerCards"
+	| "heat";
 const defaultModes: UnlocksComboBoxMode[] = ["unlocks"];
 const noop = () => {};
 export function UnlocksComboBox({
